@@ -1,43 +1,20 @@
 <template>
   <!-- Vue Component: FinanceTable -->
   <div class="min-h-screen bg-gray-50">
-    <!-- Header Mobile -->
-    <header class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between items-center h-16">
-          <div class="flex items-center">
-            <h1 class="text-xl font-bold text-gray-900">💰 FinanceApp</h1>
-          </div>
-          <div class="flex items-center space-x-2">
-            <span :class="saldoFinal < 0 ? 'text-red-600' : 'text-green-600'" 
-                  class="text-sm font-semibold hidden sm:block">
-              {{ saldoFinal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) }}
-            </span>
-            <button class="p-2 text-gray-400 hover:text-gray-600 lg:hidden">
-              <i class="fas fa-bars"></i>
-            </button>
-          </div>
-        </div>
-      </div>
-    </header>
-
-    <!-- Container Principal -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 space-y-6">
-
-      <!-- Card Saldo Mobile -->
-      <div class="bg-gradient-to-r from-blue-500 to-purple-600 rounded-2xl p-6 text-white shadow-lg sm:hidden">
-        <div class="flex items-center justify-between">
-          <div>
-            <p class="text-blue-100 text-sm font-medium">Saldo Atual</p>
-            <p :class="saldoFinal < 0 ? 'text-red-200' : 'text-white'" 
-               class="text-3xl font-bold">
-              {{ saldoFinal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) }}
-            </p>
-          </div>
-          <div class="text-right">
-            <p class="text-blue-100 text-sm">{{ data.length }}</p>
-            <p class="text-blue-100 text-xs">registros</p>
-          </div>
+    <!-- Main Content -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+      
+      <!-- Saldo Mobile Card -->
+      <div class="lg:hidden bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+        <div class="text-center">
+          <h2 class="text-lg font-semibold text-gray-900 mb-2">Saldo Atual</h2>
+          <p :class="saldoFinal < 0 ? 'text-red-600' : 'text-green-600'" 
+             class="text-3xl font-bold">
+            {{ saldoFinal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) }}
+          </p>
+          <p class="text-sm text-gray-600 mt-2">
+            {{ data.length }} transações registradas
+          </p>
         </div>
       </div>
 

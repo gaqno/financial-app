@@ -1,7 +1,7 @@
 <template>
-  <FinanceTable />
+  <FinanceApp />
 </template>
 
 <script setup lang="ts">
-import FinanceTable from './components/FinanceTable.vue';
+import FinanceApp from './components/FinanceApp.vue';
 </script> 
