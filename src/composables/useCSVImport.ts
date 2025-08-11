@@ -1,243 +1,371 @@
 import { ref } from 'vue';
+import { financeRecordSchema } from '../types/finance';
 import type { IFinanceRecord } from '../types/finance';
-import { useCategoryDetection } from './useCategoryDetection';
 
 export function useCSVImport() {
   const isImporting = ref(false);
-  const importError = ref<string | null>(null);
-  const importSuccess = ref<string | null>(null);
-  const { detectCategory } = useCategoryDetection();
+  const importError = ref<string>('');
+  const importSuccess = ref<string>('');
 
-  function parseCSVLine(line: string): string[] {
-    const result: string[] = [];
-    let current = '';
-    let inQuotes = false;
-    
+  const clearMessages = () => {
+    importError.value = '';
+    importSuccess.value = '';
+  };
+
+  const parseCSVLine = (line: string): string[] => {
+    const values: string[] = [];
+    let currentValue = '';
+    let insideQuotes = false;
+
     for (let i = 0; i < line.length; i++) {
       const char = line[i];
-      
+
       if (char === '"') {
-        inQuotes = !inQuotes;
-      } else if (char === ',' && !inQuotes) {
-        result.push(current.trim());
-        current = '';
+        insideQuotes = !insideQuotes;
+      } else if (char === ',' && !insideQuotes) {
+        values.push(currentValue.trim());
+        currentValue = '';
       } else {
-        current += char;
+        currentValue += char;
       }
     }
-    
-    result.push(current.trim());
-    return result;
-  }
 
-  function parseValue(valueString: string): number {
-    // Remove "R$", espaços e trata valores negativos
-    let cleanValue = valueString.trim();
-    
-    // Remove prefixo de moeda
-    cleanValue = cleanValue.replace(/R\$\s*/g, '');
-    
-    // Trata valores negativos que podem estar como "-R$ 100,00" ou "R$ -100,00"
-    const isNegative = cleanValue.includes('-');
-    cleanValue = cleanValue.replace('-', '');
-    
-    // Remove pontos de milhares e substitui vírgula por ponto decimal
-    cleanValue = cleanValue.replace(/\./g, '').replace(',', '.');
-    
-    const numValue = parseFloat(cleanValue);
-    return isNegative ? -Math.abs(numValue) : numValue;
-  }
+    values.push(currentValue.trim());
+    return values.map(value => value.replace(/^"|"$/g, '').trim());
+  };
 
-  function normalizeDate(dateString: string): string {
-    const date = dateString.trim();
-    
-    // Se já está no formato YYYY-MM-DD, mantém
-    if (date.match(/^\d{4}-\d{2}-\d{2}$/)) {
-      return date;
+  const parseDate = (dateStr: string): string => {
+    // Handle different date formats
+    const formats = [
+      { regex: /^(\d{1,2})\/(\d{1,2})$/, format: (d: string[], y = new Date().getFullYear()) => `${y}-${d[2].padStart(2, '0')}-${d[1].padStart(2, '0')}` },
+      { regex: /^(\d{4})-(\d{1,2})-(\d{1,2})$/, format: (d: string[]) => `${d[1]}-${d[2].padStart(2, '0')}-${d[3].padStart(2, '0')}` },
+      { regex: /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/, format: (d: string[]) => `${d[3]}-${d[2].padStart(2, '0')}-${d[1].padStart(2, '0')}` }
+    ];
+
+    for (const { regex, format } of formats) {
+      const match = dateStr.match(regex);
+      if (match) {
+        return format(match);
+      }
     }
-    
-    // Se está no formato DD/MM ou DD/MM/YYYY
-    if (date.match(/^\d{1,2}\/\d{1,2}(\/\d{4})?$/)) {
-      const parts = date.split('/');
-      const day = parts[0].padStart(2, '0');
-      const month = parts[1].padStart(2, '0');
-      const year = parts[2] || new Date().getFullYear().toString();
-      return `${year}-${month}-${day}`;
-    }
-    
-    return date; // Retorna como está se não conseguir converter
-  }
 
-  function validateRecord(record: any, lineNumber: number): IFinanceRecord | null {
+    throw new Error(`Data inválida: ${dateStr}`);
+  };
+
+  const parseValue = (valueStr: string): number => {
+    // Handle different value formats including negative values with R$ prefix
+    let cleanValue = valueStr.trim();
+
+    // Handle negative values that start with -R$
+    const isNegative = cleanValue.startsWith('-');
+    if (isNegative) {
+      cleanValue = cleanValue.substring(1);
+    }
+
+    // Remove currency symbols and spaces
+    cleanValue = cleanValue
+      .replace(/[R$\s]/g, '')
+      .replace(/\./g, '')  // Remove thousands separator
+      .replace(',', '.');  // Replace decimal comma with dot
+
+    const value = Number(cleanValue);
+    if (isNaN(value)) {
+      throw new Error(`Valor inválido: ${valueStr}`);
+    }
+
+    return isNegative ? -Math.abs(value) : value;
+  };
+
+  const normalizeStatus = (statusValue: string): '❌' | '✔️' => {
+    const normalized = statusValue.trim().toLowerCase();
+
+    // Handle different status formats
+    switch (normalized) {
+      case 's':
+      case 'sim':
+      case 'yes':
+      case 'y':
+      case '✔️':
+      case 'confirmado':
+      case 'pago':
+        return '✔️';
+      case 'n':
+      case 'não':
+      case 'nao':
+      case 'no':
+      case '❌':
+      case 'pendente':
+      case 'não pago':
+        return '❌';
+      default:
+        return '❌'; // Default to pending
+    }
+  };
+
+  const detectTypeFromValue = (value: number): 'Receita' | 'Despesa' => {
+    return value >= 0 ? 'Receita' : 'Despesa';
+  };
+
+  const validateHeaders = (headers: string[]): boolean => {
+    // More flexible header validation - check for essential columns
+    const normalizedHeaders = headers.map(h => h.toLowerCase().trim());
+
+    const hasDate = normalizedHeaders.some(h =>
+      h.includes('data') || h === 'date'
+    );
+
+    const hasDescription = normalizedHeaders.some(h =>
+      h.includes('descrição') || h.includes('descricao') || h === 'description'
+    );
+
+    const hasValue = normalizedHeaders.some(h =>
+      h.includes('valor') || h === 'value' || h === 'amount'
+    );
+
+    return hasDate && hasDescription && hasValue;
+  };
+
+  const mapColumnName = (header: string): string => {
+    const normalized = header.toLowerCase().trim();
+
+    const mappings: Record<string, string> = {
+      'data': 'data',
+      'date': 'data',
+      'descrição': 'descrição',
+      'descricao': 'descrição',
+      'description': 'descrição',
+      'valor': 'valor',
+      'value': 'valor',
+      'amount': 'valor',
+      'tipo': 'tipo',
+      'type': 'tipo',
+      'status': 'status',
+      'categoria': 'categoria',
+      'category': 'categoria',
+      'recorrente': 'status', // Map Recorrente to Status
+      'dia util': 'ignore', // Ignore Dia Util column
+      'dia útil': 'ignore', // Ignore Dia Útil column
+      'dia_util': 'ignore', // Alternative format
+      'dia_útil': 'ignore', // Alternative format
+    };
+
+    return mappings[normalized] || normalized;
+  };
+
+  const importCSV = async (file: File, onImport: (records: Omit<IFinanceRecord, 'Saldo'>[]) => void) => {
+    isImporting.value = true;
+    clearMessages();
+
     try {
-      // Validar campos obrigatórios
-      if (!record.Data || !record.Descrição || record.Valor === undefined) {
-        throw new Error(`Linha ${lineNumber}: Campos obrigatórios em falta (Data, Descrição, Valor)`);
+      const content = await file.text();
+      const lines = content.split(/\r?\n/).filter(line => line.trim());
+
+      if (lines.length < 2) {
+        throw new Error('Arquivo CSV vazio ou inválido');
       }
 
-      // Validar tipo
-      if (!['Receita', 'Despesa'].includes(record.Tipo)) {
-        throw new Error(`Linha ${lineNumber}: Tipo deve ser 'Receita' ou 'Despesa'`);
+      const headers = parseCSVLine(lines[0]);
+      if (!validateHeaders(headers)) {
+        throw new Error('Cabeçalhos essenciais não encontrados (Data, Descrição, Valor)');
       }
 
-      // Validar status
-      if (!['❌', '✔️'].includes(record.Status)) {
-        throw new Error(`Linha ${lineNumber}: Status deve ser '❌' ou '✔️'`);
-      }
+      const records: Omit<IFinanceRecord, 'Saldo'>[] = [];
+      const mappedHeaders = headers.map(mapColumnName);
 
-      // Converter valor (suporta formato brasileiro)
-      let valor: number;
-      try {
-        valor = typeof record.Valor === 'string' 
-          ? parseValue(record.Valor)
-          : Number(record.Valor);
-      } catch {
-        throw new Error(`Linha ${lineNumber}: Valor deve ser um número válido`);
-      }
+      for (let i = 1; i < lines.length; i++) {
+        const values = parseCSVLine(lines[i]);
+        if (values.length !== headers.length) continue;
 
-      if (isNaN(valor)) {
-        throw new Error(`Linha ${lineNumber}: Valor deve ser um número válido`);
-      }
+        const record: Partial<IFinanceRecord> = {};
+        let isRecurring = false;
 
-      // Normalizar data
-      const dataNormalizada = normalizeDate(record.Data);
+        // Process each column
+        for (let j = 0; j < headers.length; j++) {
+          const mappedHeader = mappedHeaders[j];
+          const value = values[j];
 
-      // Detectar categoria automaticamente se não estiver preenchida
-      const categoriaOriginal = record.Categoria?.trim() || '';
-      const categoriaDetectada = categoriaOriginal || detectCategory(record.Descrição);
+          if (!value || value.trim() === '' || mappedHeader === 'ignore') continue;
 
-      return {
-        Data: dataNormalizada,
-        Descrição: record.Descrição.trim(),
-        Valor: valor,
-        Tipo: record.Tipo as 'Receita' | 'Despesa',
-        Categoria: categoriaDetectada,
-        Status: record.Status as '❌' | '✔️',
-        Saldo: 0 // Será recalculado
-      };
-    } catch (error) {
-      throw error;
-    }
-  }
-
-  async function parseCSV(file: File): Promise<Omit<IFinanceRecord, 'Saldo'>[]> {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      
-      reader.onload = (e) => {
-        try {
-          const text = e.target?.result as string;
-          const lines = text.split('\n').filter(line => line.trim());
-          
-          if (lines.length < 2) {
-            throw new Error('Arquivo CSV deve conter pelo menos um cabeçalho e uma linha de dados');
-          }
-
-          // Parse header
-          const headers = parseCSVLine(lines[0]).map(h => h.replace(/"/g, ''));
-          const requiredHeaders = ['Data', 'Descrição', 'Valor', 'Tipo', 'Status'];
-          
-          for (const required of requiredHeaders) {
-            if (!headers.includes(required)) {
-              throw new Error(`Cabeçalho obrigatório não encontrado: ${required}`);
-            }
-          }
-
-          // Ignorar coluna "Saldo" se presente (será recalculada automaticamente)
-          const validHeaders = headers.filter(h => h !== 'Saldo');
-
-          const records: Omit<IFinanceRecord, 'Saldo'>[] = [];
-
-          // Parse data lines
-          for (let i = 1; i < lines.length; i++) {
-            const values = parseCSVLine(lines[i]).map(v => v.replace(/"/g, ''));
-            
-            if (values.length !== headers.length) {
-              console.warn(`Linha ${i + 1}: Número de colunas não corresponde ao cabeçalho`);
-              continue;
-            }
-
-            const record: any = {};
-            headers.forEach((header, index) => {
-              // Ignora a coluna Saldo se presente
-              if (header !== 'Saldo') {
-                record[header] = values[index];
+          switch (mappedHeader) {
+            case 'data':
+              try {
+                record.Data = parseDate(value);
+              } catch (error) {
+                console.warn(`Data inválida na linha ${i + 1}: ${value}`);
+                record.Data = new Date().toISOString().split('T')[0]; // Use current date as fallback
               }
-            });
+              break;
+            case 'descrição':
+              record.Descrição = value;
+              break;
+            case 'valor':
+              try {
+                const parsedValue = parseValue(value);
+                record.Valor = Math.abs(parsedValue); // Store absolute value
 
-            try {
-              const validatedRecord = validateRecord(record, i + 1);
-              if (validatedRecord) {
-                const { Saldo, ...recordWithoutSaldo } = validatedRecord;
-                records.push(recordWithoutSaldo);
+                // Determine type from original value sign
+                if (!record.Tipo) {
+                  record.Tipo = detectTypeFromValue(parsedValue);
+                }
+              } catch (error) {
+                throw new Error(`Valor inválido na linha ${i + 1}: ${value}`);
               }
-            } catch (error) {
-              console.warn(`Erro na linha ${i + 1}:`, error);
-              // Continua processando outras linhas mesmo se uma falhar
-            }
-          }
+              break;
+            case 'tipo':
+              if (['Receita', 'Despesa'].includes(value)) {
+                record.Tipo = value as 'Receita' | 'Despesa';
+              }
+              break;
+            case 'status':
+              const normalizedStatus = normalizeStatus(value);
+              record.Status = normalizedStatus;
 
-          resolve(records);
-        } catch (error) {
-          reject(error);
+              // Check if this indicates recurrence (S = recurring)
+              if (value.toLowerCase().trim() === 's') {
+                isRecurring = true;
+              }
+              break;
+            case 'categoria':
+              // Only set category if it's not a numeric value and not S/N
+              if (value && value !== 'N' && value !== 'S' && isNaN(Number(value))) {
+                record.Categoria = value;
+              }
+              break;
+          }
         }
-      };
 
-      reader.onerror = () => {
-        reject(new Error('Erro ao ler o arquivo'));
-      };
+        // Ensure required fields are present
+        if (!record.Data || !record.Descrição || record.Valor === undefined) {
+          console.warn(`Linha ${i + 1}: Campos obrigatórios em falta, pulando registro`);
+          continue;
+        }
 
-      reader.readAsText(file, 'UTF-8');
-    });
-  }
+        // Set defaults for missing fields
+        if (!record.Tipo) {
+          record.Tipo = 'Despesa'; // Default to expense if not specified
+        }
+        if (!record.Status) {
+          record.Status = '❌'; // Default to pending
+        }
 
-  async function importCSV(file: File, onImport: (records: Omit<IFinanceRecord, 'Saldo'>[]) => void) {
-    try {
-      isImporting.value = true;
-      importError.value = null;
-      importSuccess.value = null;
+        // Adjust value sign based on type
+        if (record.Tipo === 'Despesa' && record.Valor > 0) {
+          record.Valor = -record.Valor;
+        } else if (record.Tipo === 'Receita' && record.Valor < 0) {
+          record.Valor = Math.abs(record.Valor);
+        }
 
-      const records = await parseCSV(file);
-      
+        // Add recurrence information if marked as recurring
+        if (isRecurring) {
+          const endDate = new Date(record.Data);
+          endDate.setFullYear(endDate.getFullYear() + 1);
+
+          record.recurrence = {
+            frequency: 'mensal',
+            endDate: endDate.toISOString().split('T')[0],
+            isActive: true,
+          };
+        }
+
+        try {
+          financeRecordSchema.parse(record);
+
+          // If recurring, generate all occurrences
+          if (isRecurring && record.recurrence) {
+            const recurringRecords = generateRecurringRecordsFromImport(record as Omit<IFinanceRecord, 'Saldo'>);
+            records.push(...recurringRecords);
+          } else {
+            records.push(record as Omit<IFinanceRecord, 'Saldo'>);
+          }
+        } catch (error) {
+          console.warn(`Registro inválido na linha ${i + 1}:`, error);
+          continue; // Skip invalid records instead of failing completely
+        }
+      }
+
       if (records.length === 0) {
         throw new Error('Nenhum registro válido encontrado no arquivo');
       }
 
       onImport(records);
       importSuccess.value = `${records.length} registros importados com sucesso!`;
-      
     } catch (error) {
-      importError.value = error instanceof Error ? error.message : 'Erro desconhecido na importação';
+      importError.value = error instanceof Error ? error.message : 'Erro ao importar arquivo';
     } finally {
       isImporting.value = false;
     }
+  };
+
+  // Helper function to generate recurring records during import
+  function generateRecurringRecordsFromImport(baseRecord: Omit<IFinanceRecord, 'Saldo'>): Omit<IFinanceRecord, 'Saldo'>[] {
+    if (!baseRecord.recurrence) return [baseRecord];
+
+    const records: Omit<IFinanceRecord, 'Saldo'>[] = [baseRecord];
+    let currentDate = baseRecord.Data;
+    const endDate = new Date(baseRecord.recurrence.endDate);
+    let occurrenceCount = 1;
+    const maxOccurrences = 12;
+
+    while (occurrenceCount < maxOccurrences) {
+      const nextDate = new Date(currentDate);
+      nextDate.setMonth(nextDate.getMonth() + 1); // Monthly recurrence
+      currentDate = nextDate.toISOString().split('T')[0];
+
+      // Stop only if we've reached the end date
+      if (nextDate > endDate) break;
+
+      const recurringRecord: Omit<IFinanceRecord, 'Saldo'> = {
+        ...baseRecord,
+        Data: currentDate,
+        recurrence: {
+          ...baseRecord.recurrence,
+        },
+      };
+
+      records.push(recurringRecord);
+      occurrenceCount++;
+    }
+
+    return records;
   }
 
-  function clearMessages() {
-    importError.value = null;
-    importSuccess.value = null;
-  }
-
-  function generateSampleCSV(): string {
-    const headers = ['Data', 'Descrição', 'Valor', 'Tipo', 'Status'];
+  const generateSampleCSV = (): string => {
+    const headers = ['Data', 'Descrição', 'Valor', 'Tipo', 'Status', 'Categoria'];
     const sampleData = [
-      ['15/01', 'Aluguel apartamento', '-R$ 1.500,00', 'Despesa', '✔️'],
-      ['16/01', 'Supermercado Extra', '-R$ 350,00', 'Despesa', '✔️'],
-      ['17/01', 'Salário empresa', 'R$ 5.000,00', 'Receita', '✔️'],
-      ['18/01', 'Uber para trabalho', '-R$ 25,00', 'Despesa', '❌'],
-      ['19/01', 'Farmácia medicamento', '-R$ 80,50', 'Despesa', '✔️'],
-      ['20/01', 'Freelance design', 'R$ 800,00', 'Receita', '❌']
+      ['01/08', 'Salário', 'R$ 5000,00', 'Receita', '✔️', 'Renda'],
+      ['02/08', 'Aluguel', '-R$ 1500,00', 'Despesa', '✔️', 'Moradia'],
+      ['03/08', 'Supermercado', '-R$ 800,00', 'Despesa', '✔️', 'Alimentação'],
+      ['04/08', 'Netflix', '-R$ 39,90', 'Despesa', '✔️', 'Lazer'],
+      ['05/08', 'Freelance', 'R$ 1200,00', 'Receita', '❌', 'Renda']
     ];
 
-    return [headers, ...sampleData].map(row => row.join(',')).join('\n');
-  }
+    // Also generate a sample with the new format
+    const newFormatHeaders = ['Data', 'Descrição', 'Valor', 'Recorrente', 'Dia Util'];
+    const newFormatData = [
+      ['06/08', 'Salário', 'R$ 3.946,89', 'S', '5'],
+      ['20/06', 'Salário', 'R$ 2.563,11', 'S', '5'],
+      ['06/08', 'Salário', 'R$ 1.976,37', 'N', '5'],
+      ['07/08', 'Aluguel', '-R$ 1.246,29', 'N', ''],
+      ['07/08', 'Condomínio', '-R$ 420', 'N', '']
+    ];
+
+    return [
+      '# Formato padrão:',
+      headers.join(','),
+      ...sampleData.map(row => row.join(',')),
+      '',
+      '# Novo formato também suportado:',
+      newFormatHeaders.join(','),
+      ...newFormatData.map(row => row.join(','))
+    ].join('\n');
+  };
 
   return {
     isImporting,
     importError,
     importSuccess,
-    importCSV,
     clearMessages,
+    importCSV,
     generateSampleCSV
   };
 } 

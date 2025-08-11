@@ -1,0 +1,27 @@
+Data,Descrição,Valor,Tipo,Status,Recorrente,Dia Útil
+06/06,Salário,"R$ 3.946,89",Receita,,S,5
+20/06,Salário,"R$ 2.563,11",Receita,,S,5
+06/08,Salário,"R$ 1.976,37",Receita,,N,5
+07/08,Aluguel,"-R$1.246,29",Despesa,❌,N,
+07/08,Condomínio,-R$420,Despesa,❌,N,
+07/08,Fatura PJ,R$ 5.000,Despesa,❌,N,
+07/08,Fatura Nubank,"-R$ 1.923,65",Despesa,❌,N,
+07/08,Fatura PicPay,"-R$ 1.336,32",Despesa,❌,N,
+07/08,Fatura MercadoPago,-R$ 300,Despesa,❌,N,
+07/08,Empréstimo 99,"-R$ 313,74",Despesa,❌,N,
+14/08,Empréstimo PicPay (05/10),-R$ 241,Despesa,❌,N,
+07/08,Mauri (03/03),-R$ 500,Despesa,❌,N,
+25/08,Cruzeiro do Sul,"-R$ 201,77",Despesa,❌,N,
+07/08,Luz,-R$ 120,Despesa,❌,N,
+07/08,Internet,-R$100,Despesa,❌,N,
+05/09,Aluguel,"-R$1.246,29",Despesa,❌,N,
+05/09,Condomínio,-R$420,Despesa,❌,N,
+05/09,Fatura PJ,"-R$ 1.923,65",Despesa,❌,N,
+05/09,Fatura Nubank,"-R$ 1.336,32",Despesa,❌,N,
+05/09,Fatura MercadoPago,-R$ 300,Despesa,❌,N,
+05/09,Empréstimo 99,"-R$ 313,74",Despesa,❌,N,
+05/09,Empréstimo PicPay,-R$ 241,Despesa,❌,N,
+05/09,Mauri (03/03),-R$ 500,Despesa,❌,N,
+05/09,Cruzeiro do Sul,-R$ 324,Despesa,❌,N,
+05/09,Luz,-R$ 120,Despesa,❌,N,
+05/09,Internet,-R$100,Despesa,❌,N,

@@ -1,91 +1,117 @@
-export function useCategoryDetection() {
-  // Mapeamento de palavras-chave para categorias
-  const categoryKeywords = {
-    'Moradia': [
-      'aluguel', 'condominio', 'condomínio', 'iptu', 'agua', 'água', 'luz', 'energia', 
-      'gas', 'gás', 'telefone', 'internet', 'tv', 'casa', 'apartamento', 'imovel', 'imóvel',
-      'portaria', 'limpeza', 'manutenção', 'manutencao', 'elevador', 'reforma'
-    ],
-    'Alimentação': [
-      'supermercado', 'mercado', 'padaria', 'acougue', 'açougue', 'feira', 'restaurante',
-      'lanchonete', 'fast food', 'delivery', 'ifood', 'uber eats', 'rappi', 'comida',
-      'food', 'bar', 'cafe', 'café', 'pizza', 'hamburguer', 'almoço', 'almoco', 'jantar'
-    ],
-    'Transporte': [
-      'combustivel', 'combustível', 'gasolina', 'alcool', 'álcool', 'diesel', 'posto',
-      'uber', 'taxi', 'metro', 'metrô', 'onibus', 'ônibus', 'passagem', 'bilhete',
-      'estacionamento', 'parking', 'pedagio', 'pedágio', 'carro', 'moto', 'bicicleta',
-      'seguro auto', 'ipva', 'licenciamento', 'multa', 'veiculo', 'veículo'
-    ],
-    'Saúde': [
-      'medico', 'médico', 'hospital', 'clinica', 'clínica', 'farmacia', 'farmácia',
-      'remedio', 'remédio', 'medicamento', 'consulta', 'exame', 'laboratorio', 'laboratório',
-      'dentista', 'ortodontia', 'fisioterapia', 'psicologia', 'terapia', 'plano de saude',
-      'plano de saúde', 'convenio', 'convênio'
-    ],
-    'Educação': [
-      'escola', 'universidade', 'faculdade', 'curso', 'aula', 'mensalidade', 'material escolar',
-      'livro', 'apostila', 'formatura', 'diploma', 'certificado', 'idioma', 'ingles', 'inglês'
-    ],
-    'Lazer': [
-      'cinema', 'teatro', 'show', 'concerto', 'festa', 'balada', 'clube', 'academia',
-      'gym', 'natacao', 'natação', 'futebol', 'esporte', 'jogo', 'netflix', 'spotify',
-      'streaming', 'viagem', 'hotel', 'pousada', 'turismo', 'parque', 'diversao', 'diversão'
-    ],
-    'Compras': [
-      'shopping', 'loja', 'magazine', 'magazineluiza', 'casas bahia', 'americanas',
-      'mercado livre', 'amazon', 'aliexpress', 'roupa', 'calcado', 'calçado', 'sapato',
-      'tenis', 'tênis', 'bolsa', 'mochila', 'acessorio', 'acessório', 'eletronico', 'eletrônico',
-      'celular', 'notebook', 'computador', 'tv', 'geladeira', 'fogao', 'fogão', 'monitor',
-      'box', 'cama', 'sofa', 'sofá', 'mesa', 'cadeira', 'movel', 'móvel', 'decoracao', 'decoração'
-    ],
-    'Serviços': [
-      'banco', 'tarifas bancarias', 'tarifas bancárias', 'ted', 'doc', 'cartao', 'cartão',
-      'anuidade', 'seguro', 'advogado', 'contador', 'contabilidade', 'juridico', 'jurídico',
-      'correios', 'sedex', 'pac', 'entrega', 'frete', 'consultoria', 'assessoria', 'fatura',
-      'nubank', 'picpay', 'inter', 'bradesco', 'itau', 'itaú', 'santander', 'caixa'
-    ],
-    'Dívidas': [
-      'emprestimo', 'empréstimo', 'financiamento', 'parcelamento', 'prestacao', 'prestação',
-      'juros', 'multa', 'divida', 'dívida', 'atraso', 'refinanciamento', 'crediario', 'crediário',
-      'carnê', 'carne', 'consorcio', 'consórcio', 'spc', 'serasa', 'negativacao', 'negativação'
-    ],
-    'Investimentos': [
-      'investimento', 'aplicacao', 'aplicação', 'poupanca', 'poupança', 'cdb', 'lci', 'lca',
-      'tesouro', 'acao', 'ação', 'fundo', 'previdencia', 'previdência', 'bitcoins', 'crypto',
-      'corretora', 'broker', 'dividendos', 'rendimento'
-    ],
-    'Renda': [
-      'salario', 'salário', 'ordenado', 'pro labore', 'freelance', 'freela', 'consultoria',
-      'honorarios', 'honorários', 'comissao', 'comissão', 'bonus', 'bônus', 'premio', 'prêmio',
-      'adiantamento', 'vale', 'hora extra', 'adicional', 'gratificacao', 'gratificação'
-    ]
-  };
+import { ref } from 'vue';
+import type { ICategory } from '../types/finance';
 
-  function detectCategory(description: string): string {
-    if (!description) return '';
-    
-    const descLower = description.toLowerCase().trim();
-    
-    // Procura por cada categoria
-    for (const [category, keywords] of Object.entries(categoryKeywords)) {
-      for (const keyword of keywords) {
-        if (descLower.includes(keyword.toLowerCase())) {
-          return category;
-        }
+interface ICategoryPattern {
+  category: string;
+  patterns: string[];
+}
+
+export function useCategoryDetection() {
+  const categories = ref<ICategory[]>([
+    { name: 'Alimentação', icon: '🍽️' },
+    { name: 'Moradia', icon: '🏠' },
+    { name: 'Transporte', icon: '🚗' },
+    { name: 'Saúde', icon: '🏥' },
+    { name: 'Educação', icon: '📚' },
+    { name: 'Lazer', icon: '🎮' },
+    { name: 'Compras', icon: '🛒' },
+    { name: 'Serviços', icon: '⚙️' },
+    { name: 'Dívidas', icon: '💳' },
+    { name: 'Investimentos', icon: '📈' },
+    { name: 'Renda', icon: '💰' },
+    { name: 'Outros', icon: '📋' }
+  ]);
+
+  const categoryPatterns: ICategoryPattern[] = [
+    {
+      category: 'Alimentação',
+      patterns: ['mercado', 'supermercado', 'restaurante', 'ifood', 'lanche', 'padaria', 'café', 'almoço', 'jantar']
+    },
+    {
+      category: 'Moradia',
+      patterns: ['aluguel', 'condomínio', 'água', 'luz', 'energia', 'gás', 'internet', 'iptu', 'reforma']
+    },
+    {
+      category: 'Transporte',
+      patterns: ['uber', '99', 'taxi', 'ônibus', 'metrô', 'combustível', 'gasolina', 'estacionamento', 'pedágio']
+    },
+    {
+      category: 'Saúde',
+      patterns: ['farmácia', 'médico', 'consulta', 'exame', 'dentista', 'hospital', 'plano de saúde']
+    },
+    {
+      category: 'Educação',
+      patterns: ['escola', 'faculdade', 'curso', 'livro', 'material escolar', 'mensalidade']
+    },
+    {
+      category: 'Lazer',
+      patterns: ['cinema', 'teatro', 'show', 'netflix', 'spotify', 'jogos', 'viagem', 'passeio']
+    },
+    {
+      category: 'Compras',
+      patterns: ['shopping', 'loja', 'roupa', 'calçado', 'acessório', 'eletrônico']
+    },
+    {
+      category: 'Serviços',
+      patterns: ['manutenção', 'conserto', 'limpeza', 'lavanderia', 'assinatura', 'serviço']
+    },
+    {
+      category: 'Dívidas',
+      patterns: ['empréstimo', 'financiamento', 'cartão', 'parcela', 'prestação', 'fatura']
+    },
+    {
+      category: 'Investimentos',
+      patterns: ['ação', 'fundo', 'tesouro', 'cdb', 'investimento', 'aplicação']
+    },
+    {
+      category: 'Renda',
+      patterns: ['salário', 'pagamento', 'reembolso', 'rendimento', 'dividendo', 'pró-labore']
+    }
+  ];
+
+  const detectCategory = (description: string): string => {
+    const normalizedDescription = description.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+
+    for (const { category, patterns } of categoryPatterns) {
+      const hasMatch = patterns.some(pattern =>
+        normalizedDescription.includes(pattern.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''))
+      );
+
+      if (hasMatch) {
+        return category;
       }
     }
-    
-    return 'Outros'; // Categoria padrão se não encontrar nada
-  }
 
-  function getAllCategories(): string[] {
-    return Object.keys(categoryKeywords).sort();
-  }
+    return 'Outros';
+  };
+
+  const getAllCategories = (): string[] => {
+    return categories.value.map(cat => cat.name);
+  };
+
+  const getCategoryIcon = (categoryName: string): string => {
+    const category = categories.value.find(cat => cat.name === categoryName);
+    return category?.icon || '📋';
+  };
+
+  const addCustomCategory = (name: string, icon: string) => {
+    if (!categories.value.some(cat => cat.name === name)) {
+      categories.value.push({ name, icon });
+    }
+  };
+
+  const removeCategory = (name: string) => {
+    if (name !== 'Outros') {
+      categories.value = categories.value.filter(cat => cat.name !== name);
+    }
+  };
 
   return {
+    categories,
     detectCategory,
     getAllCategories,
-    categoryKeywords
+    getCategoryIcon,
+    addCustomCategory,
+    removeCategory
   };
 } 
