@@ -191,8 +191,8 @@ export function useCSVImport() {
               try {
                 record.Data = parseDate(value);
               } catch (error) {
-                console.warn(`Data inválida na linha ${i + 1}: ${value}`);
-                record.Data = new Date().toISOString().split('T')[0]; // Use current date as fallback
+                // Invalid date - skip field
+                continue;
               }
               break;
             case 'descrição':
@@ -236,8 +236,7 @@ export function useCSVImport() {
 
         // Ensure required fields are present
         if (!record.Data || !record.Descrição || record.Valor === undefined) {
-          console.warn(`Linha ${i + 1}: Campos obrigatórios em falta, pulando registro`);
-          continue;
+          continue; // Skip invalid records instead of failing completely
         }
 
         // Set defaults for missing fields
@@ -278,7 +277,6 @@ export function useCSVImport() {
             records.push(record as Omit<IFinanceRecord, 'Saldo'>);
           }
         } catch (error) {
-          console.warn(`Registro inválido na linha ${i + 1}:`, error);
           continue; // Skip invalid records instead of failing completely
         }
       }

@@ -146,12 +146,18 @@ export function useFinance() {
       groups[monthKey].push({ ...record, monthName });
     });
 
-    // Sort months in descending order (newest first)
-    const sortedKeys = Object.keys(groups).sort((a, b) => b.localeCompare(a));
+    // Sort months in descending order (newest first) and return as ordered object
+    const sortedKeys = Object.keys(groups).sort((a, b) => {
+      // Convert YYYY-MM format to comparable dates for reliable sorting
+      const dateA = new Date(a + '-01'); // Add day to make valid date
+      const dateB = new Date(b + '-01');
+      return dateB.getTime() - dateA.getTime(); // Descending order (newest first)
+    });
     const sortedGroups: Record<string, IFinanceRecordWithMonth[]> = {};
 
     sortedKeys.forEach(key => {
-      sortedGroups[key] = groups[key];
+      // Sort records within each month by date (newest first)
+      sortedGroups[key] = groups[key].sort((a, b) => new Date(b.Data).getTime() - new Date(a.Data).getTime());
     });
 
     return sortedGroups;
@@ -180,8 +186,13 @@ export function useFinance() {
       months[monthKey].recordCount++;
     });
 
-    // Sort months in descending order
-    const sortedKeys = Object.keys(months).sort((a, b) => b.localeCompare(a));
+    // Sort months in descending order (newest first) - December at top, January at bottom
+    const sortedKeys = Object.keys(months).sort((a, b) => {
+      // Convert YYYY-MM format to comparable dates for reliable sorting
+      const dateA = new Date(a + '-01'); // Add day to make valid date
+      const dateB = new Date(b + '-01');
+      return dateB.getTime() - dateA.getTime(); // Descending order (newest first)
+    });
     const sortedMonths: Record<string, { key: string; name: string; isHidden: boolean; recordCount: number }> = {};
 
     sortedKeys.forEach(key => {
@@ -235,7 +246,6 @@ export function useFinance() {
       financeRecordSchema.parse(record);
       return true;
     } catch (error) {
-      console.error('Invalid record:', error);
       return false;
     }
   };
@@ -372,7 +382,6 @@ export function useFinance() {
 
   const restoreFromSnapshot = (snapshot: any) => {
     // This could be used for import/export functionality in the future
-    console.log('Snapshot:', snapshot);
   };
 
   // Month visibility management functions

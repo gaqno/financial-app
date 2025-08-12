@@ -1,8 +1,11 @@
 import { ref, computed, watch } from 'vue';
 import type { IFinanceRecord, IRecurrence, IRecurrenceFrequency } from '../types/finance';
 import { useLocalStorage } from './useLocalStorage';
+import { useBusinessDays } from './finance/useBusinessDays'
 
 export function useRecurrence() {
+  const { calculateBusinessDay } = useBusinessDays()
+
   const { data: storedRecurrenceSettings, clearStorage: clearRecurrenceStorage } = useLocalStorage<IRecurrence>('recurrenceSettings', {
     frequency: 'mensal',
     endDate: getDefaultEndDate(),
@@ -23,6 +26,65 @@ export function useRecurrence() {
     storedRecurrenceSettings.value = newValue;
   }, { deep: true });
 
+  // Generate unique recurrence ID
+  function generateRecurrenceId(): string {
+    return `rec_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+  }
+
+  // Find all records that belong to the same recurrence
+  function findRecurrenceGroup(records: IFinanceRecord[], recurrenceId: string): IFinanceRecord[] {
+    return records.filter(record =>
+      record.recurrence?.recurrenceId === recurrenceId
+    );
+  }
+
+  // Update all records in a recurrence group
+  function updateRecurrenceGroup(
+    allRecords: IFinanceRecord[],
+    recurrenceId: string,
+    updates: Partial<Omit<IFinanceRecord, 'Data' | 'recurrence'>>
+  ): IFinanceRecord[] {
+    console.log('🔄 [RECURRENCE_GROUP] Updating all records with ID:', recurrenceId);
+
+    const updatedRecords = allRecords.map(record => {
+      if (record.recurrence?.recurrenceId === recurrenceId) {
+        console.log('✏️ [RECURRENCE_GROUP] Updating record:', record.Data, record.Descrição);
+        return {
+          ...record,
+          ...updates,
+          // Keep the original date and recurrence info
+          Data: record.Data,
+          recurrence: record.recurrence
+        };
+      }
+      return record;
+    });
+
+    const updatedCount = updatedRecords.filter(r =>
+      r.recurrence?.recurrenceId === recurrenceId
+    ).length;
+
+    console.log(`✅ [RECURRENCE_GROUP] Updated ${updatedCount} records in group`);
+
+    return updatedRecords;
+  }
+
+  // Remove all records in a recurrence group
+  function removeRecurrenceGroup(allRecords: IFinanceRecord[], recurrenceId: string): IFinanceRecord[] {
+    console.log('🗑️ [RECURRENCE_GROUP] Removing all records with ID:', recurrenceId);
+
+    const recordsToRemove = allRecords.filter(r => r.recurrence?.recurrenceId === recurrenceId);
+    console.log('🗑️ [RECURRENCE_GROUP] Found records to remove:', recordsToRemove.length);
+
+    const remainingRecords = allRecords.filter(record =>
+      record.recurrence?.recurrenceId !== recurrenceId
+    );
+
+    console.log(`✅ [RECURRENCE_GROUP] Removed ${recordsToRemove.length} records, ${remainingRecords.length} remaining`);
+
+    return remainingRecords;
+  }
+
   // Get default end date (1 year from now)
   function getDefaultEndDate(): string {
     const date = new Date();
@@ -30,10 +92,64 @@ export function useRecurrence() {
     return date.toISOString().split('T')[0];
   }
 
+  // Detect if a date is a specific business day of the month
+  function detectBusinessDayFromDate(dateStr: string): { isBusinessDay: boolean; dayNumber?: number } {
+    const date = new Date(dateStr)
+    const year = date.getFullYear()
+    const month = date.getMonth() + 1
+    const targetDay = date.getDate()
+
+    // Check business days 1-22 (most months don't have more than 22 business days)
+    for (let businessDayNum = 1; businessDayNum <= 22; businessDayNum++) {
+      const calculatedBusinessDay = calculateBusinessDay(year, month, businessDayNum)
+      const calculatedDate = new Date(calculatedBusinessDay)
+
+      if (calculatedDate.getDate() === targetDay) {
+        console.log(`📅 [BUSINESS_DAY] Date ${dateStr} is the ${businessDayNum}th business day of ${month}/${year}`)
+        return { isBusinessDay: true, dayNumber: businessDayNum }
+      }
+    }
+
+    return { isBusinessDay: false }
+  }
+
   // Calculate next occurrence date based on frequency
-  function getNextOccurrence(currentDate: string, frequency: IRecurrenceFrequency): string {
+  function getNextOccurrence(currentDate: string, frequency: IRecurrenceFrequency, businessDayNumber?: number): string {
     const date = new Date(currentDate);
 
+    // If this is a business day recurrence, calculate the business day for the next period
+    if (businessDayNumber) {
+      switch (frequency) {
+        case 'mensal':
+          date.setMonth(date.getMonth() + 1);
+          break;
+        case 'trimestral':
+          date.setMonth(date.getMonth() + 3);
+          break;
+        case 'semanal':
+        case 'quinzenal':
+          // For weekly/biweekly, business day logic doesn't apply - use regular date increment
+          switch (frequency) {
+            case 'semanal':
+              date.setDate(date.getDate() + 7);
+              break;
+            case 'quinzenal':
+              date.setDate(date.getDate() + 15);
+              break;
+          }
+          return date.toISOString().split('T')[0];
+      }
+
+      // Calculate the business day for the new month/quarter
+      const year = date.getFullYear();
+      const month = date.getMonth() + 1;
+      const businessDayDate = calculateBusinessDay(year, month, businessDayNumber);
+
+      console.log(`📅 [BUSINESS_DAY] Calculated ${businessDayNumber}th business day for ${month}/${year}: ${businessDayDate}`);
+      return businessDayDate;
+    }
+
+    // Regular date increment for non-business day recurrence
     switch (frequency) {
       case 'semanal':
         date.setDate(date.getDate() + 7);
@@ -57,62 +173,129 @@ export function useRecurrence() {
     console.log('🔄 [RECURRENCE] Starting recurrence generation for:', {
       description: baseRecord.Descrição,
       startDate: baseRecord.Data,
-      isRecurringActive: isRecurring.value,
-      settingsActive: recurrenceSettings.value.isActive,
       frequency: recurrenceSettings.value.frequency,
-      endDate: recurrenceSettings.value.endDate
+      endDate: recurrenceSettings.value.endDate,
+      isRecurring: isRecurring.value,
+      isActive: recurrenceSettings.value.isActive
     });
 
+    // If recurrence is not active, return only the base record
     if (!isRecurring.value || !recurrenceSettings.value.isActive) {
       console.log('🔄 [RECURRENCE] Recurrence not active, returning single record');
       return [baseRecord];
     }
 
-    const records: Omit<IFinanceRecord, 'Saldo'>[] = [baseRecord];
-    let currentDate = baseRecord.Data; // Use the record's actual date as starting point
-    const endDate = new Date(recurrenceSettings.value.endDate);
-    const startDate = new Date(baseRecord.Data);
-    let occurrenceCount = 1;
-    const maxOccurrences = 24; // Increased to 24 occurrences for more flexibility
+    // Detect if the base record uses business day logic
+    const businessDayInfo = detectBusinessDayFromDate(baseRecord.Data);
+    const isBusinessDayRecurrence = businessDayInfo.isBusinessDay;
+    const businessDayNumber = businessDayInfo.dayNumber;
 
-    console.log('🔄 [RECURRENCE] Generation parameters:', {
-      startDate: startDate.toISOString().split('T')[0],
-      endDate: endDate.toISOString().split('T')[0],
-      maxOccurrences,
-      frequency: recurrenceSettings.value.frequency
+    console.log('🔄 [RECURRENCE] Business day detection:', {
+      isBusinessDayRecurrence,
+      businessDayNumber
     });
 
-    while (occurrenceCount < maxOccurrences) {
-      currentDate = getNextOccurrence(currentDate, recurrenceSettings.value.frequency);
-      const nextDate = new Date(currentDate);
+    const records: Omit<IFinanceRecord, 'Saldo'>[] = [];
+    let currentDate = baseRecord.Data;
+    const recurrenceId = generateRecurrenceId();
+    const originalDate = baseRecord.Data;
 
-      console.log('🔄 [RECURRENCE] Checking occurrence #' + (occurrenceCount + 1) + ':', {
+    // CRITICAL FIX: Properly handle end date comparison
+    const endDateStr = recurrenceSettings.value.endDate;
+    let endDate: Date;
+
+    if (!endDateStr) {
+      // If no end date, generate for 1 year from now
+      endDate = new Date();
+      endDate.setFullYear(endDate.getFullYear() + 1);
+    } else {
+      // Parse end date as local date to avoid timezone issues
+      if (endDateStr.match(/^\d{4}-\d{2}-\d{2}$/)) {
+        const [year, month, day] = endDateStr.split('-').map(Number);
+        endDate = new Date(year, month - 1, day); // month is 0-based
+      } else {
+        endDate = new Date(endDateStr);
+      }
+    }
+
+    console.log('🔄 [RECURRENCE] End date configuration:', {
+      endDateStr,
+      parsedEndDate: endDate.toISOString().split('T')[0],
+      endDateTimestamp: endDate.getTime()
+    });
+
+    const maxOccurrences = 50; // Safety limit
+    let occurrenceCount = 1;
+
+    // Add the original record with recurrence metadata
+    const baseRecordWithRecurrence: Omit<IFinanceRecord, 'Saldo'> = {
+      ...baseRecord,
+      recurrence: {
+        ...recurrenceSettings.value,
+        recurrenceId,
+        originalDate,
+        instanceNumber: 1,
+        isBusinessDayRecurrence,
+        businessDayNumber,
+        nextDate: getNextOccurrence(currentDate, recurrenceSettings.value.frequency, businessDayNumber),
+      },
+    };
+
+    records.push(baseRecordWithRecurrence);
+
+    occurrenceCount++;
+
+    while (occurrenceCount < maxOccurrences) {
+      currentDate = getNextOccurrence(currentDate, recurrenceSettings.value.frequency, businessDayNumber);
+
+      // CRITICAL FIX: Parse next date properly for comparison
+      let nextDate: Date;
+      if (currentDate.match(/^\d{4}-\d{2}-\d{2}$/)) {
+        const [year, month, day] = currentDate.split('-').map(Number);
+        nextDate = new Date(year, month - 1, day); // month is 0-based
+      } else {
+        nextDate = new Date(currentDate);
+      }
+
+      console.log('🔄 [RECURRENCE] Checking occurrence #' + (occurrenceCount) + ':', {
         currentDate,
-        nextDate: nextDate.toISOString().split('T')[0],
+        nextDateParsed: nextDate.toISOString().split('T')[0],
+        nextDateTimestamp: nextDate.getTime(),
+        endDateTimestamp: endDate.getTime(),
         isAfterEndDate: nextDate > endDate,
-        willStop: nextDate > endDate
+        willStop: nextDate > endDate,
+        isBusinessDay: isBusinessDayRecurrence,
+        businessDayNumber
       });
 
-      // Stop only if we've reached the end date
+      // CRITICAL FIX: Stop if next date is after end date (inclusive comparison)
       if (nextDate > endDate) {
         console.log('🔄 [RECURRENCE] Reached end date, stopping generation');
         break;
       }
 
-      // Create recurring record
+      // Create recurring record with business day info
       const recurringRecord: Omit<IFinanceRecord, 'Saldo'> = {
         ...baseRecord,
         Data: currentDate,
         recurrence: {
           ...recurrenceSettings.value,
-          nextDate: getNextOccurrence(currentDate, recurrenceSettings.value.frequency),
+          recurrenceId,
+          originalDate,
+          instanceNumber: occurrenceCount,
+          isBusinessDayRecurrence,
+          businessDayNumber,
+          nextDate: getNextOccurrence(currentDate, recurrenceSettings.value.frequency, businessDayNumber),
         },
       };
 
       console.log('🔄 [RECURRENCE] Created recurring record:', {
         date: recurringRecord.Data,
         description: recurringRecord.Descrição,
-        value: recurringRecord.Valor
+        value: recurringRecord.Valor,
+        instanceNumber: recurringRecord.recurrence?.instanceNumber,
+        isBusinessDay: isBusinessDayRecurrence,
+        businessDayNumber
       });
 
       records.push(recurringRecord);
@@ -121,8 +304,11 @@ export function useRecurrence() {
 
     console.log('🔄 [RECURRENCE] Generation complete:', {
       totalRecords: records.length,
-      originalRecord: baseRecord.Data,
-      generatedDates: records.slice(1).map(r => r.Data)
+      originalDate,
+      recurrenceId,
+      isBusinessDayRecurrence,
+      businessDayNumber,
+      finalEndDate: endDate.toISOString().split('T')[0]
     });
 
     return records;
@@ -219,5 +405,10 @@ export function useRecurrence() {
     updateRecurrenceSettings,
     getDefaultEndDate,
     clearRecurrenceData,
+    // New recurrence group management functions
+    generateRecurrenceId,
+    findRecurrenceGroup,
+    updateRecurrenceGroup,
+    removeRecurrenceGroup,
   };
 } 

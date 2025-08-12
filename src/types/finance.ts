@@ -8,6 +8,13 @@ export interface IRecurrence {
   endDate: string;
   isActive: boolean;
   nextDate?: string;
+  // New fields for better tracking
+  recurrenceId?: string; // Unique ID to link all records in the same recurrence
+  originalDate?: string; // The original date when the recurrence was created
+  instanceNumber?: number; // Which instance in the sequence (1st, 2nd, 3rd, etc.)
+  // Business day recurrence fields
+  isBusinessDayRecurrence?: boolean; // Indicates if this recurrence uses business day logic
+  businessDayNumber?: number; // Which business day (1st, 2nd, 3rd, etc.)
 }
 
 // Base finance record schema
@@ -24,6 +31,13 @@ export const financeRecordSchema = z.object({
     endDate: z.string(),
     isActive: z.boolean(),
     nextDate: z.string().optional(),
+    // New fields for better tracking
+    recurrenceId: z.string().optional(),
+    originalDate: z.string().optional(),
+    instanceNumber: z.number().optional(),
+    // Business day recurrence fields
+    isBusinessDayRecurrence: z.boolean().optional(),
+    businessDayNumber: z.number().optional(),
   }).optional(),
 });
 

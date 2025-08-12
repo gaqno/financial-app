@@ -25,7 +25,7 @@ export function useCategoryDetection() {
   const categoryPatterns: ICategoryPattern[] = [
     {
       category: 'Alimentação',
-      patterns: ['mercado', 'supermercado', 'restaurante', 'ifood', 'lanche', 'padaria', 'café', 'almoço', 'jantar']
+      patterns: ['supermercado', 'restaurante', 'ifood', 'lanche', 'padaria', 'café', 'almoço', 'jantar', 'mercadinho', 'açougue', 'feira']
     },
     {
       category: 'Moradia',
@@ -57,7 +57,7 @@ export function useCategoryDetection() {
     },
     {
       category: 'Dívidas',
-      patterns: ['empréstimo', 'financiamento', 'cartão', 'parcela', 'prestação', 'fatura']
+      patterns: ['empréstimo', 'financiamento', 'cartão', 'crédito', 'débito', 'parcela', 'prestação', 'fatura', 'nubank', 'picpay', 'mercadopago', 'bradesco', 'itau', 'santander', 'caixa']
     },
     {
       category: 'Investimentos',
