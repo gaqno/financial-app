@@ -4,27 +4,19 @@ import { useFinanceStore } from '../../stores/financeStore'
 import type { IFinanceRecord } from '../../types/finance'
 
 // Mock localStorage
-const localStorageMock = {
-  getItem: vi.fn(),
-  setItem: vi.fn(),
-  removeItem: vi.fn(),
-  clear: vi.fn(),
-}
-vi.stubGlobal('localStorage', localStorageMock)
+Object.defineProperty(globalThis, 'localStorage', {
+  value: {
+    getItem: vi.fn(),
+    setItem: vi.fn(),
+    removeItem: vi.fn(),
+    clear: vi.fn()
+  },
+  writable: true
+})
 
 describe('FinanceStore', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
-    // Mock localStorage
-    const localStorageMock = {
-      getItem: vi.fn(),
-      setItem: vi.fn(),
-      removeItem: vi.fn(),
-      clear: vi.fn()
-    }
-    Object.defineProperty(window, 'localStorage', {
-      value: localStorageMock
-    })
   })
 
   // Helper para configurar projeção inteligente para incluir dados de teste
@@ -332,7 +324,7 @@ describe('FinanceStore', () => {
 
       store.addRecord(mockRecord)
 
-      expect(localStorageMock.setItem).toHaveBeenCalledWith(
+      expect(globalThis.localStorage.setItem).toHaveBeenCalledWith(
         'financeData',
         expect.any(String)
       )
@@ -345,7 +337,7 @@ describe('FinanceStore', () => {
       store.clearAllData()
 
       expect(store.records).toHaveLength(0)
-      expect(localStorageMock.removeItem).toHaveBeenCalledWith('financeData')
+      expect(globalThis.localStorage.removeItem).toHaveBeenCalledWith('financeData')
     })
   })
 }) 

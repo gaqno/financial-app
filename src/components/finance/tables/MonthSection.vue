@@ -90,15 +90,44 @@
           <table class="min-w-full divide-y divide-gray-200">
             <thead class="bg-gray-50">
               <tr>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Descrição
+                <th @click="handleSort('Data')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors">
+                  <div class="flex items-center gap-1">
+                    <span>Data</span>
+                    <i :class="getSortIcon('Data')" class="text-xs"></i>
+                  </div>
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Valor</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tipo</th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Categoria
+                <th @click="handleSort('Descrição')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors">
+                  <div class="flex items-center gap-1">
+                    <span>Descrição</span>
+                    <i :class="getSortIcon('Descrição')" class="text-xs"></i>
+                  </div>
                 </th>
-                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
+                <th @click="handleSort('Valor')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors">
+                  <div class="flex items-center gap-1">
+                    <span>Valor</span>
+                    <i :class="getSortIcon('Valor')" class="text-xs"></i>
+                  </div>
+                </th>
+                <th @click="handleSort('Tipo')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors">
+                  <div class="flex items-center gap-1">
+                    <span>Tipo</span>
+                    <i :class="getSortIcon('Tipo')" class="text-xs"></i>
+                  </div>
+                </th>
+                <th @click="handleSort('Categoria')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors">
+                  <div class="flex items-center gap-1">
+                    <span>Categoria</span>
+                    <i :class="getSortIcon('Categoria')" class="text-xs"></i>
+                  </div>
+                </th>
+                <th @click="handleSort('Status')" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors">
+                  <div class="flex items-center gap-1">
+                    <span>Status</span>
+                    <i :class="getSortIcon('Status')" class="text-xs"></i>
+                  </div>
+                </th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Saldo</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
               </tr>
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
@@ -152,6 +181,7 @@
 import { ref, computed, watch } from 'vue'
 import { useFinanceTable } from '../../../composables/finance/useFinanceTable'
 import { useCategoryDetection } from '../../../composables/useCategoryDetection'
+import { useFinanceStore } from '../../../stores/financeStore'
 import RecordRow from './RecordRow.vue'
 import type { IFinanceRecord } from '../../../types/finance'
 
@@ -176,6 +206,7 @@ const emit = defineEmits<Emits>()
 // Use composables
 const { formatCurrency } = useFinanceTable()
 const { getCategoryIcon } = useCategoryDetection()
+const financeStore = useFinanceStore()
 
 // Collapse state from parent or local fallback
 const isCollapsed = computed(() => props.isCollapsed ?? false)
@@ -264,6 +295,21 @@ const handleDelete = (record: IFinanceRecord, index: number) => {
 
 const handleToggleStatus = (record: IFinanceRecord, index: number) => {
   emit('toggle-status', record, index)
+}
+
+// Sorting methods
+const handleSort = (field: 'Data' | 'Descrição' | 'Valor' | 'Tipo' | 'Categoria' | 'Status') => {
+  const currentField = financeStore.sortField
+  const currentDirection = financeStore.sortDirection
+  
+  // If clicking the same field, toggle direction
+  const newDirection = currentField === field && currentDirection === 'asc' ? 'desc' : 'asc'
+  
+  financeStore.setSorting(field, newDirection)
+}
+
+const getSortIcon = (field: 'Data' | 'Descrição' | 'Valor' | 'Tipo' | 'Categoria' | 'Status'): string => {
+  return financeStore.getSortIcon(field)
 }
 </script>
 

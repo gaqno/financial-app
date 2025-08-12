@@ -113,9 +113,9 @@ describe('Delete Flow Integration Tests', () => {
       const store = useFinanceStore()
       setupTestProjection(store) // Configurar projeção para incluir dados de teste
 
-      // Add records in specific order
+      // Add records from the same month (January 2025) with different dates
       store.addRecord({
-        Data: '2024-01-15',
+        Data: '2025-01-15',
         Descrição: 'February Record',
         Valor: -200,
         Tipo: 'Despesa',
@@ -124,7 +124,7 @@ describe('Delete Flow Integration Tests', () => {
       })
 
       store.addRecord({
-        Data: '2024-01-10',
+        Data: '2025-01-10',
         Descrição: 'January Record 1',
         Valor: -100,
         Tipo: 'Despesa',
@@ -133,7 +133,7 @@ describe('Delete Flow Integration Tests', () => {
       })
 
       store.addRecord({
-        Data: '2024-01-20',
+        Data: '2025-01-20',
         Descrição: 'January Record 2',
         Valor: 150,
         Tipo: 'Receita',
@@ -141,17 +141,18 @@ describe('Delete Flow Integration Tests', () => {
         Status: '✔️'
       })
 
-      const sortedData = store.sortedData
+      const grouped = store.groupedByMonth
+      const jan2025Records = grouped['2025-01']
 
-      expect(sortedData).toHaveLength(3)
+      expect(jan2025Records).toHaveLength(3)
 
       // The display order might be different from storage order
       console.log('Storage order:', store.records.map(r => r.Descrição))
       console.log('Sort field:', store.sortField, 'Sort direction:', store.sortDirection)
-      console.log('Sorted order:', sortedData.map(r => r.Descrição))
+      console.log('Sorted order:', jan2025Records.map(r => r.Descrição))
 
       // Delete the first item in sorted view
-      const recordToDelete = sortedData[0]
+      const recordToDelete = jan2025Records[0]
       const actualIndex = store.records.findIndex(r =>
         r.Data === recordToDelete.Data &&
         r.Descrição === recordToDelete.Descrição &&
@@ -218,9 +219,9 @@ describe('Delete Flow Integration Tests', () => {
 
       // Add records in a specific order
       const records = [
-        { Data: '2024-01-15', Descrição: 'A Record', Valor: -100, Tipo: 'Despesa' as const, Categoria: 'Test', Status: '❌' as const },
-        { Data: '2024-01-10', Descrição: 'B Record', Valor: -200, Tipo: 'Despesa' as const, Categoria: 'Test', Status: '❌' as const },
-        { Data: '2024-01-20', Descrição: 'C Record', Valor: -300, Tipo: 'Despesa' as const, Categoria: 'Test', Status: '❌' as const }
+        { Data: '2025-01-15', Descrição: 'A Record', Valor: -100, Tipo: 'Despesa' as const, Categoria: 'Test', Status: '❌' as const },
+        { Data: '2025-01-10', Descrição: 'B Record', Valor: -200, Tipo: 'Despesa' as const, Categoria: 'Test', Status: '❌' as const },
+        { Data: '2025-01-20', Descrição: 'C Record', Valor: -300, Tipo: 'Despesa' as const, Categoria: 'Test', Status: '❌' as const }
       ]
 
       records.forEach(record => store.addRecord(record))

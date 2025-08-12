@@ -3,6 +3,8 @@ import { ref, computed, reactive } from 'vue'
 import { useLocalStorage } from '../composables/useLocalStorage'
 import { useRecurrence } from '../composables/useRecurrence'
 import { useBusinessDays } from '../composables/finance/useBusinessDays'
+import { useAutoCorrection } from '../composables/finance/useAutoCorrection'
+import { useRecurrenceHelpers } from '../composables/finance/useRecurrenceHelpers'
 import type { IFinanceRecord, IFinanceFormData, IRecurrence, IFilter } from '../types/finance'
 import { financeRecordSchema } from '../types/finance'
 
@@ -59,6 +61,10 @@ export const useFinanceStore = defineStore('finance', () => {
     frequency: 'mensal' as 'semanal' | 'quinzenal' | 'mensal' | 'trimestral',
     endDate: ''
   })
+
+  // Import composables for extracted functionality
+  const { correctFutureRecordsAfterEdit, removeRecurringRecordsBeyondDate, validateAndCorrectRecurringRecords } = useAutoCorrection()
+  const { updateAllLinkedRecurringRecords, generateRecurringRecordsForEdit } = useRecurrenceHelpers()
 
   // Debug watchers (development only)
   if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
@@ -702,72 +708,7 @@ export const useFinanceStore = defineStore('finance', () => {
   // ===========================================
   // BATCH UPDATE FOR RECURRING RECORDS
   // ===========================================
-
-  /**
-   * Updates all recurring records linked to the same recurrenceId
-   * @param originalRecord - The original record being edited
-   * @param updatedFields - The fields to update (excluding Date and instanceNumber)
-   * @returns boolean - Success status
-   */
-  const updateAllLinkedRecurringRecords = (originalRecord: IFinanceRecord, updatedFields: Partial<IFinanceRecord>): boolean => {
-    try {
-      // Check if the original record has recurrence info
-      if (!originalRecord.recurrence?.recurrenceId) {
-        return false
-      }
-
-      const recurrenceId = originalRecord.recurrence.recurrenceId
-      let updatedCount = 0
-
-      // Find all records with the same recurrenceId
-      const linkedRecords = records.value.filter(record =>
-        record.recurrence?.recurrenceId === recurrenceId
-      )
-
-      if (linkedRecords.length <= 1) {
-        // No other linked records found
-        return false
-      }
-
-      // Create new records array for reactivity
-      const newRecords = [...records.value]
-
-      // Update each linked record (preserve Date and instanceNumber)
-      linkedRecords.forEach(linkedRecord => {
-        const recordIndex = newRecords.findIndex(r =>
-          r.Data === linkedRecord.Data &&
-          r.Descrição === linkedRecord.Descrição &&
-          r.recurrence?.recurrenceId === recurrenceId
-        )
-
-        if (recordIndex !== -1) {
-          // Preserve the original Date and instanceNumber for each record
-          const preservedDate = newRecords[recordIndex].Data
-          const preservedInstanceNumber = newRecords[recordIndex].recurrence?.instanceNumber
-
-          // Apply all updates except Date
-          newRecords[recordIndex] = {
-            ...newRecords[recordIndex],
-            ...updatedFields,
-            Data: preservedDate, // Keep original date
-            recurrence: updatedFields.recurrence ? {
-              ...updatedFields.recurrence,
-              instanceNumber: preservedInstanceNumber // Keep original instance number
-            } : newRecords[recordIndex].recurrence
-          }
-          updatedCount++
-        }
-      })
-
-      // Update the records array for reactivity
-      records.value = newRecords
-      saveToStorage()
-
-      return updatedCount > 0
-    } catch (error) {
-      return false
-    }
-  }
+  // Functions moved to useRecurrenceHelpers composable
 
   // Modified saveEdit function to handle recurring records
   const saveEdit = (): boolean => {
@@ -859,11 +800,11 @@ export const useFinanceStore = defineStore('finance', () => {
             Categoria: updatedRecord.Categoria,
             Status: updatedRecord.Status,
             recurrence: updatedRecord.recurrence
-          })
+          }, records, saveToStorage)
 
           if (batchUpdateSuccess) {
             // ✨ AUTO CORRECTION: Apply corrections after batch update
-            correctFutureRecordsAfterEdit(originalRecord, updatedRecord)
+            correctFutureRecordsAfterEdit(originalRecord, updatedRecord, records, saveToStorage, cleanInvalidRecurrences)
             closeEditSheet()
             return true
           }
@@ -887,7 +828,7 @@ export const useFinanceStore = defineStore('finance', () => {
         if (success) {
           // ✨ AUTO CORRECTION: Apply corrections after single record update (only for non-recurring)
           if (!isRecurringRecord) {
-            correctFutureRecordsAfterEdit(originalRecord, updatedRecord)
+            correctFutureRecordsAfterEdit(originalRecord, updatedRecord, records, saveToStorage, cleanInvalidRecurrences)
           }
           closeEditSheet()
           return true
@@ -907,237 +848,12 @@ export const useFinanceStore = defineStore('finance', () => {
   }
 
   // Helper function to generate recurring records for edit context
-  const generateRecurringRecordsForEdit = (
-    baseRecord: Omit<IFinanceRecord, 'Saldo'>,
-    recurrenceSettings: IRecurrence
-  ): Omit<IFinanceRecord, 'Saldo'>[] => {
-    console.log('🔄 [EDIT_RECURRENCE] Starting edit recurrence generation for:', {
-      description: baseRecord.Descrição,
-      startDate: baseRecord.Data,
-      frequency: recurrenceSettings.frequency,
-      endDate: recurrenceSettings.endDate
-    })
-
-    // Import business day logic from useRecurrence
-    const { generateRecurringRecords } = useRecurrence()
-
-    // Temporarily set the recurrence settings
-    const originalIsRecurring = useRecurrence().isRecurring.value
-    const originalSettings = { ...useRecurrence().recurrenceSettings.value }
-
-    useRecurrence().isRecurring.value = true
-    useRecurrence().recurrenceSettings.value = recurrenceSettings
-
-    // Generate records using the composable logic (which includes business day detection)
-    const generatedRecords = generateRecurringRecords(baseRecord)
-
-    // Restore original settings
-    useRecurrence().isRecurring.value = originalIsRecurring
-    useRecurrence().recurrenceSettings.value = originalSettings
-
-    console.log('🔄 [EDIT_RECURRENCE] Edit generation complete:', {
-      totalRecords: generatedRecords.length,
-      originalDate: baseRecord.Data
-    })
-
-    return generatedRecords
-  }
+  // Function moved to useRecurrenceHelpers composable
 
   // ===========================================
-  // ACTIONS - AUTO CORRECTION AFTER EDITS
+  // ACTIONS - AUTO CORRECTION AFTER EDITS  
   // ===========================================
-
-  /**
-   * Corrige automaticamente lançamentos errôneos futuros após uma edição
-   * @param originalRecord O registro original antes da edição
-   * @param updatedRecord O registro após a edição
-   */
-  const correctFutureRecordsAfterEdit = (originalRecord: IFinanceRecord, updatedRecord: IFinanceRecord): void => {
-    console.log('🔧 [AUTO_CORRECTION] Starting automatic correction of future records...')
-
-    const corrections = {
-      removed: 0,
-      updated: 0,
-      errors: 0
-    }
-
-    try {
-      // Verificar se houve mudança na data limite de recorrência
-      const originalEndDate = originalRecord.recurrence?.endDate
-      const newEndDate = updatedRecord.recurrence?.endDate
-      const recurrenceId = originalRecord.recurrence?.recurrenceId || updatedRecord.recurrence?.recurrenceId
-
-      if (recurrenceId && originalEndDate !== newEndDate) {
-        console.log('🔧 [AUTO_CORRECTION] Detected recurrence end date change:', {
-          original: originalEndDate,
-          new: newEndDate,
-          recurrenceId
-        })
-
-        // Se a nova data limite é anterior à original, remover lançamentos além da nova data
-        if (newEndDate && originalEndDate && newEndDate < originalEndDate) {
-          corrections.removed += removeRecurringRecordsBeyondDate(recurrenceId, newEndDate)
-        }
-
-        // Se a nova data limite é posterior, não fazemos nada (usuário pode querer gerar novos)
-        // Mas podemos informar que há possibilidade de gerar mais lançamentos
-        if (newEndDate && originalEndDate && newEndDate > originalEndDate) {
-          console.log('🔧 [AUTO_CORRECTION] New end date is later, user may want to generate additional records')
-        }
-      }
-
-      // Verificar se houve mudança em valores/categoria/descrição de registros recorrentes
-      if (recurrenceId && (
-        originalRecord.Valor !== updatedRecord.Valor ||
-        originalRecord.Categoria !== updatedRecord.Categoria ||
-        originalRecord.Descrição !== updatedRecord.Descrição ||
-        originalRecord.Tipo !== updatedRecord.Tipo
-      )) {
-        console.log('🔧 [AUTO_CORRECTION] Detected changes in recurring record properties')
-
-        // Esta correção já é tratada pela função updateAllLinkedRecurringRecords
-        // mas vamos garantir que todos os futuros estejam corretos
-        corrections.updated += validateAndCorrectRecurringRecords(recurrenceId, updatedRecord)
-      }
-
-      // Sempre executar limpeza geral após edições
-      cleanInvalidRecurrences()
-
-      console.log('✅ [AUTO_CORRECTION] Completed automatic correction:', corrections)
-
-      // Notificar usuário se houver correções significativas
-      if (corrections.removed > 0 || corrections.updated > 0) {
-        const message = []
-        if (corrections.removed > 0) {
-          message.push(`${corrections.removed} lançamento(s) removido(s) por estarem além da nova data limite`)
-        }
-        if (corrections.updated > 0) {
-          message.push(`${corrections.updated} lançamento(s) futuro(s) corrigido(s)`)
-        }
-
-        // Em produção, pode usar um toast/notification system
-        console.log('ℹ️ [AUTO_CORRECTION] Correções aplicadas: ' + message.join('; '))
-      }
-
-    } catch (error) {
-      console.error('❌ [AUTO_CORRECTION] Error during automatic correction:', error)
-      corrections.errors++
-    }
-  }
-
-  /**
-   * Remove registros recorrentes que estão além de uma data específica
-   * @param recurrenceId ID da recorrência
-   * @param endDate Data limite (formato YYYY-MM-DD)
-   * @returns Número de registros removidos
-   */
-  const removeRecurringRecordsBeyondDate = (recurrenceId: string, endDate: string): number => {
-    console.log('🗑️ [AUTO_CORRECTION] Removing recurring records beyond date:', { recurrenceId, endDate })
-
-    // Parse da data limite
-    let limitDate: Date
-    if (endDate.match(/^\d{4}-\d{2}-\d{2}$/)) {
-      const [year, month, day] = endDate.split('-').map(Number)
-      limitDate = new Date(year, month - 1, day) // month is 0-based
-    } else {
-      limitDate = new Date(endDate)
-    }
-
-    const initialCount = records.value.length
-
-    // Filtrar registros, removendo os que estão além da data limite
-    records.value = records.value.filter(record => {
-      // Se não é da mesma recorrência, manter
-      if (record.recurrence?.recurrenceId !== recurrenceId) {
-        return true
-      }
-
-      // Parse da data do registro
-      let recordDate: Date
-      if (record.Data.match(/^\d{4}-\d{2}-\d{2}$/)) {
-        const [year, month, day] = record.Data.split('-').map(Number)
-        recordDate = new Date(year, month - 1, day) // month is 0-based
-      } else {
-        recordDate = new Date(record.Data)
-      }
-
-      // Manter apenas se a data do registro está dentro do limite
-      const shouldKeep = recordDate <= limitDate
-
-      if (!shouldKeep) {
-        console.log('🗑️ [AUTO_CORRECTION] Removing record beyond end date:', {
-          description: record.Descrição,
-          date: record.Data,
-          endDate: endDate
-        })
-      }
-
-      return shouldKeep
-    })
-
-    const removedCount = initialCount - records.value.length
-
-    if (removedCount > 0) {
-      saveToStorage()
-      console.log(`✅ [AUTO_CORRECTION] Removed ${removedCount} records beyond end date`)
-    }
-
-    return removedCount
-  }
-
-  /**
-   * Valida e corrige registros recorrentes para garantir consistência
-   * @param recurrenceId ID da recorrência
-   * @param referenceRecord Registro de referência com os dados corretos
-   * @returns Número de registros corrigidos
-   */
-  const validateAndCorrectRecurringRecords = (recurrenceId: string, referenceRecord: IFinanceRecord): number => {
-    console.log('🔧 [AUTO_CORRECTION] Validating and correcting recurring records for:', recurrenceId)
-
-    let correctedCount = 0
-
-    records.value.forEach((record, index) => {
-      if (record.recurrence?.recurrenceId === recurrenceId) {
-        let needsCorrection = false
-        const updates: Partial<IFinanceRecord> = {}
-
-        // Verificar se categoria, tipo, valor estão consistentes
-        if (record.Categoria !== referenceRecord.Categoria) {
-          updates.Categoria = referenceRecord.Categoria
-          needsCorrection = true
-        }
-
-        if (record.Tipo !== referenceRecord.Tipo) {
-          updates.Tipo = referenceRecord.Tipo
-          needsCorrection = true
-        }
-
-        if (record.Valor !== referenceRecord.Valor) {
-          updates.Valor = referenceRecord.Valor
-          needsCorrection = true
-        }
-
-        // Aplicar correções se necessário
-        if (needsCorrection) {
-          records.value[index] = { ...record, ...updates }
-          correctedCount++
-
-          console.log('🔧 [AUTO_CORRECTION] Corrected record:', {
-            date: record.Data,
-            description: record.Descrição,
-            updates
-          })
-        }
-      }
-    })
-
-    if (correctedCount > 0) {
-      saveToStorage()
-      console.log(`✅ [AUTO_CORRECTION] Corrected ${correctedCount} recurring records`)
-    }
-
-    return correctedCount
-  }
+  // Functions moved to composables: useAutoCorrection and useRecurrenceHelpers
 
   // ===========================================
   // INITIALIZATION
@@ -1231,15 +947,23 @@ export const useFinanceStore = defineStore('finance', () => {
     originalEditIndex,
     editRecurrence,
 
-    // Batch update for recurring records
+    // Batch update for recurring records (exposed for tests)
     updateAllLinkedRecurringRecords,
 
     // Recurrence (delegated to composable)
     recurrence: useRecurrence(),
 
-    // Auto-correction
-    correctFutureRecordsAfterEdit,
-    removeRecurringRecordsBeyondDate,
-    validateAndCorrectRecurringRecords
+    // Auto-correction (from composables)
+    autoCorrection: {
+      correctFutureRecordsAfterEdit,
+      removeRecurringRecordsBeyondDate,
+      validateAndCorrectRecurringRecords
+    },
+
+    // Recurrence helpers (from composables) 
+    recurrenceHelpers: {
+      updateAllLinkedRecurringRecords,
+      generateRecurringRecordsForEdit
+    }
   }
 }) 

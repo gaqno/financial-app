@@ -34,7 +34,7 @@ describe('Index Mapping Fix Test', () => {
     // Add records that will be in different order when grouped vs when stored
     const records: IFinanceRecord[] = [
       {
-        Data: '2024-02-15',  // This will be in February group
+        Data: '2025-02-15',  // This will be in February group, but added first
         Descrição: 'February Record',
         Valor: -100,
         Tipo: 'Despesa',
@@ -42,7 +42,7 @@ describe('Index Mapping Fix Test', () => {
         Categoria: 'Test'
       },
       {
-        Data: '2024-01-10',  // This will be in January group, but added second
+        Data: '2025-01-10',  // This will be in January group, but added second
         Descrição: 'January Record 1',
         Valor: -200,
         Tipo: 'Despesa',
@@ -50,7 +50,7 @@ describe('Index Mapping Fix Test', () => {
         Categoria: 'Test'
       },
       {
-        Data: '2024-01-20',  // This will be in January group, but added third
+        Data: '2025-01-20',  // This will be in January group, but added third
         Descrição: 'January Record 2',
         Valor: -150,
         Tipo: 'Despesa',
@@ -68,7 +68,7 @@ describe('Index Mapping Fix Test', () => {
     // The storage order is: Feb, Jan1, Jan2 (indices 0, 1, 2)
     // But grouped by month: Jan1, Jan2, Feb
     const grouped = store.groupedByMonth
-    const januaryRecords = grouped['2024-01']
+    const januaryRecords = grouped['2025-01']
 
     expect(januaryRecords).toHaveLength(2)
 
@@ -110,7 +110,7 @@ describe('Index Mapping Fix Test', () => {
 
     // Add two records with specific order in storage
     store.addRecord({
-      Data: '2024-01-31',
+      Data: '2025-01-31',
       Descrição: 'Last January',
       Valor: -100,
       Tipo: 'Despesa',
@@ -119,7 +119,7 @@ describe('Index Mapping Fix Test', () => {
     })
 
     store.addRecord({
-      Data: '2024-01-01',
+      Data: '2025-01-01',
       Descrição: 'First January',
       Valor: -200,
       Tipo: 'Despesa',
