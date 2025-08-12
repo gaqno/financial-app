@@ -22,13 +22,13 @@ describe('FinanceStore', () => {
   // Helper para configurar projeção inteligente para incluir dados de teste
   const setupTestProjection = (store: any) => {
     store.updateProjectionSettings({
-      includePastMonths: 6, // Incluir 6 meses passados para pegar dados de 2024
-      includeFutureMonths: 3
+      includePastMonths: 12, // Incluir 12 meses passados para garantir dados de Jan/2025
+      includeFutureMonths: 6  // Incluir mais meses futuros também
     })
   }
 
   const mockRecord: IFinanceRecord = {
-    Data: '2024-01-15',
+    Data: '2025-08-15', // Current month
     Descrição: 'Test Record',
     Valor: -100,
     Tipo: 'Despesa',
@@ -219,7 +219,7 @@ describe('FinanceStore', () => {
       setupTestProjection(store) // Configurar projeção para incluir dados de teste
 
       store.addRecord({
-        Data: '2024-01-15',
+        Data: '2025-08-15', // Current month
         Descrição: 'Test Expense',
         Valor: -100,
         Tipo: 'Despesa',
@@ -228,7 +228,7 @@ describe('FinanceStore', () => {
       })
 
       store.addRecord({
-        Data: '2024-01-16',
+        Data: '2025-08-16', // Current month
         Descrição: 'Test Income',
         Valor: 200,
         Tipo: 'Receita',
@@ -247,8 +247,8 @@ describe('FinanceStore', () => {
       setupTestProjection(store) // Configurar projeção para incluir dados de teste
 
       store.addRecord({
-        Data: '2024-01-15',
-        Descrição: 'January Record 1',
+        Data: '2025-08-15', // Current month
+        Descrição: 'August Record 1',
         Valor: -100,
         Tipo: 'Despesa',
         Categoria: 'Test',
@@ -256,8 +256,8 @@ describe('FinanceStore', () => {
       })
 
       store.addRecord({
-        Data: '2024-01-20',
-        Descrição: 'January Record 2',
+        Data: '2025-08-20', // Current month
+        Descrição: 'August Record 2',
         Valor: 150,
         Tipo: 'Receita',
         Categoria: 'Test',
@@ -265,8 +265,8 @@ describe('FinanceStore', () => {
       })
 
       store.addRecord({
-        Data: '2024-02-05',
-        Descrição: 'February Record',
+        Data: '2025-09-05', // Next month
+        Descrição: 'September Record',
         Valor: 200,
         Tipo: 'Receita',
         Categoria: 'Test',
@@ -275,22 +275,64 @@ describe('FinanceStore', () => {
 
       const grouped = store.groupedByMonth
 
-      expect(Object.keys(grouped)).toContain('2024-01')
-      expect(Object.keys(grouped)).toContain('2024-02')
-      expect(grouped['2024-01']).toHaveLength(2)
-      expect(grouped['2024-02']).toHaveLength(1)
+      expect(Object.keys(grouped)).toContain('2025-08')
+      expect(Object.keys(grouped)).toContain('2025-09')
+      expect(grouped['2025-08']).toHaveLength(2)
+      expect(grouped['2025-09']).toHaveLength(1)
     })
 
-    it('should calculate correct final balance', () => {
+    it('should calculate correct final balance - FIXED: Only completed transactions', () => {
       const store = useFinanceStore()
-      setupTestProjection(store) // Configurar projeção para incluir dados de teste
+      setupTestProjection(store)
 
-      store.addRecord({ Data: '2024-01-15', Descrição: 'Test 1', Valor: -100, Tipo: 'Despesa', Categoria: 'Test', Status: '❌' })
-      store.addRecord({ Data: '2024-01-16', Descrição: 'Test 2', Valor: 200, Tipo: 'Receita', Categoria: 'Test', Status: '✔️' })
-      store.addRecord({ Data: '2024-01-17', Descrição: 'Test 3', Valor: 150, Tipo: 'Receita', Categoria: 'Test', Status: '✔️' })
+      // Add completed transaction (should be included)
+      store.addRecord({
+        Data: '2025-08-15', // Current month
+        Descrição: 'Completed Income',
+        Valor: 1000,
+        Tipo: 'Receita',
+        Categoria: 'Test',
+        Status: '✔️' // Completed
+      })
 
-      // -100 + 200 + 150 = 250
-      expect(store.saldoFinal).toBe(250)
+      // Add pending expense (should be included in pending balance)
+      store.addRecord({
+        Data: '2025-08-16', // Current month
+        Descrição: 'Pending Expense',
+        Valor: -250,
+        Tipo: 'Despesa',
+        Categoria: 'Test',
+        Status: '❌' // Pending expense
+      })
+
+      // Add pending income (should NOT be included in pending balance - only expenses)
+      store.addRecord({
+        Data: '2025-08-17', // Current month
+        Descrição: 'Pending Income',
+        Valor: 300,
+        Tipo: 'Receita',
+        Categoria: 'Test',
+        Status: '❌' // Pending income
+      })
+
+      // Add another completed transaction
+      store.addRecord({
+        Data: '2025-08-18', // Current month
+        Descrição: 'Completed Expense',
+        Valor: -500,
+        Tipo: 'Despesa',
+        Categoria: 'Test',
+        Status: '✔️' // Completed
+      })
+
+      // Final balance should only include completed transactions: 1000 - 500 = 500
+      expect(store.saldoFinal).toBe(500)
+
+      // Pending balance should be positive value needed to complete pending expenses: 250 (absolute value)
+      expect(store.saldoPendente).toBe(250)
+
+      // Complete balance should include all transactions: 1000 - 250 + 300 - 500 = 550
+      expect(store.saldoCompleto).toBe(550)
     })
   })
 
@@ -298,19 +340,19 @@ describe('FinanceStore', () => {
     it('should toggle month visibility', () => {
       const store = useFinanceStore()
 
-      store.toggleMonthVisibility('2024-01')
+      store.toggleMonthVisibility('2025-08')
 
-      expect(store.isMonthHidden('2024-01')).toBe(true)
+      expect(store.isMonthHidden('2025-08')).toBe(true)
 
-      store.toggleMonthVisibility('2024-01')
+      store.toggleMonthVisibility('2025-08')
 
-      expect(store.isMonthHidden('2024-01')).toBe(false)
+      expect(store.isMonthHidden('2025-08')).toBe(false)
     })
 
     it('should show all months', () => {
       const store = useFinanceStore()
-      store.hideMonth('2024-01')
-      store.hideMonth('2024-02')
+      store.hideMonth('2025-08')
+      store.hideMonth('2025-09')
 
       store.showAllMonths()
 

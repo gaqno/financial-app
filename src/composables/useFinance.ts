@@ -76,10 +76,13 @@ export function useFinance() {
       return dateA - dateB; // Always ascending by date for saldo calculation
     });
 
-    // Calculate running total (saldo) chronologically
+    // Calculate running total (saldo) chronologically - FIXED: Only completed transactions
     let runningTotal = 0;
     const recordsWithSaldo = chronologicalRecords.map(item => {
-      runningTotal += item.Valor;
+      // Only add to running total if transaction is completed (✔️)
+      if (item.Status === '✔️') {
+        runningTotal += item.Valor;
+      }
       return { ...item, Saldo: runningTotal };
     });
 
@@ -202,9 +205,22 @@ export function useFinance() {
     return sortedMonths;
   });
 
-  // Calculate saldo final excluding hidden months
+  // Calculate saldo final excluding hidden months - FIXED: Only completed transactions
   const saldoFinal = computed(() => {
-    return sortedData.value.reduce((acc, item) => acc + item.Valor, 0);
+    return sortedData.value
+      .filter(item => item.Status === '✔️') // Only completed transactions
+      .reduce((acc, item) => acc + item.Valor, 0);
+  });
+
+  // Additional balance calculations
+  const saldoPendente = computed(() => {
+    return Math.abs(sortedData.value
+      .filter(item => item.Status === '❌' && item.Tipo === 'Despesa') // Only pending expenses
+      .reduce((acc, item) => acc + item.Valor, 0)); // Math.abs to get positive value
+  });
+
+  const saldoCompleto = computed(() => {
+    return sortedData.value.reduce((acc, item) => acc + item.Valor, 0); // All transactions
   });
 
   // Sorting functions
@@ -419,6 +435,8 @@ export function useFinance() {
     filteredData,
     groupedByMonth,
     saldoFinal,
+    saldoPendente,
+    saldoCompleto,
     filter,
     categoryFilter,
     editingItems,

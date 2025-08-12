@@ -85,11 +85,11 @@
 import { ref, computed } from 'vue';
 import FinanceTable from './FinanceTable.vue';
 import InvestmentDashboard from './investments/InvestmentDashboard.vue';
-import { useFinance } from '../composables/useFinance';
+import { useFinanceStore } from '../stores/financeStore';
 import { useInvestments } from '../composables/useInvestments';
 
-// Composables
-const { saldoFinal, data } = useFinance();
+// Composables - FIXED: Use store instead of composable to respect smart projection
+const store = useFinanceStore();
 const { totalPortfolioValue, investments } = useInvestments();
 
 // State
@@ -101,7 +101,7 @@ const tabs = computed(() => [
     id: 'transactions',
     label: 'Transações',
     icon: '💰',
-    badge: data.value.length || null
+    badge: store.records.length || null
   },
   {
     id: 'investments',
@@ -123,7 +123,8 @@ const currentActiveTab = computed(() => activeTab.value);
 const currentBalance = computed(() => {
   switch (activeTab.value) {
     case 'transactions':
-      return saldoFinal.value;
+      // FIXED: Use store's saldoFinal which respects smart projection
+      return store.saldoFinal;
     case 'investments':
       return totalPortfolioValue.value;
     default:

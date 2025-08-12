@@ -1,29 +1,20 @@
 import { computed } from 'vue'
-import { useFinance } from '../useFinance'
+import { useFinanceStore } from '../../stores/financeStore'
 import { useCategoryDetection } from '../useCategoryDetection'
 import type { IFinanceRecord } from '../../types/finance'
 
 export function useFinanceTable() {
-  // Core finance functionality
-  const {
-    data,
-    filteredData,
-    groupedByMonth,
-    saldoFinal,
-    addRecord,
-    updateRecord,
-    removeRecord,
-    recurrence
-  } = useFinance()
+  // FIXED: Use store instead of composable to respect smart projection
+  const store = useFinanceStore()
 
   const { detectCategory, getAllCategories, getCategoryIcon } = useCategoryDetection()
 
-  // Computed properties for table display
-  const totalRecords = computed(() => data.value.length)
+  // Computed properties for table display - FIXED: Use store data that respects projection
+  const totalRecords = computed(() => store.records.length)
 
   const recordsByCategory = computed(() => {
     const categories: Record<string, IFinanceRecord[]> = {}
-    data.value.forEach(record => {
+    store.records.forEach(record => {
       const category = record.Categoria || 'Sem categoria'
       if (!categories[category]) {
         categories[category] = []
@@ -36,7 +27,7 @@ export function useFinanceTable() {
   const monthlyTotals = computed(() => {
     const totals: Record<string, { receitas: number; despesas: number; saldo: number }> = {}
 
-    Object.entries(groupedByMonth.value).forEach(([monthKey, records]) => {
+    Object.entries(store.groupedByMonth).forEach(([monthKey, records]) => {
       const receitas = records
         .filter(r => r.Tipo === 'Receita')
         .reduce((sum, r) => sum + r.Valor, 0)
@@ -92,18 +83,18 @@ export function useFinanceTable() {
 
   return {
     // State
-    data,
-    filteredData,
-    groupedByMonth,
-    saldoFinal,
+    data: store.records, // Expose store data directly
+    filteredData: store.filteredData, // Expose store data directly - FIXED: Use correct property name
+    groupedByMonth: store.groupedByMonth, // Expose store data directly
+    saldoFinal: store.saldoFinal, // Expose store data directly
     totalRecords,
     recordsByCategory,
     monthlyTotals,
 
     // Actions
-    addRecord,
-    updateRecord,
-    removeRecord,
+    addRecord: store.addRecord,
+    updateRecord: store.updateRecord,
+    removeRecord: store.removeRecord,
 
     // Helpers
     isRecurringRecord,
@@ -116,6 +107,6 @@ export function useFinanceTable() {
     getCategoryIcon,
 
     // Recurrence
-    recurrence
+    recurrence: store.recurrence // Expose store recurrence directly
   }
 } 

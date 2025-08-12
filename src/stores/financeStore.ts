@@ -133,7 +133,7 @@ export const useFinanceStore = defineStore('finance', () => {
   // ===========================================
 
   const sortedData = computed(() => {
-    // Filter records based on smart projection ONLY
+    // Filter records based on smart projection ONLY for DISPLAY
     const smartVisibleRecords = records.value.filter(item => {
       const date = new Date(item.Data)
       const monthKey = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}`
@@ -142,18 +142,34 @@ export const useFinanceStore = defineStore('finance', () => {
       return isMonthInSmartProjection(monthKey)
     })
 
-    // Calculate running totals chronologically
-    const chronologicalRecords = [...smartVisibleRecords].sort((a, b) => {
+    // FIXED: Calculate running totals chronologically using ALL records, not just visible ones
+    // This ensures the balance calculation is always accurate regardless of projection settings
+    const allRecordsChronological = [...records.value].sort((a, b) => {
       return new Date(a.Data).getTime() - new Date(b.Data).getTime()
     })
 
+    // Calculate running balance considering ALL records chronologically
     let runningTotal = 0
-    const recordsWithSaldo = chronologicalRecords.map(item => {
-      runningTotal += item.Valor
-      return { ...item, Saldo: runningTotal }
+    const balanceMap = new Map<string, number>()
+
+    allRecordsChronological.forEach(item => {
+      // FIXED: Only include completed transactions (✔️) in running balance
+      if (item.Status === '✔️') {
+        runningTotal += item.Valor
+      }
+      // Store the balance for this record (using a unique key based on date + description + value)
+      const recordKey = `${item.Data}_${item.Descrição}_${item.Valor}`
+      balanceMap.set(recordKey, runningTotal)
     })
 
-    // Sort according to user preferences
+    // Apply the calculated balances to visible records only
+    const recordsWithSaldo = smartVisibleRecords.map(item => {
+      const recordKey = `${item.Data}_${item.Descrição}_${item.Valor}`
+      const calculatedSaldo = balanceMap.get(recordKey) || 0
+      return { ...item, Saldo: calculatedSaldo }
+    })
+
+    // Sort according to user preferences for display
     return recordsWithSaldo.sort((a, b) => {
       let aValue: any = a[filters.value.sortField]
       let bValue: any = b[filters.value.sortField]
@@ -231,8 +247,22 @@ export const useFinanceStore = defineStore('finance', () => {
     return result
   })
 
+  // Balance calculations - FIXED: Only completed transactions should count toward final balance
   const saldoFinal = computed(() => {
-    return filteredData.value.reduce((total, item) => total + item.Valor, 0)
+    return filteredData.value
+      .filter(item => item.Status === '✔️') // Only completed transactions
+      .reduce((total, item) => total + item.Valor, 0)
+  })
+
+  // Additional balance breakdowns
+  const saldoPendente = computed(() => {
+    return Math.abs(filteredData.value
+      .filter(item => item.Status === '❌' && item.Tipo === 'Despesa') // Only pending expenses
+      .reduce((total, item) => total + item.Valor, 0)) // Math.abs to get positive value
+  })
+
+  const saldoCompleto = computed(() => {
+    return filteredData.value.reduce((total, item) => total + item.Valor, 0) // All transactions
   })
 
   // ===========================================
@@ -873,6 +903,8 @@ export const useFinanceStore = defineStore('finance', () => {
     filteredData,
     groupedByMonth,
     saldoFinal,
+    saldoPendente,
+    saldoCompleto,
 
     // Filter state
     filter: computed(() => filters.value.filter),

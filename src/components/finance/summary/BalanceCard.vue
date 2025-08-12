@@ -41,7 +41,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useFinanceTable } from '../../../composables/finance/useFinanceTable'
-import { useFinance } from '../../../composables/useFinance'
+import { useFinanceStore } from '../../../stores/financeStore'
 
 interface Props {
   title?: string
@@ -53,15 +53,15 @@ const props = withDefaults(defineProps<Props>(), {
   showQuickStats: true
 })
 
-// Use composables
-const { saldoFinal, totalRecords, formatCurrency } = useFinanceTable()
-const { getHiddenMonthsCount } = useFinance()
+// Use composables - FIXED: Use store for hidden months count
+const { formatCurrency, totalRecords } = useFinanceTable()
+const store = useFinanceStore()
 
 // Balance formatting and color
-const formattedBalance = computed(() => formatCurrency(saldoFinal.value))
+const formattedBalance = computed(() => formatCurrency(store.saldoFinal))
 
 const balanceColorClass = computed(() =>
-  saldoFinal.value < 0 ? 'text-red-600' : 'text-green-600'
+  store.saldoFinal < 0 ? 'text-red-600' : 'text-green-600'
 )
 
 // Record count text
@@ -72,8 +72,8 @@ const recordCountText = computed(() => {
   return `${count} transações registradas`
 })
 
-// Hidden months
-const hiddenMonthsCount = computed(() => getHiddenMonthsCount())
+// Hidden months - FIXED: Use store method
+const hiddenMonthsCount = computed(() => store.getHiddenMonthsCount())
 
 const hiddenMonthsText = computed(() => {
   const count = hiddenMonthsCount.value
@@ -81,16 +81,16 @@ const hiddenMonthsText = computed(() => {
   return `${count} meses ocultos do cálculo`
 })
 
-// Quick stats calculations
+// Quick stats calculations - FIXED: Use store data directly
 const totalReceitas = computed(() => {
-  return useFinanceTable().data.value
-    .filter(record => record.Tipo === 'Receita')
-    .reduce((sum, record) => sum + record.Valor, 0)
+  return store.filteredData
+    .filter((record: any) => record.Tipo === 'Receita')
+    .reduce((sum: number, record: any) => sum + record.Valor, 0)
 })
 
 const totalDespesas = computed(() => {
-  return useFinanceTable().data.value
-    .filter(record => record.Tipo === 'Despesa')
-    .reduce((sum, record) => sum + record.Valor, 0)
+  return store.filteredData
+    .filter((record: any) => record.Tipo === 'Despesa')
+    .reduce((sum: number, record: any) => sum + record.Valor, 0)
 })
 </script>
