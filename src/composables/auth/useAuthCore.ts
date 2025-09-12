@@ -2,6 +2,7 @@ import { onMounted, onUnmounted } from 'vue'
 import { supabase } from '../../lib/supabase'
 import { useAuthState } from './useAuthState'
 import { useAuthProfile } from './useAuthProfile'
+import { useAuthErrorHandler } from './useAuthErrorHandler'
 import { transformUser, formatAuthError, createAuthLogger } from '../../utils/authHelpers'
 
 const logger = createAuthLogger('AUTH_CORE')
@@ -19,6 +20,7 @@ export function useAuthCore() {
   } = useAuthState()
 
   const { ensureProfile } = useAuthProfile()
+  const { setupGlobalErrorHandler, handleSessionError, withSessionErrorHandling } = useAuthErrorHandler()
 
   const initializeAuth = async () => {
     if (getIsInitialized()) {
@@ -28,6 +30,9 @@ export function useAuthCore() {
 
     logger.info('Inicializando sistema de autenticação...')
     setInitialized(true)
+
+    // Configurar handler global de erros de sessão
+    setupGlobalErrorHandler()
 
     // Verificar configuração do Supabase
     const hasUrl = !!import.meta.env.VITE_SUPABASE_URL
@@ -71,7 +76,13 @@ export function useAuthCore() {
       if (err instanceof Error && err.message.includes('Timeout')) {
         logger.warn('Timeout na verificação - continuando sem sessão')
       } else {
-        setError(formatAuthError(err as Error))
+        // Tentar tratar como erro de sessão
+        const wasSessionError = await handleSessionError(err, 'inicialização')
+
+        if (!wasSessionError) {
+          // Se não foi erro de sessão, definir erro normal
+          setError(formatAuthError(err as Error))
+        }
       }
 
       // Mesmo com erro, tentar configurar listener

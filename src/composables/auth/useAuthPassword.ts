@@ -2,11 +2,13 @@ import { supabase } from '../../lib/supabase'
 import type { IPasswordResetRequest, IPasswordUpdate } from '../../types/auth'
 import { useAuthState } from './useAuthState'
 import { formatAuthError, createAuthLogger } from '../../utils/authHelpers'
+import { useToast } from '../useToast'
 
 const logger = createAuthLogger('AUTH_PASSWORD')
 
 export function useAuthPassword() {
   const { setLoading, setError } = useAuthState()
+  const { error: showErrorToast, success: showSuccessToast } = useToast()
 
   const resetPassword = async (request: IPasswordResetRequest): Promise<boolean> => {
     try {
@@ -21,14 +23,26 @@ export function useAuthPassword() {
       )
 
       if (authError) {
-        setError(formatAuthError(authError))
+        const formattedError = formatAuthError(authError)
+        showErrorToast(formattedError.message, {
+          title: 'Erro na Recuperação',
+          duration: 5000
+        })
         return false
       }
 
       logger.success('Email de recuperação enviado para:', request.email)
+      showSuccessToast('Email de recuperação enviado! Verifique sua caixa de entrada.', {
+        title: 'Email Enviado',
+        duration: 4000
+      })
       return true
     } catch (err) {
-      setError(formatAuthError(err as Error))
+      const formattedError = formatAuthError(err as Error)
+      showErrorToast(formattedError.message, {
+        title: 'Erro na Recuperação',
+        duration: 5000
+      })
       return false
     } finally {
       setLoading(false)
@@ -38,7 +52,9 @@ export function useAuthPassword() {
   const updatePassword = async (passwordUpdate: IPasswordUpdate): Promise<boolean> => {
     try {
       if (passwordUpdate.password !== passwordUpdate.confirmPassword) {
-        setError(formatAuthError('As senhas não coincidem'))
+        showErrorToast('As senhas não coincidem', {
+          title: 'Erro de Validação'
+        })
         return false
       }
 
@@ -50,14 +66,26 @@ export function useAuthPassword() {
       })
 
       if (authError) {
-        setError(formatAuthError(authError))
+        const formattedError = formatAuthError(authError)
+        showErrorToast(formattedError.message, {
+          title: 'Erro ao Atualizar Senha',
+          duration: 5000
+        })
         return false
       }
 
       logger.success('Senha atualizada com sucesso')
+      showSuccessToast('Senha atualizada com sucesso!', {
+        title: 'Sucesso',
+        duration: 3000
+      })
       return true
     } catch (err) {
-      setError(formatAuthError(err as Error))
+      const formattedError = formatAuthError(err as Error)
+      showErrorToast(formattedError.message, {
+        title: 'Erro ao Atualizar Senha',
+        duration: 5000
+      })
       return false
     } finally {
       setLoading(false)

@@ -26,6 +26,7 @@ export function useAuth() {
     login,
     register,
     logout,
+    forceLogout,
     clearError
   } = useAuthActions()
 
@@ -59,6 +60,7 @@ export function useAuth() {
     login,
     register,
     logout,
+    forceLogout,
 
     // Gestão de perfil e senha
     updateProfile,

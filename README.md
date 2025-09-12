@@ -1,10 +1,13 @@
-# 💰 FinanceApp
+# 🐷 por.quinho
 
-Uma aplicação moderna de gestão financeira pessoal construída com Vue.js 3, TypeScript e Tailwind CSS.
+**"De pouco em pouco se enche o porquinho"**
+
+Uma aplicação moderna de gestão financeira pessoal que te ajuda a economizar e controlar seus gastos. Construída com Vue.js 3, TypeScript e Tailwind CSS.
 
 ## ✨ Funcionalidades
 
 ### 📊 **Gestão de Transações**
+
 - ➕ Adicionar receitas e despesas
 - ✏️ Editar múltiplos registros simultaneamente
 - 🗑️ Exclusão com confirmação e sistema de undo
@@ -12,24 +15,28 @@ Uma aplicação moderna de gestão financeira pessoal construída com Vue.js 3, 
 - 💰 Formatação monetária brasileira (R$)
 
 ### 📋 **Importação de Dados**
+
 - 📁 Importação via CSV
 - 🇧🇷 Suporte a formato brasileiro (R$ 1.500,00)
 - 📅 Reconhecimento de datas DD/MM/YYYY
 - ⚡ Validação automática de dados
 
 ### 🏷️ **Categorização Inteligente**
+
 - 🤖 Detecção automática por palavras-chave
 - 🏠 Categorias: Moradia, Alimentação, Transporte, Saúde, etc.
 - 🎯 Filtros por categoria e tipo
 - 📊 Resumo visual por categorias
 
 ### 📈 **Visualização de Dados**
+
 - 🍩 Gráfico de pizza (Receitas vs Despesas)
 - 📋 Resumo financeiro em tempo real
 - 🔍 Filtros dinâmicos
 - 📱 Cards de categoria com totais
 
 ### 📱 **Interface Mobile-First**
+
 - 📲 Design responsivo e nativo
 - 👆 Touch-friendly
 - 🎨 Animações suaves
@@ -49,10 +56,10 @@ Uma aplicação moderna de gestão financeira pessoal construída com Vue.js 3, 
 
 ```bash
 # Clone o repositório
-git clone https://github.com/gaqno/financial-app.git
+git clone https://github.com/gaqno/por-quinho.git
 
 # Entre no diretório
-cd financial-app
+cd por-quinho
 
 # Instale as dependências
 npm install
@@ -67,21 +74,25 @@ npm run build
 ## 🎮 Como Usar
 
 ### 1. **Adicionar Transações**
+
 - Preencha o formulário: Data, Descrição, Valor, Tipo
 - A categoria é detectada automaticamente pela descrição
 - Ou selecione manualmente uma categoria
 
 ### 2. **Importar CSV**
+
 - Clique em "Importar CSV"
 - Use o formato: `Data,Descrição,Valor,Tipo,Categoria`
 - Exemplo: `07/08,Aluguel,-R$ 1.500.00,Despesa,Moradia`
 
 ### 3. **Gerenciar Registros**
+
 - **Editar**: Clique no ícone de lápis
 - **Editar Múltiplos**: Use "Editar Todos"
 - **Excluir**: Clique na lixeira → Confirme → Undo em 5s se necessário
 
 ### 4. **Filtrar e Visualizar**
+
 - Use os botões de filtro: Todos, Receitas, Despesas
 - Clique nos cards de categoria para filtrar
 - Veja o gráfico de distribuição
@@ -137,4 +148,4 @@ Desenvolvido por [gaqno](https://github.com/gaqno)
 
 ---
 
-⭐ Deixe uma estrela se este projeto te ajudou! 
+⭐ Deixe uma estrela se este projeto te ajudou!

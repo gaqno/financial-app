@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>🐷 Preview dos Templates de Email - por.quinho</title>
+    <style>
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          sans-serif;
+        background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 100%);
+        margin: 0;
+        padding: 20px;
+        min-height: 100vh;
+      }
+
+      .preview-container {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      .preview-header {
+        text-align: center;
+        margin-bottom: 40px;
+        padding: 30px;
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 4px 12px rgba(236, 72, 153, 0.1);
+      }
+
+      .preview-header h1 {
+        color: #be185d;
+        font-size: 32px;
+        margin: 0 0 10px 0;
+      }
+
+      .preview-header p {
+        color: #6b7280;
+        font-size: 16px;
+        margin: 0;
+        font-style: italic;
+      }
+
+      .templates-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 30px;
+        margin-bottom: 40px;
+      }
+
+      .template-card {
+        background: white;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 8px 20px rgba(236, 72, 153, 0.1);
+        border: 1px solid #fce7f3;
+      }
+
+      .template-header {
+        background: linear-gradient(135deg, #ec4899 0%, #be185d 100%);
+        color: white;
+        padding: 20px;
+        text-align: center;
+      }
+
+      .template-header h3 {
+        margin: 0 0 5px 0;
+        font-size: 18px;
+      }
+
+      .template-header p {
+        margin: 0;
+        font-size: 14px;
+        opacity: 0.9;
+      }
+
+      .template-preview {
+        height: 300px;
+        overflow: hidden;
+        position: relative;
+      }
+
+      .template-preview iframe {
+        width: 100%;
+        height: 600px;
+        border: none;
+        transform: scale(0.5);
+        transform-origin: top left;
+      }
+
+      .template-footer {
+        padding: 20px;
+        border-top: 1px solid #f3f4f6;
+        background: #f9fafb;
+      }
+
+      .template-footer h4 {
+        margin: 0 0 10px 0;
+        color: #be185d;
+        font-size: 14px;
+      }
+
+      .template-footer p {
+        margin: 0;
+        color: #6b7280;
+        font-size: 12px;
+        line-height: 1.4;
+      }
+
+      .usage-section {
+        background: white;
+        border-radius: 16px;
+        padding: 30px;
+        box-shadow: 0 4px 12px rgba(236, 72, 153, 0.1);
+        margin-top: 40px;
+      }
+
+      .usage-section h2 {
+        color: #be185d;
+        margin: 0 0 20px 0;
+      }
+
+      .code-block {
+        background: #1f2937;
+        color: #f9fafb;
+        padding: 20px;
+        border-radius: 12px;
+        font-family: "Monaco", "Menlo", monospace;
+        font-size: 14px;
+        line-height: 1.5;
+        overflow-x: auto;
+        margin: 15px 0;
+      }
+
+      .warning {
+        background: #fef3cd;
+        border: 1px solid #fbbf24;
+        border-radius: 8px;
+        padding: 16px;
+        margin: 20px 0;
+      }
+
+      .warning p {
+        color: #92400e;
+        margin: 0;
+        font-size: 14px;
+      }
+
+      @media (max-width: 768px) {
+        .templates-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .preview-container {
+          padding: 10px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="preview-container">
+      <div class="preview-header">
+        <h1>🐷 Templates de Email - por.quinho</h1>
+        <p>De pouco em pouco se enche o porquinho</p>
+      </div>
+
+      <div class="templates-grid">
+        <div class="template-card">
+          <div class="template-header">
+            <h3>✨ Confirmação de Cadastro</h3>
+            <p>Bem-vindo ao por.quinho!</p>
+          </div>
+          <div class="template-preview">
+            <div
+              style="
+                transform: scale(0.8);
+                transform-origin: top;
+                padding: 20px;
+                background: #fdf2f8;
+              "
+            >
+              <div
+                style="
+                  max-width: 300px;
+                  margin: 0 auto;
+                  background: white;
+                  border-radius: 12px;
+                  overflow: hidden;
+                  box-shadow: 0 4px 12px rgba(236, 72, 153, 0.1);
+                "
+              >
+                <div
+                  style="
+                    background: linear-gradient(
+                      135deg,
+                      #ec4899 0%,
+                      #be185d 100%
+                    );
+                    padding: 25px;
+                    text-align: center;
+                    color: white;
+                  "
+                >
+                  <h1 style="margin: 0; font-size: 20px">
+                    🐷 Bem-vindo ao por.quinho!
+                  </h1>
+                  <p
+                    style="
+                      margin: 5px 0 0 0;
+                      font-size: 11px;
+                      opacity: 0.9;
+                      font-style: italic;
+                    "
+                  >
+                    De pouco em pouco se enche o porquinho
+                  </p>
+                </div>
+                <div style="padding: 25px; text-align: center">
+                  <h2
+                    style="color: #be185d; font-size: 16px; margin: 0 0 15px 0"
+                  >
+                    Confirme seu cadastro
+                  </h2>
+                  <p
+                    style="color: #374151; font-size: 12px; margin: 0 0 15px 0"
+                  >
+                    Estamos muito felizes em ter você conosco! 🎉
+                  </p>
+                  <a
+                    href="#"
+                    style="
+                      display: inline-block;
+                      background: linear-gradient(
+                        135deg,
+                        #ec4899 0%,
+                        #be185d 100%
+                      );
+                      color: white;
+                      text-decoration: none;
+                      padding: 12px 20px;
+                      border-radius: 8px;
+                      font-size: 12px;
+                      font-weight: 600;
+                    "
+                    >✨ Confirmar Email</a
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="template-footer">
+            <h4>📧 Assunto:</h4>
+            <p>🐷 Confirme seu cadastro no por.quinho</p>
+          </div>
+        </div>
+
+        <div class="template-card">
+          <div class="template-header">
+            <h3>🚀 Magic Link</h3>
+            <p>Acesso rápido e seguro</p>
+          </div>
+          <div class="template-preview">
+            <div
+              style="
+                transform: scale(0.8);
+                transform-origin: top;
+                padding: 20px;
+                background: #fdf2f8;
+              "
+            >
+              <div
+                style="
+                  max-width: 300px;
+                  margin: 0 auto;
+                  background: white;
+                  border-radius: 12px;
+                  overflow: hidden;
+                  box-shadow: 0 4px 12px rgba(236, 72, 153, 0.1);
+                "
+              >
+                <div
+                  style="
+                    background: linear-gradient(
+                      135deg,
+                      #ec4899 0%,
+                      #be185d 100%
+                    );
+                    padding: 25px;
+                    text-align: center;
+                    color: white;
+                  "
+                >
+                  <h1 style="margin: 0; font-size: 20px">
+                    🐷 Acesso rápido ao por.quinho
+                  </h1>
+                  <p
+                    style="
+                      margin: 5px 0 0 0;
+                      font-size: 11px;
+                      opacity: 0.9;
+                      font-style: italic;
+                    "
+                  >
+                    De pouco em pouco se enche o porquinho
+                  </p>
+                </div>
+                <div style="padding: 25px; text-align: center">
+                  <h2
+                    style="color: #be185d; font-size: 16px; margin: 0 0 15px 0"
+                  >
+                    Seu link mágico chegou! ✨
+                  </h2>
+                  <p
+                    style="color: #374151; font-size: 12px; margin: 0 0 15px 0"
+                  >
+                    Clique no botão abaixo para acessar sua conta:
+                  </p>
+                  <a
+                    href="#"
+                    style="
+                      display: inline-block;
+                      background: linear-gradient(
+                        135deg,
+                        #ec4899 0%,
+                        #be185d 100%
+                      );
+                      color: white;
+                      text-decoration: none;
+                      padding: 12px 20px;
+                      border-radius: 8px;
+                      font-size: 12px;
+                      font-weight: 600;
+                    "
+                    >🚀 Entrar no por.quinho</a
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="template-footer">
+            <h4>📧 Assunto:</h4>
+            <p>🚀 Seu acesso rápido ao por.quinho</p>
+          </div>
+        </div>
+
+        <div class="template-card">
+          <div class="template-header">
+            <h3>🔑 Recuperação de Senha</h3>
+            <p>Redefinir senha esquecida</p>
+          </div>
+          <div class="template-preview">
+            <div
+              style="
+                transform: scale(0.8);
+                transform-origin: top;
+                padding: 20px;
+                background: #fdf2f8;
+              "
+            >
+              <div
+                style="
+                  max-width: 300px;
+                  margin: 0 auto;
+                  background: white;
+                  border-radius: 12px;
+                  overflow: hidden;
+                  box-shadow: 0 4px 12px rgba(236, 72, 153, 0.1);
+                "
+              >
+                <div
+                  style="
+                    background: linear-gradient(
+                      135deg,
+                      #ec4899 0%,
+                      #be185d 100%
+                    );
+                    padding: 25px;
+                    text-align: center;
+                    color: white;
+                  "
+                >
+                  <h1 style="margin: 0; font-size: 20px">🐷 Redefinir senha</h1>
+                  <p
+                    style="
+                      margin: 5px 0 0 0;
+                      font-size: 11px;
+                      opacity: 0.9;
+                      font-style: italic;
+                    "
+                  >
+                    De pouco em pouco se enche o porquinho
+                  </p>
+                </div>
+                <div style="padding: 25px; text-align: center">
+                  <h2
+                    style="color: #be185d; font-size: 16px; margin: 0 0 15px 0"
+                  >
+                    Recuperação de senha 🔑
+                  </h2>
+                  <p
+                    style="color: #374151; font-size: 12px; margin: 0 0 15px 0"
+                  >
+                    Esqueceu sua senha? Não se preocupe!
+                  </p>
+                  <a
+                    href="#"
+                    style="
+                      display: inline-block;
+                      background: linear-gradient(
+                        135deg,
+                        #ec4899 0%,
+                        #be185d 100%
+                      );
+                      color: white;
+                      text-decoration: none;
+                      padding: 12px 20px;
+                      border-radius: 8px;
+                      font-size: 12px;
+                      font-weight: 600;
+                    "
+                    >🔐 Redefinir Senha</a
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="template-footer">
+            <h4>📧 Assunto:</h4>
+            <p>🔑 Redefinir senha - por.quinho</p>
+          </div>
+        </div>
+
+        <div class="template-card">
+          <div class="template-header">
+            <h3>🎉 Convite</h3>
+            <p>Junte-se ao por.quinho</p>
+          </div>
+          <div class="template-preview">
+            <div
+              style="
+                transform: scale(0.8);
+                transform-origin: top;
+                padding: 20px;
+                background: #fdf2f8;
+              "
+            >
+              <div
+                style="
+                  max-width: 300px;
+                  margin: 0 auto;
+                  background: white;
+                  border-radius: 12px;
+                  overflow: hidden;
+                  box-shadow: 0 4px 12px rgba(236, 72, 153, 0.1);
+                "
+              >
+                <div
+                  style="
+                    background: linear-gradient(
+                      135deg,
+                      #ec4899 0%,
+                      #be185d 100%
+                    );
+                    padding: 25px;
+                    text-align: center;
+                    color: white;
+                  "
+                >
+                  <h1 style="margin: 0; font-size: 20px">
+                    🐷 Você foi convidado!
+                  </h1>
+                  <p
+                    style="
+                      margin: 5px 0 0 0;
+                      font-size: 11px;
+                      opacity: 0.9;
+                      font-style: italic;
+                    "
+                  >
+                    De pouco em pouco se enche o porquinho
+                  </p>
+                </div>
+                <div style="padding: 25px; text-align: center">
+                  <h2
+                    style="color: #be185d; font-size: 16px; margin: 0 0 15px 0"
+                  >
+                    Junte-se ao por.quinho! 🎉
+                  </h2>
+                  <p
+                    style="color: #374151; font-size: 12px; margin: 0 0 15px 0"
+                  >
+                    Descubra uma nova forma de cuidar do dinheiro!
+                  </p>
+                  <a
+                    href="#"
+                    style="
+                      display: inline-block;
+                      background: linear-gradient(
+                        135deg,
+                        #ec4899 0%,
+                        #be185d 100%
+                      );
+                      color: white;
+                      text-decoration: none;
+                      padding: 12px 20px;
+                      border-radius: 8px;
+                      font-size: 12px;
+                      font-weight: 600;
+                    "
+                    >🌟 Aceitar Convite</a
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="template-footer">
+            <h4>📧 Assunto:</h4>
+            <p>🎉 Você foi convidado para o por.quinho!</p>
+          </div>
+        </div>
+
+        <div class="template-card">
+          <div class="template-header">
+            <h3>📧 Mudança de Email</h3>
+            <p>Confirmar novo endereço</p>
+          </div>
+          <div class="template-preview">
+            <div
+              style="
+                transform: scale(0.8);
+                transform-origin: top;
+                padding: 20px;
+                background: #fdf2f8;
+              "
+            >
+              <div
+                style="
+                  max-width: 300px;
+                  margin: 0 auto;
+                  background: white;
+                  border-radius: 12px;
+                  overflow: hidden;
+                  box-shadow: 0 4px 12px rgba(236, 72, 153, 0.1);
+                "
+              >
+                <div
+                  style="
+                    background: linear-gradient(
+                      135deg,
+                      #ec4899 0%,
+                      #be185d 100%
+                    );
+                    padding: 25px;
+                    text-align: center;
+                    color: white;
+                  "
+                >
+                  <h1 style="margin: 0; font-size: 20px">
+                    🐷 Confirmar novo email
+                  </h1>
+                  <p
+                    style="
+                      margin: 5px 0 0 0;
+                      font-size: 11px;
+                      opacity: 0.9;
+                      font-style: italic;
+                    "
+                  >
+                    De pouco em pouco se enche o porquinho
+                  </p>
+                </div>
+                <div style="padding: 25px; text-align: center">
+                  <h2
+                    style="color: #be185d; font-size: 16px; margin: 0 0 15px 0"
+                  >
+                    Atualizando seu email 📧
+                  </h2>
+                  <p
+                    style="color: #374151; font-size: 12px; margin: 0 0 15px 0"
+                  >
+                    Confirme seu novo endereço de email:
+                  </p>
+                  <a
+                    href="#"
+                    style="
+                      display: inline-block;
+                      background: linear-gradient(
+                        135deg,
+                        #ec4899 0%,
+                        #be185d 100%
+                      );
+                      color: white;
+                      text-decoration: none;
+                      padding: 12px 20px;
+                      border-radius: 8px;
+                      font-size: 12px;
+                      font-weight: 600;
+                    "
+                    >✅ Confirmar Novo Email</a
+                  >
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="template-footer">
+            <h4>📧 Assunto:</h4>
+            <p>📧 Confirme seu novo email - por.quinho</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="usage-section">
+        <h2>🚀 Como Aplicar os Templates</h2>
+
+        <h3>1. Configure suas credenciais:</h3>
+        <div class="code-block">
+          # Obtenha seu token em: https://supabase.com/dashboard/account/tokens
+          export SUPABASE_ACCESS_TOKEN="seu-access-token" # Copie da URL do seu
+          projeto: https://supabase.com/dashboard/project/[PROJECT_REF] export
+          PROJECT_REF="seu-project-ref"
+        </div>
+
+        <h3>2. Execute o script:</h3>
+        <div class="code-block">
+          # Opção 1: Script completo com validações
+          ./update-supabase-email-templates.sh # Opção 2: Script simples
+          ./update-email-templates-simple.sh
+        </div>
+
+        <div class="warning">
+          <p>
+            <strong>🔒 Importante:</strong> Faça backup da configuração atual
+            antes de aplicar os novos templates. O script automaticamente cria
+            um backup para você.
+          </p>
+        </div>
+
+        <h3>3. Teste os templates:</h3>
+        <p>Após aplicar os templates, teste cada tipo de email:</p>
+        <ul>
+          <li>📝 Crie uma nova conta para testar confirmação</li>
+          <li>🔗 Use magic link para testar login</li>
+          <li>🔑 Solicite recuperação de senha</li>
+          <li>🎁 Envie um convite para outro usuário</li>
+          <li>📧 Altere seu email para testar confirmação</li>
+        </ul>
+
+        <h3>4. Características dos templates:</h3>
+        <ul>
+          <li>
+            🎨 <strong>Design responsivo</strong> - Funciona em desktop e mobile
+          </li>
+          <li>
+            🐷 <strong>Tema por.quinho</strong> - Cores rosa/pink e ícones de
+            porquinho
+          </li>
+          <li>
+            💌 <strong>Tipografia moderna</strong> - Google Fonts para melhor
+            legibilidade
+          </li>
+          <li>
+            🔒 <strong>Avisos de segurança</strong> - Informações claras sobre
+            expiração
+          </li>
+          <li>
+            📱 <strong>Mobile-first</strong> - Otimizado para dispositivos
+            móveis
+          </li>
+        </ul>
+      </div>
+    </div>
+  </body>
+</html>

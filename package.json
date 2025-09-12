@@ -1,7 +1,8 @@
 {
-  "name": "tabela-financeira-vue",
+  "name": "por-quinho",
   "version": "0.0.1",
   "type": "module",
+  "description": "De pouco em pouco se enche o porquinho - Aplicação moderna de gestão financeira pessoal",
   "scripts": {
     "dev": "vite",
     "build": "npm run test:pre-build && vite build",

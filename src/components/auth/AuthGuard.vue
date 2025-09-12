@@ -2,14 +2,14 @@
   <div class="auth-guard">
     <!-- Loading State -->
     <div v-if="authStatus === 'loading'" class="loading-screen">
-      <div class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+      <div class="min-h-screen bg-gradient-to-br from-pink-50 to-rose-100 flex items-center justify-center">
         <div class="bg-white rounded-2xl shadow-xl p-8 text-center">
-          <div class="w-16 h-16 mx-auto mb-4 bg-blue-100 rounded-full flex items-center justify-center">
-            <i class="fas fa-wallet text-blue-600 text-2xl"></i>
+          <div class="w-16 h-16 mx-auto mb-4 bg-pink-100 rounded-full flex items-center justify-center">
+            <i class="fas fa-piggy-bank text-pink-600 text-2xl"></i>
           </div>
-          <h2 class="text-xl font-semibold text-gray-900 mb-4">FinanceApp</h2>
+          <h2 class="text-xl font-semibold text-gray-900 mb-4">🐷 por.quinho</h2>
           <div class="flex items-center justify-center space-x-2">
-            <i class="fas fa-spinner fa-spin text-blue-600"></i>
+            <i class="fas fa-spinner fa-spin text-pink-600"></i>
             <span class="text-gray-600">Carregando...</span>
           </div>
         </div>
@@ -18,10 +18,9 @@
 
     <!-- Authentication Required -->
     <div v-else-if="authStatus === 'unauthenticated'" class="auth-required">
-      <LoginForm :error="error" :is-loading="isLoading" @login-success="handleLoginSuccess"
-        @register-success="handleRegisterSuccess" @login-attempt="handleLoginAttempt"
-        @register-attempt="handleRegisterAttempt" @password-reset="handlePasswordReset"
-        @clear-error="handleClearError" />
+      <LoginForm :is-loading="isLoading" @login-success="handleLoginSuccess" @register-success="handleRegisterSuccess"
+        @login-attempt="handleLoginAttempt" @register-attempt="handleRegisterAttempt"
+        @password-reset="handlePasswordReset" @clear-error="handleClearError" />
     </div>
 
     <!-- Error State -->
@@ -62,6 +61,24 @@
       <div class="app-content" :class="{ 'pt-16': showUserHeader }">
         <slot />
       </div>
+
+      <!-- Profile Overlay -->
+      <div v-if="showProfileOverlay" class="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm">
+        <div class="absolute inset-0 overflow-auto">
+          <div class="min-h-full flex items-start justify-center p-4">
+            <div class="relative w-full max-w-6xl bg-white dark:bg-slate-900 rounded-xl shadow-2xl my-4">
+              <!-- Close Button -->
+              <button @click="closeProfileOverlay"
+                class="absolute top-4 right-4 z-10 w-10 h-10 bg-white dark:bg-slate-700 text-gray-500 dark:text-slate-400 hover:text-gray-700 dark:hover:text-slate-200 rounded-full shadow-lg hover:shadow-xl transition-all flex items-center justify-center">
+                <i class="fas fa-times text-lg"></i>
+              </button>
+
+              <!-- Profile Page Content -->
+              <ProfilePage :initial-section="initialProfileSection" />
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -71,6 +88,8 @@ import { ref, computed, onMounted } from 'vue'
 import { useAuth } from '../../composables/useAuth'
 import LoginForm from './LoginForm.vue'
 import UserHeader from './UserHeader.vue'
+import ProfilePage from '../profile/ProfilePage.vue'
+import type { ProfileSection } from '../../types/profile'
 
 interface Props {
   showUserHeader?: boolean
@@ -101,16 +120,20 @@ const {
   register,
   resetPassword,
   logout,
+  forceLogout,
   clearError,
   initializeAuth
 } = useAuth()
 
 // Component state
+const showProfileOverlay = ref(false)
+const initialProfileSection = ref<ProfileSection>('profile')
+
 const sampleNotifications = ref([
   {
     id: '1',
-    title: 'Bem-vindo ao FinanceApp!',
-    message: 'Explore todas as funcionalidades para gerenciar suas finanças.',
+    title: 'Bem-vindo ao por.quinho! 🐷',
+    message: 'De pouco em pouco, vamos encher seu porquinho! Explore as funcionalidades para gerenciar suas finanças.',
     read: false,
     createdAt: new Date().toISOString()
   },
@@ -160,6 +183,13 @@ const handleLogout = async () => {
   const success = await logout()
   if (success) {
     emit('auth-change', false)
+  } else {
+    // Se o logout normal falhar, tentar logout forçado
+    console.warn('🔄 Logout normal falhou, tentando logout forçado...')
+    const forceSuccess = forceLogout()
+    if (forceSuccess) {
+      emit('auth-change', false)
+    }
   }
 }
 
@@ -169,11 +199,19 @@ const handleRetry = async () => {
 }
 
 const handleProfile = () => {
+  initialProfileSection.value = 'profile'
+  showProfileOverlay.value = true
   emit('user-profile')
 }
 
 const handleSettings = () => {
+  initialProfileSection.value = 'settings'
+  showProfileOverlay.value = true
   emit('user-settings')
+}
+
+const closeProfileOverlay = () => {
+  showProfileOverlay.value = false
 }
 
 const handleNotificationRead = (id: string) => {

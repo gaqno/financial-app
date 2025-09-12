@@ -106,12 +106,12 @@ const pendingCount = computed(() =>
 
 const currentPageTitle = computed(() => {
   const titles = {
-    dashboard: '💰 FinanceApp',
+    dashboard: '🐷 por.quinho',
     transactions: 'Transações',
     analytics: 'Relatórios',
     profile: 'Perfil'
   }
-  return titles[activeTab.value as keyof typeof titles] || 'FinanceApp'
+  return titles[activeTab.value as keyof typeof titles] || 'por.quinho'
 })
 
 // Methods

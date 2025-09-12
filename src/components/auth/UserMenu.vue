@@ -12,24 +12,25 @@
       enter-to-class="transform opacity-100 scale-100" leave-active-class="transition ease-in duration-75"
       leave-from-class="transform opacity-100 scale-100" leave-to-class="transform opacity-0 scale-95">
       <div v-if="isOpen"
-        class="absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-[60]">
+        class="absolute right-0 top-full mt-2 w-48 bg-white dark:bg-slate-800 rounded-lg shadow-lg border border-gray-200 dark:border-slate-600 py-2 z-[60]">
         <!-- Profile Option -->
         <button @click="handleProfile" class="menu-item">
-          <i class="fas fa-user-edit mr-3 text-gray-400"></i>
+          <i class="fas fa-user-edit mr-3 text-pink-400"></i>
           Editar Perfil
         </button>
 
         <!-- Settings Option -->
         <button @click="handleSettings" class="menu-item">
-          <i class="fas fa-cog mr-3 text-gray-400"></i>
+          <i class="fas fa-cog mr-3 text-pink-400"></i>
           Configurações
         </button>
 
         <!-- Divider -->
-        <div class="border-t border-gray-100 my-1"></div>
+        <div class="border-t border-gray-100 dark:border-slate-600 my-1"></div>
 
         <!-- Logout Option -->
-        <button @click="handleLogout" class="menu-item text-red-600 hover:bg-red-50">
+        <button @click="handleLogout"
+          class="menu-item text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20">
           <i class="fas fa-sign-out-alt mr-3 text-red-400"></i>
           Sair
         </button>
@@ -93,6 +94,6 @@ onUnmounted(() => {
 
 <style scoped>
 .menu-item {
-  @apply w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 flex items-center transition-colors;
+  @apply w-full text-left px-4 py-2 text-sm text-gray-700 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700 flex items-center transition-colors;
 }
 </style>

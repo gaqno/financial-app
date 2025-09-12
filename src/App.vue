@@ -1,10 +1,10 @@
 <template>
   <AuthGuard>
-    <FinanceApp />
+    <PorQuinho />
   </AuthGuard>
 </template>
 
 <script setup lang="ts">
-import FinanceApp from './components/FinanceApp.vue';
+import PorQuinho from './components/PorQuinho.vue';
 import AuthGuard from './components/auth/AuthGuard.vue';
 </script>

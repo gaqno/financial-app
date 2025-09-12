@@ -22,7 +22,7 @@
             <!-- Balance and Actions -->
             <div class="hidden md:flex items-center space-x-4">
               <!-- Balance -->
-              <div class="flex items-center space-x-2">
+              <div v-if="shouldShowBalance" class="flex items-center space-x-2">
                 <span class="text-sm font-medium text-gray-600 dark:text-slate-300">
                   {{ currentActiveTab === 'transactions' ? 'Saldo:' : 'Carteira:' }}
                 </span>
@@ -33,7 +33,7 @@
 
               <!-- New Record Button (only for transactions tab) -->
               <button v-if="activeTab === 'transactions'" @click="handleNewRecord"
-                class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg font-medium transition-colors flex items-center gap-2 text-sm">
+                class="bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white py-2 px-4 rounded-lg font-medium transition-colors flex items-center gap-2 text-sm">
                 <i class="fas fa-plus-circle"></i>
                 <span class="hidden sm:inline">Novo Registro</span>
                 <span class="sm:hidden">+</span>
@@ -73,6 +73,7 @@
           </div>
         </div>
       </div>
+
     </main>
   </div>
 </template>
@@ -133,6 +134,10 @@ const currentBalance = computed(() => {
     default:
       return 0;
   }
+});
+
+const shouldShowBalance = computed(() => {
+  return activeTab.value === 'transactions' || activeTab.value === 'investments';
 });
 
 // Methods

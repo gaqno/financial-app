@@ -11,8 +11,7 @@
           :password-mismatch="passwordMismatch" :is-loading="isLoading"
           @toggle-password="showPassword = !showPassword" />
 
-        <!-- Error Message -->
-        <ErrorMessage :error="error" />
+        <!-- Error messages are now shown via toast -->
 
         <!-- Form Actions -->
         <FormActions :is-register-mode="isRegisterMode" :is-form-valid="isFormValid" :is-loading="isLoading"
@@ -22,16 +21,20 @@
       <!-- Demo Credentials -->
       <DemoCredentials @fill-demo="fillDemoCredentials" />
     </div>
+
+    <!-- Toast Container -->
+    <ToastContainer />
   </div>
 </template>
 
 <script setup lang="ts">
 import { onMounted } from 'vue'
+import { useToast } from '../../composables/useToast'
 import LoginHeader from './LoginHeader.vue'
 import FormFields from './FormFields.vue'
 import FormActions from './FormActions.vue'
-import ErrorMessage from './ErrorMessage.vue'
 import DemoCredentials from './DemoCredentials.vue'
+import ToastContainer from '../ToastContainer.vue'
 import { useAuth } from '../../composables/useAuth'
 import { useLoginForm } from '../../composables/auth/useLoginForm'
 
@@ -43,7 +46,8 @@ interface Emits {
 const emit = defineEmits<Emits>()
 
 // Composables
-const { login, register, resetPassword, error, isLoading, clearError } = useAuth()
+const { login, register, resetPassword, isLoading, clearError } = useAuth()
+const { success: showSuccessToast, error: showErrorToast } = useToast()
 const {
   isRegisterMode,
   showPassword,
@@ -88,7 +92,9 @@ const handleToggleMode = () => {
 
 const handleForgotPassword = async () => {
   if (!formData.value.email) {
-    alert('Por favor, digite seu email primeiro')
+    showErrorToast('Por favor, digite seu email primeiro', {
+      title: 'Email Necessário'
+    })
     return
   }
 
@@ -97,7 +103,10 @@ const handleForgotPassword = async () => {
   try {
     const success = await resetPassword({ email: formData.value.email })
     if (success) {
-      alert('Email de recuperação enviado! Verifique sua caixa de entrada.')
+      showSuccessToast('Email de recuperação enviado! Verifique sua caixa de entrada.', {
+        title: 'Email Enviado',
+        duration: 4000
+      })
     }
   } catch (err) {
     console.error('❌ [LOGIN_FORM] Erro ao enviar email de recuperação:', err)

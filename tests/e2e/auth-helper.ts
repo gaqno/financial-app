@@ -47,8 +47,8 @@ export async function waitForAppToLoad(page: Page): Promise<void> {
     await expect(addButton).toBeVisible({ timeout: 10000 });
   } catch {
     // If button not found, at least make sure the main title is there
-    const financeAppTitle = page.locator('h1:has-text("FinanceApp")');
-    await expect(financeAppTitle).toBeVisible();
+    const porQuinhoTitle = page.locator('h1:has-text("por.quinho")');
+    await expect(porQuinhoTitle).toBeVisible();
   }
 }
 
