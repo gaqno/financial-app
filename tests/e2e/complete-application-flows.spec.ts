@@ -1,30 +1,23 @@
 import { test, expect } from '@playwright/test';
+import { loginWithDemo, openCreateModal, fillTransactionForm, submitCreateForm } from './auth-helper';
 
 test.describe('Complete Financial Application E2E Tests', () => {
 
   test.beforeEach(async ({ page }) => {
-    // Navigate to the application
-    await page.goto('/');
-
-    // Wait for the app to load
-    await expect(page.locator('body')).toBeVisible();
-    await page.waitForTimeout(1000);
-
-    // Clear any existing data by refreshing and ensuring clean state
-    await page.reload();
-    await page.waitForTimeout(1000);
+    // Login with demo credentials
+    await loginWithDemo(page);
   });
 
   test('Complete CRUD Flow - Add, Edit, Delete Records', async ({ page }) => {
-    console.log('🧪 Testing complete CRUD operations...');
+    ('🧪 Testing complete CRUD operations...');
 
     // Step 1: Verify initial empty state
-    console.log('📊 Step 1: Verifying initial empty state...');
+    ('📊 Step 1: Verifying initial empty state...');
     await expect(page.locator('text=Nenhum registro encontrado')).toBeVisible();
     await expect(page.locator('text=R$ 0,00')).toBeVisible(); // Balance should be zero
 
     // Step 2: Add multiple records
-    console.log('➕ Step 2: Adding multiple records...');
+    ('➕ Step 2: Adding multiple records...');
 
     const records = [
       { desc: 'Salário Janeiro', value: '5000', type: 'Receita', date: '2025-01-01' },
@@ -34,11 +27,8 @@ test.describe('Complete Financial Application E2E Tests', () => {
     ];
 
     for (const record of records) {
-      // Fill description
-      await page.fill('input[placeholder*="Descrição"], textbox[name="Descrição"]', record.desc);
-
-      // Fill value
-      await page.fill('input[type="number"], textbox[name="R$"]', record.value);
+      // Open create modal
+      await openCreateModal(page);
 
       // Set date if available
       const dateInput = page.locator('input[type="date"]');
@@ -46,15 +36,17 @@ test.describe('Complete Financial Application E2E Tests', () => {
         await dateInput.fill(record.date);
       }
 
-      // Select type
-      const typeSelect = page.locator('select, combobox').first();
-      await typeSelect.selectOption(record.type);
+      // Fill form using helper
+      await fillTransactionForm(page, {
+        description: record.desc,
+        amount: record.value,
+        type: record.type as 'Receita' | 'Despesa'
+      });
 
       // Submit
-      await page.click('button:has-text("Adicionar"), button[type="submit"]');
-      await page.waitForTimeout(500);
+      await submitCreateForm(page);
 
-      console.log(`✅ Added record: ${record.desc}`);
+      (`✅ Added record: ${record.desc}`);
     }
 
     // Refresh to see all records
@@ -62,7 +54,7 @@ test.describe('Complete Financial Application E2E Tests', () => {
     await page.waitForTimeout(2000);
 
     // Step 3: Verify records were added
-    console.log('✅ Step 3: Verifying records were added...');
+    ('✅ Step 3: Verifying records were added...');
 
     for (const record of records) {
       await expect(page.locator(`text=${record.desc}`)).toBeVisible();
@@ -72,7 +64,7 @@ test.describe('Complete Financial Application E2E Tests', () => {
     await expect(page.locator('text=R$ 54,50')).toBeVisible(); // Assuming currency formatting
 
     // Step 4: Edit a record
-    console.log('✏️ Step 4: Testing edit functionality...');
+    ('✏️ Step 4: Testing edit functionality...');
 
     // Find and click edit button for "Supermercado"
     const supermercadoRow = page.locator('tr, .record-item').filter({ hasText: 'Supermercado' });
@@ -97,11 +89,11 @@ test.describe('Complete Financial Application E2E Tests', () => {
 
       // Verify changes
       await expect(page.locator('text=Supermercado Extra')).toBeVisible();
-      console.log('✅ Edit functionality works');
+      ('✅ Edit functionality works');
     }
 
     // Step 5: Test status toggle
-    console.log('🔄 Step 5: Testing status toggle...');
+    ('🔄 Step 5: Testing status toggle...');
 
     const statusButton = page.locator('button:has-text("❌"), button:has-text("Pendente")').first();
     if (await statusButton.isVisible()) {
@@ -110,11 +102,11 @@ test.describe('Complete Financial Application E2E Tests', () => {
 
       // Should change to confirmed
       await expect(page.locator('button:has-text("✔️"), button:has-text("Confirmado")')).toBeVisible();
-      console.log('✅ Status toggle works');
+      ('✅ Status toggle works');
     }
 
     // Step 6: Delete a record
-    console.log('🗑️ Step 6: Testing delete functionality...');
+    ('🗑️ Step 6: Testing delete functionality...');
 
     const contaLuzRow = page.locator('tr, .record-item').filter({ hasText: 'Conta de Luz' });
     const deleteButton = contaLuzRow.locator('button:has([class*="trash"]), button:has([class*="delete"])').first();
@@ -141,12 +133,12 @@ test.describe('Complete Financial Application E2E Tests', () => {
 
       // Verify record was deleted
       await expect(page.locator('text=Conta de Luz')).not.toBeVisible();
-      console.log('✅ Delete functionality works');
+      ('✅ Delete functionality works');
     }
   });
 
   test('Filter and Search Flow', async ({ page }) => {
-    console.log('🔍 Testing filter and search functionality...');
+    ('🔍 Testing filter and search functionality...');
 
     // Add some test data first
     const testRecords = [
@@ -170,7 +162,7 @@ test.describe('Complete Financial Application E2E Tests', () => {
     await page.waitForTimeout(1000);
 
     // Test filter by type - Receitas only
-    console.log('💰 Testing Receitas filter...');
+    ('💰 Testing Receitas filter...');
     await page.click('button:has-text("💰 Receitas")');
     await page.waitForTimeout(500);
 
@@ -179,7 +171,7 @@ test.describe('Complete Financial Application E2E Tests', () => {
     await expect(page.locator('text=Despesa Teste 1')).not.toBeVisible();
 
     // Test filter by type - Despesas only
-    console.log('💸 Testing Despesas filter...');
+    ('💸 Testing Despesas filter...');
     await page.click('button:has-text("💸 Despesas")');
     await page.waitForTimeout(500);
 
@@ -188,7 +180,7 @@ test.describe('Complete Financial Application E2E Tests', () => {
     await expect(page.locator('text=Receita Teste 2')).not.toBeVisible();
 
     // Reset to all
-    console.log('📊 Testing All filter...');
+    ('📊 Testing All filter...');
     await page.click('button:has-text("📊 Todos")');
     await page.waitForTimeout(500);
 
@@ -196,11 +188,11 @@ test.describe('Complete Financial Application E2E Tests', () => {
     await expect(page.locator('text=Receita Teste 2')).toBeVisible();
     await expect(page.locator('text=Despesa Teste 1')).toBeVisible();
 
-    console.log('✅ Filter functionality works');
+    ('✅ Filter functionality works');
   });
 
   test('Month Visibility and Grouping Flow', async ({ page }) => {
-    console.log('📅 Testing month visibility and grouping...');
+    ('📅 Testing month visibility and grouping...');
 
     // Add records in different months
     const monthlyRecords = [
@@ -226,7 +218,7 @@ test.describe('Complete Financial Application E2E Tests', () => {
     await page.waitForTimeout(1000);
 
     // Test month visibility toggle
-    console.log('👁️ Testing month visibility management...');
+    ('👁️ Testing month visibility management...');
 
     const monthVisibilityToggle = page.locator('text=Gerenciar Visibilidade dos Meses').locator('..');
     if (await monthVisibilityToggle.isVisible()) {
@@ -236,12 +228,12 @@ test.describe('Complete Financial Application E2E Tests', () => {
       // Look for month toggle options
       const monthToggles = page.locator('button, checkbox').filter({ hasText: '2025' });
       if (await monthToggles.count() > 0) {
-        console.log('✅ Month visibility controls found');
+        ('✅ Month visibility controls found');
       }
     }
 
     // Test month collapse/expand
-    console.log('📁 Testing month collapse/expand...');
+    ('📁 Testing month collapse/expand...');
 
     const monthHeaders = page.locator('h3').filter({ hasText: '2025' });
     if (await monthHeaders.count() > 0) {
@@ -249,12 +241,12 @@ test.describe('Complete Financial Application E2E Tests', () => {
       await firstMonthHeader.click();
       await page.waitForTimeout(500);
 
-      console.log('✅ Month grouping functionality tested');
+      ('✅ Month grouping functionality tested');
     }
   });
 
   test('CSV Import Flow', async ({ page }) => {
-    console.log('📁 Testing CSV import functionality...');
+    ('📁 Testing CSV import functionality...');
 
     // Test CSV import section
     const csvSection = page.locator('text=Importar CSV').locator('..');
@@ -267,19 +259,19 @@ test.describe('Complete Financial Application E2E Tests', () => {
       const sampleButton = page.locator('button:has-text("Sample"), button:has-text("Exemplo")');
 
       if (await fileInput.count() > 0) {
-        console.log('✅ CSV file input found');
+        ('✅ CSV file input found');
       }
 
       if (await sampleButton.count() > 0) {
         await sampleButton.click();
         await page.waitForTimeout(500);
-        console.log('✅ CSV sample generation works');
+        ('✅ CSV sample generation works');
       }
     }
   });
 
   test('Debug and State Management Flow', async ({ page }) => {
-    console.log('🔧 Testing debug and state management...');
+    ('🔧 Testing debug and state management...');
 
     // Test debug section
     const debugSection = page.locator('text=Debug do Estado').locator('..');
@@ -293,7 +285,7 @@ test.describe('Complete Financial Application E2E Tests', () => {
       // Look for clear data button
       const clearButton = page.locator('button:has-text("Limpar"), button:has-text("Clear")');
       if (await clearButton.count() > 0) {
-        console.log('✅ Clear data functionality available');
+        ('✅ Clear data functionality available');
       }
     }
 
@@ -302,12 +294,12 @@ test.describe('Complete Financial Application E2E Tests', () => {
     if (await modalDebug.isVisible()) {
       await expect(page.locator('text=showDeleteConfirm: false')).toBeVisible();
       await expect(page.locator('text=showEditSheet: false')).toBeVisible();
-      console.log('✅ Modal debug info working');
+      ('✅ Modal debug info working');
     }
   });
 
   test('Yearly Projection and Balance Calculation Flow', async ({ page }) => {
-    console.log('📈 Testing yearly projection and balance calculations...');
+    ('📈 Testing yearly projection and balance calculations...');
 
     // Add some records to test calculations
     const calculationRecords = [
@@ -331,14 +323,14 @@ test.describe('Complete Financial Application E2E Tests', () => {
     await page.waitForTimeout(2000);
 
     // Check balance update (3000 + 500 - 1000 = 2500 -> R$ 25,00)
-    console.log('💰 Verifying balance calculation...');
+    ('💰 Verifying balance calculation...');
     const balanceElements = page.locator('text*=R$').filter({ hasText: '25' });
     if (await balanceElements.count() > 0) {
-      console.log('✅ Balance calculation works');
+      ('✅ Balance calculation works');
     }
 
     // Check yearly projection
-    console.log('📊 Verifying yearly projection...');
+    ('📊 Verifying yearly projection...');
     const projectionSection = page.locator('text=Projeção Anual');
     if (await projectionSection.isVisible()) {
       await projectionSection.click();
@@ -346,12 +338,12 @@ test.describe('Complete Financial Application E2E Tests', () => {
 
       // Should show projection values
       await expect(page.locator('text=Projeção para dezembro')).toBeVisible();
-      console.log('✅ Yearly projection working');
+      ('✅ Yearly projection working');
     }
   });
 
   test('Responsive Design and Mobile View Flow', async ({ page }) => {
-    console.log('📱 Testing responsive design...');
+    ('📱 Testing responsive design...');
 
     // Test mobile viewport
     await page.setViewportSize({ width: 375, height: 667 }); // iPhone SE size
@@ -369,7 +361,7 @@ test.describe('Complete Financial Application E2E Tests', () => {
 
     // Verify record appears in mobile view
     await expect(page.locator('text=Mobile Test')).toBeVisible();
-    console.log('✅ Mobile view works');
+    ('✅ Mobile view works');
 
     // Test tablet viewport
     await page.setViewportSize({ width: 768, height: 1024 }); // iPad size
@@ -378,21 +370,21 @@ test.describe('Complete Financial Application E2E Tests', () => {
 
     // Verify still works in tablet view
     await expect(page.locator('text=Mobile Test')).toBeVisible();
-    console.log('✅ Tablet view works');
+    ('✅ Tablet view works');
 
     // Reset to desktop
     await page.setViewportSize({ width: 1280, height: 720 });
     await page.reload();
     await page.waitForTimeout(1000);
 
-    console.log('✅ Responsive design tested');
+    ('✅ Responsive design tested');
   });
 
   test('Error Handling and Edge Cases Flow', async ({ page }) => {
-    console.log('⚠️ Testing error handling and edge cases...');
+    ('⚠️ Testing error handling and edge cases...');
 
     // Test invalid inputs
-    console.log('🚫 Testing invalid value input...');
+    ('🚫 Testing invalid value input...');
     await page.fill('input[placeholder*="Descrição"], textbox[name="Descrição"]', 'Invalid Test');
 
     // Try to enter invalid characters in number field
@@ -403,10 +395,10 @@ test.describe('Complete Financial Application E2E Tests', () => {
     await page.waitForTimeout(500);
 
     // Should handle invalid input gracefully
-    console.log('✅ Invalid input handled');
+    ('✅ Invalid input handled');
 
     // Test empty form submission
-    console.log('📝 Testing empty form submission...');
+    ('📝 Testing empty form submission...');
     await page.fill('input[placeholder*="Descrição"], textbox[name="Descrição"]', '');
     await page.fill('input[type="number"], textbox[name="R$"]', '');
 
@@ -414,26 +406,26 @@ test.describe('Complete Financial Application E2E Tests', () => {
     await page.waitForTimeout(500);
 
     // Should not add empty record
-    console.log('✅ Empty form handled');
+    ('✅ Empty form handled');
 
     // Test very large numbers
-    console.log('🔢 Testing large numbers...');
+    ('🔢 Testing large numbers...');
     await page.fill('input[placeholder*="Descrição"], textbox[name="Descrição"]', 'Large Number');
     await page.fill('input[type="number"], textbox[name="R$"]', '999999999');
 
     await page.click('button:has-text("Adicionar")');
     await page.waitForTimeout(500);
 
-    console.log('✅ Large numbers handled');
+    ('✅ Large numbers handled');
   });
 
   test('Complete User Journey - Real World Scenario', async ({ page }) => {
-    console.log('🌟 Testing complete real-world user journey...');
+    ('🌟 Testing complete real-world user journey...');
 
     // Scenario: User manages monthly finances
 
     // Step 1: Add monthly salary
-    console.log('💼 Step 1: Adding monthly salary...');
+    ('💼 Step 1: Adding monthly salary...');
     await page.fill('input[placeholder*="Descrição"], textbox[name="Descrição"]', 'Salário Mensal');
     await page.fill('input[type="number"], textbox[name="R$"]', '4500');
 
@@ -444,7 +436,7 @@ test.describe('Complete Financial Application E2E Tests', () => {
     await page.waitForTimeout(500);
 
     // Step 2: Add recurring expenses
-    console.log('🏠 Step 2: Adding recurring expenses...');
+    ('🏠 Step 2: Adding recurring expenses...');
     const expenses = [
       { desc: 'Aluguel', value: '1200' },
       { desc: 'Conta de Luz', value: '200' },
@@ -465,7 +457,7 @@ test.describe('Complete Financial Application E2E Tests', () => {
     await page.waitForTimeout(2000);
 
     // Step 3: Review finances
-    console.log('📊 Step 3: Reviewing finances...');
+    ('📊 Step 3: Reviewing finances...');
 
     // Check that all records are present
     await expect(page.locator('text=Salário Mensal')).toBeVisible();
@@ -475,11 +467,11 @@ test.describe('Complete Financial Application E2E Tests', () => {
     // Check balance (4500 - 1200 - 200 - 80 - 400 = 2620)
     const remainingBalance = page.locator('text*=R$').filter({ hasText: '26' });
     if (await remainingBalance.count() > 0) {
-      console.log('✅ Balance calculation correct');
+      ('✅ Balance calculation correct');
     }
 
     // Step 4: Mark some bills as paid
-    console.log('✅ Step 4: Marking bills as paid...');
+    ('✅ Step 4: Marking bills as paid...');
 
     const aluguelRow = page.locator('tr, .record-item').filter({ hasText: 'Aluguel' });
     const statusButton = aluguelRow.locator('button:has-text("❌"), button:has-text("Pendente")').first();
@@ -487,11 +479,11 @@ test.describe('Complete Financial Application E2E Tests', () => {
     if (await statusButton.isVisible()) {
       await statusButton.click();
       await page.waitForTimeout(500);
-      console.log('✅ Bill marked as paid');
+      ('✅ Bill marked as paid');
     }
 
     // Step 5: Filter to see only unpaid bills
-    console.log('🔍 Step 5: Filtering unpaid bills...');
+    ('🔍 Step 5: Filtering unpaid bills...');
     await page.click('button:has-text("💸 Despesas")');
     await page.waitForTimeout(500);
 
@@ -499,6 +491,6 @@ test.describe('Complete Financial Application E2E Tests', () => {
     await expect(page.locator('text=Conta de Luz')).toBeVisible();
     await expect(page.locator('text=Internet')).toBeVisible();
 
-    console.log('🎉 Complete user journey successful!');
+    ('🎉 Complete user journey successful!');
   });
 }); 

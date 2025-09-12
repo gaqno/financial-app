@@ -64,7 +64,6 @@ export function useBusinessDays() {
         businessDayMode.month,
         businessDayMode.dayNumber
       )
-      console.log('📅 [BUSINESS_DAY] Main form date updated:', calculatedDate)
       return calculatedDate
     }
     return ''
@@ -78,7 +77,6 @@ export function useBusinessDays() {
         businessDayModeMultiple.month,
         businessDayModeMultiple.dayNumber
       )
-      console.log('📅 [BUSINESS_DAY] Multiple records date updated:', calculatedDate)
       return calculatedDate
     }
     return ''
@@ -92,7 +90,6 @@ export function useBusinessDays() {
         businessDayModeEdit.month,
         businessDayModeEdit.dayNumber
       )
-      console.log('📅 [BUSINESS_DAY] Edit form date updated:', calculatedDate)
       return calculatedDate
     }
     return ''
@@ -141,37 +138,31 @@ export function useBusinessDays() {
     const date = new Date(currentDate || new Date())
     businessDayMode.month = date.getMonth() + 1
     businessDayMode.year = date.getFullYear()
-    console.log('🔧 [BUSINESS_DAY] Main mode initialized:', businessDayMode)
   }
 
   const initBusinessDayModeMultiple = (currentDate?: string) => {
     const date = new Date(currentDate || new Date())
     businessDayModeMultiple.month = date.getMonth() + 1
     businessDayModeMultiple.year = date.getFullYear()
-    console.log('🔧 [BUSINESS_DAY] Multiple mode initialized:', businessDayModeMultiple)
   }
 
   const initBusinessDayModeEdit = (currentDate?: string) => {
     const date = new Date(currentDate || new Date())
     businessDayModeEdit.month = date.getMonth() + 1
     businessDayModeEdit.year = date.getFullYear()
-    console.log('🔧 [BUSINESS_DAY] Edit mode initialized:', businessDayModeEdit)
   }
 
   // Reset to normal date input mode
   const resetToDateInput = () => {
     businessDayMode.enabled = false
-    console.log('🔄 [BUSINESS_DAY] Main mode reset to date input')
   }
 
   const resetToDateInputMultiple = () => {
     businessDayModeMultiple.enabled = false
-    console.log('🔄 [BUSINESS_DAY] Multiple mode reset to date input')
   }
 
   const resetToDateInputEdit = () => {
     businessDayModeEdit.enabled = false
-    console.log('🔄 [BUSINESS_DAY] Edit mode reset to date input')
   }
 
   // Computed descriptions for each mode
@@ -193,7 +184,6 @@ export function useBusinessDays() {
     if (businessDayMode.enabled) {
       initBusinessDayMode()
     }
-    console.log('🔀 [BUSINESS_DAY] Main mode toggled:', businessDayMode.enabled)
   }
 
   const toggleBusinessDayModeMultiple = () => {
@@ -201,7 +191,6 @@ export function useBusinessDays() {
     if (businessDayModeMultiple.enabled) {
       initBusinessDayModeMultiple()
     }
-    console.log('🔀 [BUSINESS_DAY] Multiple mode toggled:', businessDayModeMultiple.enabled)
   }
 
   const toggleBusinessDayModeEdit = () => {
@@ -209,7 +198,6 @@ export function useBusinessDays() {
     if (businessDayModeEdit.enabled) {
       initBusinessDayModeEdit()
     }
-    console.log('🔀 [BUSINESS_DAY] Edit mode toggled:', businessDayModeEdit.enabled)
   }
 
   return {

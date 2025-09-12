@@ -1,14 +1,14 @@
 <template>
-  <div v-if="totalAvailableMonths > 0" class="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
+  <div v-if="totalAvailableMonths > 0" class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-gray-200 dark:border-slate-600 mb-6 theme-transition">
     <!-- Header with toggle -->
     <button @click="isExpanded = !isExpanded"
-      class="w-full flex items-center justify-between p-4 text-left hover:bg-gray-50 transition-colors">
+      class="w-full flex items-center justify-between p-4 text-left hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">
       <div class="flex items-center space-x-3">
         <i class="fas fa-calendar-alt text-blue-600"></i>
-        <h3 class="text-lg font-semibold text-gray-800">
+        <h3 class="text-lg font-semibold text-gray-800 dark:text-slate-100">
           Gerenciar Visibilidade dos Meses
         </h3>
-        <span class="text-sm text-gray-500">
+        <span class="text-sm text-gray-500 dark:text-slate-400">
           ({{ currentPageInfo.start }}-{{ currentPageInfo.end }} de {{ currentPageInfo.total }} meses)
         </span>
       </div>
@@ -16,22 +16,22 @@
         <span v-if="hiddenCount > 0" class="text-sm text-red-600 font-medium">
           {{ hiddenCount }} oculto{{ hiddenCount !== 1 ? 's' : '' }}
         </span>
-        <i :class="isExpanded ? 'fas fa-chevron-up' : 'fas fa-chevron-down'" class="text-gray-400"></i>
+        <i :class="isExpanded ? 'fas fa-chevron-up' : 'fas fa-chevron-down'" class="text-gray-400 dark:text-slate-500"></i>
       </div>
     </button>
 
     <!-- Expandable content -->
-    <div v-if="isExpanded" class="border-t border-gray-200">
+    <div v-if="isExpanded" class="border-t border-gray-200 dark:border-slate-600">
       <!-- Pagination controls -->
-      <div v-if="totalMonthPages > 1" class="flex items-center justify-between p-4 bg-gray-50 border-b border-gray-200">
+      <div v-if="totalMonthPages > 1" class="flex items-center justify-between p-4 bg-gray-50 dark:bg-slate-700 border-b border-gray-200 dark:border-slate-600">
         <button @click="goToPreviousMonthPage" :disabled="!canGoToPreviousMonthPage"
-          class="flex items-center space-x-2 px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+          class="flex items-center space-x-2 px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-600 rounded-md hover:bg-gray-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
           <i class="fas fa-chevron-left text-xs"></i>
           <span>Anteriores</span>
         </button>
 
         <div class="flex items-center space-x-2">
-          <span class="text-sm text-gray-600">
+          <span class="text-sm text-gray-600 dark:text-slate-300">
             Página {{ monthsVisibilityPage + 1 }} de {{ totalMonthPages }}
           </span>
           <div class="flex space-x-1">
@@ -39,16 +39,16 @@
               'w-8 h-8 text-sm font-medium rounded-md transition-colors',
               monthsVisibilityPage === page - 1
                 ? 'bg-blue-600 text-white'
-                : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50'
+                : 'bg-white dark:bg-slate-800 text-gray-700 dark:text-slate-300 border border-gray-300 dark:border-slate-600 hover:bg-gray-50 dark:hover:bg-slate-700'
             ]">
               {{ page }}
             </button>
-            <span v-if="totalMonthPages > 5" class="px-2 text-gray-400">...</span>
+            <span v-if="totalMonthPages > 5" class="px-2 text-gray-400 dark:text-slate-500">...</span>
           </div>
         </div>
 
         <button @click="goToNextMonthPage" :disabled="!canGoToNextMonthPage"
-          class="flex items-center space-x-2 px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+          class="flex items-center space-x-2 px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-slate-300 bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-600 rounded-md hover:bg-gray-50 dark:hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
           <span>Próximos</span>
           <i class="fas fa-chevron-right text-xs"></i>
         </button>

@@ -1,5 +1,6 @@
 <template>
-  <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4 transition-all duration-200"
+  <div
+    class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-gray-200 dark:border-slate-600 p-4 transition-all duration-200 theme-transition"
     :class="getCardClasses()">
     <!-- Header with Date and Actions -->
     <div class="flex items-center justify-between mb-3">
@@ -138,11 +139,13 @@ const getTypeClasses = (tipo: 'Receita' | 'Despesa') => {
 }
 
 // Status styling with hover effects
-const getStatusClasses = (status: '❌' | '✔️') => {
+const getStatusClasses = (status: '❌' | '✔️' | '⏰') => {
   if (status === '✔️') {
-    return 'bg-green-100 text-green-800 hover:bg-green-200 ring-1 ring-green-300'
+    return 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-300 hover:bg-green-200 dark:hover:bg-green-800 ring-1 ring-green-300 dark:ring-green-700'
+  } else if (status === '⏰') {
+    return 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-800 ring-1 ring-blue-300 dark:ring-blue-700'
   } else {
-    return 'bg-orange-100 text-orange-800 hover:bg-orange-200 ring-1 ring-orange-300'
+    return 'bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-300 hover:bg-orange-200 dark:hover:bg-orange-800 ring-1 ring-orange-300 dark:ring-orange-700'
   }
 }
 
@@ -153,10 +156,14 @@ const toggleStatus = () => {
   emit('toggle-status', props.record, props.index)
 }
 
-const getStatusToggleTitle = (status: '❌' | '✔️') => {
-  return status === '✔️'
-    ? 'Toque para marcar como pendente'
-    : 'Toque para marcar como concluído'
+const getStatusToggleTitle = (status: '❌' | '✔️' | '⏰') => {
+  if (status === '✔️') {
+    return 'Toque para marcar como pendente'
+  } else if (status === '⏰') {
+    return 'Toque para marcar como concluído'
+  } else {
+    return 'Toque para marcar como concluído'
+  }
 }
 
 // Duplicate functionality for mobile

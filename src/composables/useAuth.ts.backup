@@ -1,0 +1,481 @@
+import { ref, computed, onMounted, onUnmounted } from 'vue'
+import type { User, AuthError, Session } from '@supabase/supabase-js'
+import { supabase } from '../lib/supabase'
+import type {
+  IUser,
+  ILoginCredentials,
+  IRegisterCredentials,
+  IAuthError,
+  IPasswordResetRequest,
+  IPasswordUpdate,
+  IProfileUpdate,
+  AuthStatus
+} from '../types/auth'
+
+// Estado global reativo
+const user = ref<IUser | null>(null)
+const session = ref<Session | null>(null)
+const isLoading = ref(true)
+const error = ref<IAuthError | null>(null)
+
+// Controle singleton HMR-safe
+let authListener: any = null
+let isInitialized = false
+
+export function useAuth() {
+  // Estado computado
+  const isAuthenticated = computed(() => !!user.value)
+  const authStatus = computed<AuthStatus>(() => {
+    if (isLoading.value) return 'loading'
+    if (error.value) return 'error'
+    if (isAuthenticated.value) return 'authenticated'
+    return 'unauthenticated'
+  })
+
+  // Funções utilitárias
+  const clearError = () => {
+    error.value = null
+  }
+
+  const setError = (authError: AuthError | Error | string) => {
+    if (typeof authError === 'string') {
+      error.value = { message: authError }
+    } else if ('message' in authError) {
+      error.value = {
+        message: authError.message,
+        code: 'code' in authError ? authError.code : undefined
+      }
+    }
+  }
+
+  const transformUser = (supabaseUser: User): IUser => ({
+    id: supabaseUser.id,
+    email: supabaseUser.email || '',
+    fullName: supabaseUser.user_metadata?.full_name || '',
+    avatarUrl: supabaseUser.user_metadata?.avatar_url || '',
+    createdAt: supabaseUser.created_at,
+    updatedAt: supabaseUser.updated_at || supabaseUser.created_at
+  })
+
+  // Autenticação
+  const login = async (credentials: ILoginCredentials): Promise<boolean> => {
+    try {
+      isLoading.value = true
+      clearError()
+
+      const { data, error: authError } = await supabase.auth.signInWithPassword({
+        email: credentials.email,
+        password: credentials.password
+      })
+
+      if (authError) {
+        setError(authError)
+        return false
+      }
+
+      if (data.user) {
+        user.value = transformUser(data.user)
+        session.value = data.session
+
+        // Criar ou atualizar perfil do usuário
+        await ensureProfile(data.user)
+
+        ('✅ [AUTH] Login realizado com sucesso:', user.value.email)
+        return true
+      }
+
+      return false
+    } catch (err) {
+      setError(err as Error)
+      return false
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  const register = async (credentials: IRegisterCredentials): Promise<boolean> => {
+    try {
+      isLoading.value = true
+      clearError()
+
+      const { data, error: authError } = await supabase.auth.signUp({
+        email: credentials.email,
+        password: credentials.password,
+        options: {
+          data: {
+            full_name: credentials.fullName || ''
+          }
+        }
+      })
+
+      if (authError) {
+        setError(authError)
+        return false
+      }
+
+      if (data.user) {
+        ('✅ [AUTH] Usuário registrado:', data.user.email)
+
+        // Se o usuário foi confirmado imediatamente
+        if (data.user.email_confirmed_at) {
+          user.value = transformUser(data.user)
+          session.value = data.session
+          await ensureProfile(data.user)
+        }
+
+        return true
+      }
+
+      return false
+    } catch (err) {
+      setError(err as Error)
+      return false
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  const logout = async (): Promise<boolean> => {
+    try {
+      isLoading.value = true
+      clearError()
+
+      const { error: authError } = await supabase.auth.signOut()
+
+      if (authError) {
+        setError(authError)
+        return false
+      }
+
+      user.value = null
+      session.value = null
+
+      ('✅ [AUTH] Logout realizado com sucesso')
+      return true
+    } catch (err) {
+      setError(err as Error)
+      return false
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  const resetPassword = async (request: IPasswordResetRequest): Promise<boolean> => {
+    try {
+      isLoading.value = true
+      clearError()
+
+      const { error: authError } = await supabase.auth.resetPasswordForEmail(
+        request.email,
+        {
+          redirectTo: `${window.location.origin}/reset-password`
+        }
+      )
+
+      if (authError) {
+        setError(authError)
+        return false
+      }
+
+      ('✅ [AUTH] Email de recuperação enviado para:', request.email)
+      return true
+    } catch (err) {
+      setError(err as Error)
+      return false
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  const updatePassword = async (passwordUpdate: IPasswordUpdate): Promise<boolean> => {
+    try {
+      if (passwordUpdate.password !== passwordUpdate.confirmPassword) {
+        setError('As senhas não coincidem')
+        return false
+      }
+
+      isLoading.value = true
+      clearError()
+
+      const { error: authError } = await supabase.auth.updateUser({
+        password: passwordUpdate.password
+      })
+
+      if (authError) {
+        setError(authError)
+        return false
+      }
+
+      ('✅ [AUTH] Senha atualizada com sucesso')
+      return true
+    } catch (err) {
+      setError(err as Error)
+      return false
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  const updateProfile = async (profileUpdate: IProfileUpdate): Promise<boolean> => {
+    try {
+      isLoading.value = true
+      clearError()
+
+      const { error: authError } = await supabase.auth.updateUser({
+        data: {
+          full_name: profileUpdate.fullName,
+          avatar_url: profileUpdate.avatarUrl
+        }
+      })
+
+      if (authError) {
+        setError(authError)
+        return false
+      }
+
+      // Atualizar também na tabela profiles
+      if (user.value) {
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .update({
+            full_name: profileUpdate.fullName,
+            avatar_url: profileUpdate.avatarUrl,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', user.value.id)
+
+        if (profileError) {
+          setError(profileError)
+          return false
+        }
+
+        // Atualizar estado local
+        user.value = {
+          ...user.value,
+          fullName: profileUpdate.fullName || user.value.fullName,
+          avatarUrl: profileUpdate.avatarUrl || user.value.avatarUrl,
+          updatedAt: new Date().toISOString()
+        }
+      }
+
+      ('✅ [AUTH] Perfil atualizado com sucesso')
+      return true
+    } catch (err) {
+      setError(err as Error)
+      return false
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  // Gerenciar perfil na tabela profiles
+  const ensureProfile = async (supabaseUser: User) => {
+    try {
+      // Verificar se o perfil já existe
+      const { data: existingProfile } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', supabaseUser.id)
+        .single()
+
+      if (!existingProfile) {
+        // Criar novo perfil
+        const { error: insertError } = await supabase
+          .from('profiles')
+          .insert({
+            id: supabaseUser.id,
+            email: supabaseUser.email || '',
+            full_name: supabaseUser.user_metadata?.full_name || '',
+            avatar_url: supabaseUser.user_metadata?.avatar_url || '',
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          })
+
+        if (insertError) {
+          console.error('❌ [AUTH] Erro ao criar perfil:', insertError)
+        } else {
+          ('✅ [AUTH] Perfil criado com sucesso')
+        }
+      }
+    } catch (err) {
+      console.error('❌ [AUTH] Erro ao gerenciar perfil:', err)
+    }
+  }
+
+  // Inicialização única e robusta
+  const initializeAuth = async () => {
+    if (isInitialized) {
+      ('⚠️ [AUTH] Sistema já inicializado')
+      return
+    }
+
+    ('🚀 [AUTH] Inicializando sistema de autenticação...')
+    isInitialized = true
+
+    // Verificar configuração do Supabase
+    ('🔍 [AUTH] Verificando configuração do Supabase...')
+    ('🔗 [AUTH] URL:', import.meta.env.VITE_SUPABASE_URL ? '✅ Configurada' : '❌ Não encontrada')
+    ('🔑 [AUTH] Key:', import.meta.env.VITE_SUPABASE_ANON_KEY ? '✅ Configurada' : '❌ Não encontrada')
+    ('📡 [AUTH] Cliente:', supabase ? '✅ Inicializado' : '❌ Não inicializado')
+
+    try {
+      // 1. Verificar sessão atual imediatamente com timeout
+      ('🔍 [AUTH] Verificando sessão atual...')
+
+      // Criar promise com timeout
+      const sessionPromise = supabase.auth.getSession()
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('Timeout na verificação de sessão')), 15000)
+      })
+
+      ('⏱️ [AUTH] Iniciando verificação com timeout de 15s...')
+      const { data: { session: currentSession }, error: sessionError } = await Promise.race([
+        sessionPromise,
+        timeoutPromise
+      ]) as any
+
+      ('📋 [AUTH] Resposta da verificação:', {
+        hasSession: !!currentSession,
+        hasUser: !!currentSession?.user,
+        hasError: !!sessionError
+      })
+
+      if (sessionError) {
+        console.error('❌ [AUTH] Erro ao obter sessão:', sessionError)
+        setError(sessionError)
+      } else if (currentSession?.user) {
+        ('✅ [AUTH] Sessão ativa encontrada:', currentSession.user.email)
+        user.value = transformUser(currentSession.user)
+        session.value = currentSession
+        await ensureProfile(currentSession.user)
+      } else {
+        ('🔓 [AUTH] Nenhuma sessão ativa')
+      }
+
+      // 2. Configurar listener para mudanças futuras
+      ('🔧 [AUTH] Configurando listener...')
+      authListener = supabase.auth.onAuthStateChange(async (event, newSession) => {
+        (`🔔 [AUTH] ${event}`, {
+          hasUser: !!newSession?.user,
+          email: newSession?.user?.email
+        })
+
+        switch (event) {
+          case 'SIGNED_IN':
+            if (newSession?.user) {
+              user.value = transformUser(newSession.user)
+              session.value = newSession
+              await ensureProfile(newSession.user)
+            }
+            break
+
+          case 'SIGNED_OUT':
+            user.value = null
+            session.value = null
+            break
+
+          case 'TOKEN_REFRESHED':
+          case 'USER_UPDATED':
+            if (newSession?.user) {
+              user.value = transformUser(newSession.user)
+              session.value = newSession
+            }
+            break
+        }
+
+        clearError()
+      })
+
+    } catch (err) {
+      console.error('❌ [AUTH] Erro na inicialização:', err)
+
+      if (err instanceof Error && err.message.includes('Timeout')) {
+        console.warn('⚠️ [AUTH] Timeout na verificação - continuando sem sessão')
+        // Não definir como erro, apenas continuar
+      } else {
+        setError(err as Error)
+      }
+
+      // Mesmo com erro, tentar configurar listener
+      try {
+        ('🔧 [AUTH] Configurando listener (após erro)...')
+        authListener = supabase.auth.onAuthStateChange(async (event, newSession) => {
+          (`🔔 [AUTH] ${event}`, {
+            hasUser: !!newSession?.user,
+            email: newSession?.user?.email
+          })
+
+          switch (event) {
+            case 'SIGNED_IN':
+              if (newSession?.user) {
+                user.value = transformUser(newSession.user)
+                session.value = newSession
+                await ensureProfile(newSession.user)
+              }
+              break
+
+            case 'SIGNED_OUT':
+              user.value = null
+              session.value = null
+              break
+
+            case 'TOKEN_REFRESHED':
+            case 'USER_UPDATED':
+              if (newSession?.user) {
+                user.value = transformUser(newSession.user)
+                session.value = newSession
+              }
+              break
+          }
+
+          clearError()
+        })
+        ('✅ [AUTH] Listener configurado com sucesso')
+      } catch (listenerErr) {
+        console.error('❌ [AUTH] Erro ao configurar listener:', listenerErr)
+      }
+    } finally {
+      ('🏁 [AUTH] Inicialização concluída')
+      isLoading.value = false
+    }
+  }
+
+  const cleanup = () => {
+    if (authListener) {
+      authListener.data.subscription.unsubscribe()
+      authListener = null
+      isInitialized = false
+    }
+  }
+
+  // Lifecycle - executa apenas uma vez
+  onMounted(() => {
+    ('🎯 [AUTH] onMounted executado - chamando initializeAuth')
+    initializeAuth()
+  })
+
+  onUnmounted(() => {
+    // Preserva o estado global durante HMR
+  })
+
+  return {
+    // Estado
+    user: computed(() => user.value),
+    session: computed(() => session.value),
+    isLoading: computed(() => isLoading.value),
+    isAuthenticated,
+    authStatus,
+    error: computed(() => error.value),
+
+    // Métodos
+    login,
+    register,
+    logout,
+    resetPassword,
+    updatePassword,
+    updateProfile,
+    clearError,
+    initializeAuth,
+    cleanup
+  }
+}

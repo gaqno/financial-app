@@ -8,7 +8,7 @@ Remove all debug console statements, debug UI elements, and development-only cod
 
 ### 1. Core Store (`src/stores/financeStore.ts`) ✅
 
-- ❌ Removed all `console.log` statements for operations
+- ❌ Removed all `` statements for operations
 - ❌ Removed all `console.error` statements (replaced with silent error handling)
 - ❌ Removed debug watchers for reactive properties
 - ✅ Kept essential error handling without logging
@@ -18,7 +18,7 @@ Remove all debug console statements, debug UI elements, and development-only cod
 
 - ❌ Removed entire "Modal Debug Info" section with test buttons
 - ❌ Removed StateDebugger component and import
-- ❌ Removed console.log statements from event handlers
+- ❌ Removed statements from event handlers
 - ❌ Removed console.error statements
 - ✅ Maintained all core functionality
 
@@ -32,12 +32,12 @@ Remove all debug console statements, debug UI elements, and development-only cod
 
 - **useFinanceTableHelpers.ts**: Removed debug logs, kept error handling silent
 - **useCSVImport.ts**: Replaced console.warn with silent error handling
-- **useFinance.ts**: Removed console.log and console.error statements
+- **useFinance.ts**: Removed and console.error statements
 - **BusinessDaySelector.vue**: Removed calculation debug logs
 
 ### 5. Test Files ✅
 
-- **working-flows.spec.ts**: Removed all console.log statements from E2E tests
+- **working-flows.spec.ts**: Removed all statements from E2E tests
 - **Integration tests**: Kept essential debug logs in test files only
 - **Unit tests**: Maintained test-specific logging for debugging test failures
 
@@ -47,8 +47,8 @@ Remove all debug console statements, debug UI elements, and development-only cod
 
 ```typescript
 // Lots of debug output
-console.log('🗑️ [STORE] Removing record at index:', index)
-console.log('🔍 [DEBUG] Toggling status for:', record.Descrição)
+('🗑️ [STORE] Removing record at index:', index)
+('🔍 [DEBUG] Toggling status for:', record.Descrição)
 console.error('❌ [ERROR] Could not find record:', record)
 
 // Debug UI sections

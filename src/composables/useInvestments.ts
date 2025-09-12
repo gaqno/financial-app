@@ -1,40 +1,55 @@
 import { ref, computed, watch } from 'vue';
 import type { IInvestment, IInvestmentTransaction, InvestmentTypeKey, IPortfolioAllocation, IProjection } from '../types/investments';
 import { INVESTMENT_TYPES } from '../types/investments';
-import { 
-  calculateCurrentValue, 
-  calculateReturnPercentage, 
-  calculateAnnualizedReturn, 
+import {
+  calculateCurrentValue,
+  calculateReturnPercentage,
+  calculateAnnualizedReturn,
   calculateBenchmarkComparison,
   calculateProjections,
   calculateInvestmentProjections,
   calculatePortfolioProjections,
   PROJECTION_INTERVALS
 } from '../utils/investmentCalculators';
-
-const STORAGE_KEY = 'investmentData';
+import { useSupabaseInvestments } from './useSupabaseInvestments';
 
 export function useInvestments() {
-  // Estado reativo
-  const investments = ref<IInvestment[]>((() => {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) return JSON.parse(stored);
-    return [];
-  })());
+  // Use Supabase instead of localStorage
+  const {
+    investments: supabaseInvestments,
+    selectedInvestment: supabaseSelectedInvestment,
+    filter: supabaseFilter,
+    filteredInvestments: supabaseFilteredInvestments,
+    totalPortfolioValue: supabaseTotalPortfolioValue,
+    totalInvested: supabaseTotalInvested,
+    totalReturn: supabaseTotalReturn,
+    returnPercentage: supabaseReturnPercentage,
+    isLoading,
+    addInvestment: addSupabaseInvestment,
+    updateInvestment: updateSupabaseInvestment,
+    deleteInvestment: deleteSupabaseInvestment,
+    addTransaction: addSupabaseTransaction
+  } = useSupabaseInvestments()
 
-  const selectedInvestment = ref<IInvestment | null>(null);
-  const filter = ref<'all' | 'RENDA_FIXA' | 'RENDA_VARIAVEL' | 'FUNDOS'>('all');
+  // Create reactive refs that sync with Supabase
+  const investments = ref<IInvestment[]>([])
+  const selectedInvestment = ref<IInvestment | null>(null)
+  const filter = ref<'all' | 'RENDA_FIXA' | 'RENDA_VARIAVEL' | 'FUNDOS'>('all')
 
-  // Persistir no localStorage
-  watch(
-    investments,
-    (newData) => {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(newData));
-    },
-    { deep: true }
-  );
+  // Sync with Supabase data
+  watch(supabaseInvestments, (newInvestments) => {
+    investments.value = [...newInvestments]
+  }, { immediate: true })
 
-  // Gerar ID único
+  watch(supabaseSelectedInvestment, (newSelected) => {
+    selectedInvestment.value = newSelected
+  }, { immediate: true })
+
+  watch(supabaseFilter, (newFilter) => {
+    filter.value = newFilter
+  }, { immediate: true })
+
+  // Gerar ID único (legacy function, now handled by Supabase)
   function generateId(): string {
     return Date.now().toString(36) + Math.random().toString(36).substr(2);
   }
@@ -44,222 +59,93 @@ export function useInvestments() {
     return new Date().toISOString().split('T')[0];
   }
 
-  // CRUD Operations
-  function addInvestment(investmentData: Omit<IInvestment, 'id' | 'createdAt' | 'updatedAt' | 'transactions'>): void {
-    const now = getCurrentDate();
-    
-    // Calcular valor atual
-    const { currentAmount } = calculateCurrentValue(
-      investmentData.initialAmount,
-      investmentData.yieldType,
-      investmentData.yieldRate,
-      investmentData.startDate
+  // CRUD Operations - Updated to use Supabase
+  const addInvestment = async (investmentData: Omit<IInvestment, 'id' | 'createdAt' | 'updatedAt' | 'transactions'>): Promise<IInvestment> => {
+    return await addSupabaseInvestment(investmentData)
+  }
+
+  const updateInvestment = async (investmentId: string, updates: Partial<IInvestment>): Promise<void> => {
+    await updateSupabaseInvestment(investmentId, updates)
+  }
+
+  const deleteInvestment = async (investmentId: string): Promise<void> => {
+    await deleteSupabaseInvestment(investmentId)
+  }
+
+  const addTransaction = async (investmentId: string, transaction: Omit<IInvestmentTransaction, 'id' | 'investmentId'>): Promise<IInvestmentTransaction> => {
+    return await addSupabaseTransaction(investmentId, transaction)
+  }
+
+  // Calculated properties using Supabase data
+  const totalPortfolioValue = computed(() => supabaseTotalPortfolioValue.value)
+  const totalInvested = computed(() => supabaseTotalInvested.value)
+  const totalReturn = computed(() => supabaseTotalReturn.value)
+  const returnPercentage = computed(() => supabaseReturnPercentage.value)
+
+  // Filtered investments
+  const filteredInvestments = computed(() => supabaseFilteredInvestments.value)
+
+  // Performance metrics for individual investment
+  function getInvestmentMetrics(investment: IInvestment) {
+    const returnValue = investment.currentAmount - investment.appliedAmount;
+    const returnPercentage = investment.appliedAmount > 0
+      ? (returnValue / investment.appliedAmount) * 100
+      : 0;
+
+    const annualizedReturn = calculateAnnualizedReturn(
+      investment.appliedAmount,
+      investment.currentAmount,
+      investment.startDate
     );
 
-    const newInvestment: IInvestment = {
-      ...investmentData,
-      id: generateId(),
-      currentAmount,
-      appliedAmount: investmentData.initialAmount,
-      lastUpdate: now,
-      transactions: [{
-        id: generateId(),
-        investmentId: '', // Will be set after investment is created
-        type: 'DEPOSIT',
-        amount: investmentData.initialAmount,
-        date: investmentData.startDate,
-        description: 'Investimento inicial'
-      }],
-      createdAt: now,
-      updatedAt: now
+    const benchmarkComparison = calculateBenchmarkComparison(
+      returnPercentage,
+      100 // CDI benchmark placeholder
+    );
+
+    return {
+      totalReturn: returnValue,
+      percentReturn: returnPercentage,
+      annualizedReturn,
+      benchmarkComparison
     };
-
-    // Atualizar o investmentId na transação
-    newInvestment.transactions[0].investmentId = newInvestment.id;
-
-    investments.value.push(newInvestment);
   }
 
-  function updateInvestment(id: string, updates: Partial<IInvestment>): void {
-    const index = investments.value.findIndex(inv => inv.id === id);
-    if (index !== -1) {
-      investments.value[index] = {
-        ...investments.value[index],
-        ...updates,
-        updatedAt: getCurrentDate()
-      };
-    }
-  }
-
-  function removeInvestment(id: string): void {
-    const index = investments.value.findIndex(inv => inv.id === id);
-    if (index !== -1) {
-      investments.value.splice(index, 1);
-    }
-  }
-
-  function getInvestmentById(id: string): IInvestment | undefined {
-    return investments.value.find(inv => inv.id === id);
-  }
-
-  // Adicionar transação
-  function addTransaction(investmentId: string, transaction: Omit<IInvestmentTransaction, 'id' | 'investmentId'>): void {
-    const investment = getInvestmentById(investmentId);
-    if (investment) {
-      const newTransaction: IInvestmentTransaction = {
-        ...transaction,
-        id: generateId(),
-        investmentId
-      };
-
-      investment.transactions.push(newTransaction);
-
-      // Atualizar valores se for depósito ou resgate
-      if (transaction.type === 'DEPOSIT') {
-        investment.appliedAmount += transaction.amount;
-      } else if (transaction.type === 'WITHDRAWAL') {
-        investment.appliedAmount -= transaction.amount;
-      }
-
-      investment.updatedAt = getCurrentDate();
-    }
-  }
-
-  // Atualizar valores atuais dos investimentos
-  function updateCurrentValues(): void {
-    investments.value.forEach(investment => {
-      const { currentAmount } = calculateCurrentValue(
-        investment.initialAmount,
-        investment.yieldType,
-        investment.yieldRate,
-        investment.startDate
-      );
-      
-      investment.currentAmount = currentAmount;
-      investment.lastUpdate = getCurrentDate();
-    });
-  }
-
-  // Computed Properties
-  const filteredInvestments = computed(() => {
-    if (filter.value === 'all') {
-      return investments.value;
-    }
-    
-    return investments.value.filter(investment => {
-      const investmentType = INVESTMENT_TYPES[investment.type];
-      return investmentType.category === filter.value;
-    });
-  });
-
-  const totalPortfolioValue = computed(() => {
-    return investments.value.reduce((total, investment) => {
-      return total + investment.currentAmount;
-    }, 0);
-  });
-
-  const totalInvested = computed(() => {
-    return investments.value.reduce((total, investment) => {
-      return total + investment.appliedAmount;
-    }, 0);
-  });
-
-  const totalYield = computed(() => {
-    return totalPortfolioValue.value - totalInvested.value;
-  });
-
-  const totalYieldPercentage = computed(() => {
-    if (totalInvested.value === 0) return 0;
-    return (totalYield.value / totalInvested.value) * 100;
-  });
-
+  // Portfolio allocation by category
   const portfolioAllocation = computed((): IPortfolioAllocation[] => {
-    const allocation: { [key: string]: number } = {};
-    const categoryColors = {
-      'RENDA_FIXA': '#22c55e',
-      'RENDA_VARIAVEL': '#3b82f6',
-      'FUNDOS': '#f59e0b'
-    };
+    const categoryTotals = investments.value.reduce((acc, investment) => {
+      const type = INVESTMENT_TYPES[investment.type];
+      const category = type.category;
 
-    // Agrupar por categoria
-    investments.value.forEach(investment => {
-      const category = INVESTMENT_TYPES[investment.type].category;
-      allocation[category] = (allocation[category] || 0) + investment.currentAmount;
+      if (!acc[category]) {
+        acc[category] = 0;
+      }
+      acc[category] += investment.currentAmount;
+
+      return acc;
+    }, {} as Record<string, number>);
+
+    const total = Object.values(categoryTotals).reduce((sum, value) => sum + value, 0);
+
+    return Object.entries(categoryTotals).map(([category, amount], index) => {
+      const colors = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'];
+      return {
+        category,
+        amount,
+        percentage: total > 0 ? (amount / total) * 100 : 0,
+        color: colors[index % colors.length]
+      };
     });
-
-    // Converter para array com percentuais
-    return Object.entries(allocation).map(([category, amount]) => ({
-      category: category.replace('_', ' '),
-      amount,
-      percentage: totalPortfolioValue.value > 0 ? (amount / totalPortfolioValue.value) * 100 : 0,
-      color: categoryColors[category as keyof typeof categoryColors] || '#6b7280'
-    }));
   });
 
-  const monthlyPerformance = computed(() => {
-    const performance: { [key: string]: number } = {};
-    
-    investments.value.forEach(investment => {
-      const startDate = new Date(investment.startDate);
-      const monthKey = `${startDate.getFullYear()}-${String(startDate.getMonth() + 1).padStart(2, '0')}`;
-      
-      const yieldAmount = investment.currentAmount - investment.appliedAmount;
-      performance[monthKey] = (performance[monthKey] || 0) + yieldAmount;
-    });
-
-    return performance;
-  });
-
-  const activeInvestments = computed(() => {
-    return investments.value.filter(inv => inv.status === 'ACTIVE');
-  });
-
-  const maturedInvestments = computed(() => {
-    return investments.value.filter(inv => inv.status === 'MATURED');
-  });
-
-  // 🚀 NOVA FUNCIONALIDADE: Projeções de rendimento da carteira
-  const portfolioProjections = computed((): IProjection[] => {
-    if (investments.value.length === 0) return [];
-    return calculatePortfolioProjections(investments.value);
-  });
-
-  // Funções de filtro
-  function setFilter(newFilter: typeof filter.value): void {
-    filter.value = newFilter;
-  }
-
-  function clearFilter(): void {
-    filter.value = 'all';
-  }
-
-  // Funções auxiliares
-  function getInvestmentTypeIcon(type: InvestmentTypeKey): string {
-    return INVESTMENT_TYPES[type].icon;
-  }
-
-  function getInvestmentTypeName(type: InvestmentTypeKey): string {
-    return INVESTMENT_TYPES[type].name;
-  }
-
-  function getInvestmentYieldAmount(investment: IInvestment): number {
-    return investment.currentAmount - investment.appliedAmount;
-  }
-
-  function getInvestmentYieldPercentage(investment: IInvestment): number {
-    if (investment.appliedAmount === 0) return 0;
-    return calculateReturnPercentage(investment.appliedAmount, investment.currentAmount);
-  }
-
-  // 🚀 NOVA FUNCIONALIDADE: Obter projeções de um investimento específico
+  // Investment projections
   function getInvestmentProjections(investment: IInvestment): IProjection[] {
     return calculateInvestmentProjections(investment);
   }
 
-  // 🚀 NOVA FUNCIONALIDADE: Obter projeção de um investimento em período específico
-  function getInvestmentProjectionByPeriod(investment: IInvestment, period: string): IProjection | null {
-    const projections = getInvestmentProjections(investment);
-    return projections.find(p => p.period === period) || null;
+  // Portfolio projections
+  function getPortfolioProjections(): IProjection[] {
+    return calculatePortfolioProjections(investments.value);
   }
 
   // 🚀 NOVA FUNCIONALIDADE: Simular novo investimento (sem persistir)
@@ -271,58 +157,27 @@ export function useInvestments() {
     return calculateProjections(amount, yieldType, yieldRate);
   }
 
-  // Funções de análise
-  function getBestPerformer(): IInvestment | null {
-    if (investments.value.length === 0) return null;
-    
-    return investments.value.reduce((best, current) => {
-      const currentPercentage = getInvestmentYieldPercentage(current);
-      const bestPercentage = getInvestmentYieldPercentage(best);
-      return currentPercentage > bestPercentage ? current : best;
-    });
+  // Filter functions
+  function setFilter(newFilter: typeof filter.value): void {
+    filter.value = newFilter;
   }
 
-  function getWorstPerformer(): IInvestment | null {
-    if (investments.value.length === 0) return null;
-    
-    return investments.value.reduce((worst, current) => {
-      const currentPercentage = getInvestmentYieldPercentage(current);
-      const worstPercentage = getInvestmentYieldPercentage(worst);
-      return currentPercentage < worstPercentage ? current : worst;
-    });
+  function clearFilter(): void {
+    filter.value = 'all';
   }
 
-  // 🚀 NOVA FUNCIONALIDADE: Obter melhor projeção (maior rendimento)
-  function getBestProjection(period: string = '1a'): { investment: IInvestment; projection: IProjection } | null {
-    if (investments.value.length === 0) return null;
-    
-    let bestResult: { investment: IInvestment; projection: IProjection } | null = null;
-    let bestYield = -Infinity;
-
-    investments.value.forEach(investment => {
-      const projection = getInvestmentProjectionByPeriod(investment, period);
-      if (projection && projection.yieldPercentage > bestYield) {
-        bestYield = projection.yieldPercentage;
-        bestResult = { investment, projection };
-      }
-    });
-
-    return bestResult;
+  // Helper functions for investment display
+  function getInvestmentTypeIcon(type: InvestmentTypeKey): string {
+    return INVESTMENT_TYPES[type].icon;
   }
 
-  // Limpar todos os dados
-  function clearAllData(): void {
-    investments.value = [];
+  function getInvestmentYieldAmount(investment: IInvestment): number {
+    return investment.currentAmount - investment.appliedAmount;
   }
 
-  // Importar dados
-  function importData(data: IInvestment[]): void {
-    investments.value = data;
-  }
-
-  // Export para API externa (futura funcionalidade)
-  function exportData(): IInvestment[] {
-    return investments.value;
+  function getInvestmentYieldPercentage(investment: IInvestment): number {
+    if (investment.appliedAmount === 0) return 0;
+    return calculateReturnPercentage(investment.appliedAmount, investment.currentAmount);
   }
 
   return {
@@ -330,46 +185,37 @@ export function useInvestments() {
     investments,
     selectedInvestment,
     filter,
-    
+    isLoading,
+
     // Computed
     filteredInvestments,
     totalPortfolioValue,
     totalInvested,
-    totalYield,
-    totalYieldPercentage,
+    totalReturn,
+    returnPercentage,
     portfolioAllocation,
-    monthlyPerformance,
-    activeInvestments,
-    maturedInvestments,
-    portfolioProjections, // 🚀 NOVA
-    
+
     // Methods
     addInvestment,
     updateInvestment,
-    removeInvestment,
-    getInvestmentById,
+    deleteInvestment,
     addTransaction,
-    updateCurrentValues,
+    getInvestmentMetrics,
+    getInvestmentProjections,
+    getPortfolioProjections,
+    simulateInvestment,
     setFilter,
     clearFilter,
-    
-    // Helpers
     getInvestmentTypeIcon,
-    getInvestmentTypeName,
     getInvestmentYieldAmount,
     getInvestmentYieldPercentage,
-    getBestPerformer,
-    getWorstPerformer,
-    
-    // 🚀 NOVAS FUNCIONALIDADES: Projeções
-    getInvestmentProjections,
-    getInvestmentProjectionByPeriod,
-    simulateInvestment,
-    getBestProjection,
-    
-    // Data management
-    clearAllData,
-    importData,
-    exportData
+
+    // Utils
+    generateId,
+    getCurrentDate,
+
+    // Constants
+    INVESTMENT_TYPES,
+    PROJECTION_INTERVALS
   };
-} 
+}

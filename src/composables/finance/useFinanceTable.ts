@@ -1,6 +1,7 @@
 import { computed } from 'vue'
 import { useFinanceStore } from '../../stores/financeStore'
 import { useCategoryDetection } from '../useCategoryDetection'
+import { formatDateForDisplay, getCurrentDateISO } from '../../utils/dateUtils'
 import type { IFinanceRecord } from '../../types/finance'
 
 export function useFinanceTable() {
@@ -52,18 +53,7 @@ export function useFinanceTable() {
   }
 
   const formatDate = (dateStr: string): string => {
-    if (!dateStr) return ''
-
-    // For date-only strings (YYYY-MM-DD), parse as local date to avoid timezone issues
-    if (dateStr.match(/^\d{4}-\d{2}-\d{2}$/)) {
-      const [year, month, day] = dateStr.split('-').map(Number)
-      const date = new Date(year, month - 1, day) // month is 0-based in constructor
-      return date.toLocaleDateString('pt-BR')
-    }
-
-    // For other date formats, use regular parsing
-    const date = new Date(dateStr)
-    return date.toLocaleDateString('pt-BR')
+    return formatDateForDisplay(dateStr)
   }
 
   const formatCurrency = (value: number): string => {
@@ -78,7 +68,7 @@ export function useFinanceTable() {
   }
 
   const getCurrentDate = (): string => {
-    return new Date().toISOString().split('T')[0]
+    return getCurrentDateISO()
   }
 
   return {

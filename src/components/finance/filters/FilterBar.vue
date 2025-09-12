@@ -165,8 +165,6 @@ const toggleAdvancedFilters = () => {
 }
 
 const refreshCategorization = () => {
-  console.log('🤖 [FILTER_BAR] Starting auto-categorization...')
-
   let updatedCount = 0
 
   recordsWithoutCategory.value.forEach(record => {
@@ -175,11 +173,8 @@ const refreshCategorization = () => {
     if (detectedCategory && detectedCategory !== 'Outros') {
       // In a real implementation, this would update the record
       // For now, we'll just log it
-      console.log('🔄 [FILTER_BAR] Would categorize:', record.Descrição, '->', detectedCategory)
       updatedCount++
     }
   })
-
-  console.log(`✅ [FILTER_BAR] Auto-categorization complete: ${updatedCount} records updated`)
 }
 </script>

@@ -1,3 +1,171 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Dark Mode Base Styles */
+@layer base {
+  /* Light mode (default) */
+  :root {
+    --color-bg-primary: 249 250 251; /* gray-50 */
+    --color-bg-secondary: 255 255 255; /* white */
+    --color-bg-tertiary: 243 244 246; /* gray-100 */
+    --color-text-primary: 17 24 39; /* gray-900 */
+    --color-text-secondary: 75 85 99; /* gray-600 */
+    --color-text-tertiary: 107 114 128; /* gray-500 */
+    --color-border: 229 231 235; /* gray-200 */
+    --color-border-light: 243 244 246; /* gray-100 */
+  }
+
+  /* Dark mode */
+  .dark {
+    --color-bg-primary: 15 23 42; /* slate-900 */
+    --color-bg-secondary: 30 41 59; /* slate-800 */
+    --color-bg-tertiary: 51 65 85; /* slate-700 */
+    --color-text-primary: 248 250 252; /* slate-50 */
+    --color-text-secondary: 203 213 225; /* slate-300 */
+    --color-text-tertiary: 148 163 184; /* slate-400 */
+    --color-border: 71 85 105; /* slate-600 */
+    --color-border-light: 51 65 85; /* slate-700 */
+  }
+
+  /* Apply base styles */
+  html {
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  body {
+    background-color: rgb(var(--color-bg-primary));
+    color: rgb(var(--color-text-primary));
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  /* Improve dark mode form elements */
+  .dark input,
+  .dark select,
+  .dark textarea {
+    background-color: rgb(var(--color-bg-secondary));
+    border-color: rgb(var(--color-border));
+    color: rgb(var(--color-text-primary));
+  }
+
+  .dark input:focus,
+  .dark select:focus,
+  .dark textarea:focus {
+    border-color: rgb(59 130 246); /* blue-500 */
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+
+  /* Dark mode buttons */
+  .dark button {
+    transition: all 0.2s ease;
+  }
+
+  /* Dark mode modal/overlay improvements */
+  .dark .modal-overlay {
+    background-color: rgba(0, 0, 0, 0.8);
+  }
+
+  /* Dark mode scrollbar (webkit) */
+  .dark ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  .dark ::-webkit-scrollbar-track {
+    background: rgb(var(--color-bg-tertiary));
+  }
+
+  .dark ::-webkit-scrollbar-thumb {
+    background: rgb(var(--color-border));
+    border-radius: 4px;
+  }
+
+  .dark ::-webkit-scrollbar-thumb:hover {
+    background: rgb(var(--color-text-tertiary));
+  }
+}
+
+/* Custom utility classes for dark mode */
+@layer utilities {
+  /* Background utilities */
+  .bg-primary {
+    background-color: rgb(var(--color-bg-primary));
+  }
+
+  .bg-secondary {
+    background-color: rgb(var(--color-bg-secondary));
+  }
+
+  .bg-tertiary {
+    background-color: rgb(var(--color-bg-tertiary));
+  }
+
+  /* Text utilities */
+  .text-primary {
+    color: rgb(var(--color-text-primary));
+  }
+
+  .text-secondary {
+    color: rgb(var(--color-text-secondary));
+  }
+
+  .text-tertiary {
+    color: rgb(var(--color-text-tertiary));
+  }
+
+  /* Border utilities */
+  .border-primary {
+    border-color: rgb(var(--color-border));
+  }
+
+  .border-light {
+    border-color: rgb(var(--color-border-light));
+  }
+
+  /* Dark mode hover states */
+  .hover-bg-light:hover {
+    background-color: rgb(var(--color-bg-tertiary));
+  }
+
+  /* Smooth transitions for theme switching */
+  .theme-transition {
+    transition: background-color 0.3s ease, color 0.3s ease,
+      border-color 0.3s ease, box-shadow 0.3s ease;
+  }
+}
+
+/* Dark mode specific component styles */
+@layer components {
+  /* Enhanced card styling for dark mode */
+  .card-dark {
+    @apply theme-transition;
+    background-color: rgb(var(--color-bg-secondary));
+    border-color: rgb(var(--color-border));
+  }
+
+  /* Enhanced button styling for dark mode */
+  .btn-dark {
+    @apply theme-transition;
+  }
+
+  .btn-dark:hover {
+    transform: translateY(-1px);
+  }
+
+  /* Form input styling for dark mode */
+  .input-dark {
+    @apply theme-transition;
+    background-color: rgb(var(--color-bg-secondary));
+    border-color: rgb(var(--color-border));
+    color: rgb(var(--color-text-primary));
+  }
+
+  .input-dark:focus {
+    border-color: rgb(59 130 246);
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+
+  .input-dark::placeholder {
+    color: rgb(var(--color-text-tertiary));
+  }
+}

@@ -1,107 +1,122 @@
 <template>
-  <div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
+  <div
+    class="bg-white dark:bg-slate-800 rounded-lg shadow-sm border border-gray-200 dark:border-slate-600 mb-6 theme-transition">
     <!-- Header -->
     <button @click="isExpanded = !isExpanded"
-      class="w-full flex items-center justify-between p-4 text-left hover:bg-gray-50 transition-colors">
-      <div class="flex items-center space-x-3">
-        <i class="fas fa-calendar-days text-blue-600"></i>
-        <h3 class="text-lg font-semibold text-gray-800">📅 Projeção de Meses</h3>
-        <span class="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-700 rounded-full">
+      class="w-full flex items-center justify-between p-3 sm:p-4 text-left hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors">
+      <div class="flex items-center space-x-2 sm:space-x-3 min-w-0 flex-1">
+        <i class="fas fa-calendar-days text-blue-600 dark:text-blue-400 text-sm sm:text-base"></i>
+        <h3 class="text-base sm:text-lg font-semibold text-gray-800 dark:text-slate-100 truncate">📅 Projeção de Meses
+        </h3>
+        <span
+          class="px-2 py-1 text-xs font-medium bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded-full whitespace-nowrap">
           {{ activeMonthsCount }} meses ativos
         </span>
       </div>
-      <div class="flex items-center space-x-3">
-        <span class="text-sm text-gray-600">
+      <div class="flex items-center space-x-2 sm:space-x-3 flex-shrink-0">
+        <span class="text-xs sm:text-sm text-gray-600 dark:text-slate-300 hidden sm:block">
           {{ currentMonthName }} + {{ futureMonths }} {{ futureMonths === 1 ? 'mês' : 'meses' }}
         </span>
-        <i :class="isExpanded ? 'fas fa-chevron-up' : 'fas fa-chevron-down'" class="text-gray-400"></i>
+        <span class="text-xs text-gray-600 dark:text-slate-300 sm:hidden">
+          +{{ futureMonths }}m
+        </span>
+        <i :class="isExpanded ? 'fas fa-chevron-up' : 'fas fa-chevron-down'"
+          class="text-gray-400 dark:text-slate-500 text-sm"></i>
       </div>
     </button>
 
     <!-- Expandable content -->
-    <div v-if="isExpanded" class="border-t border-gray-200">
+    <div v-if="isExpanded" class="border-t border-gray-200 dark:border-slate-600">
       <!-- Quick controls -->
-      <div class="p-4 bg-gray-50">
-        <div class="flex items-center justify-between mb-4">
-          <div>
-            <h4 class="font-medium text-gray-800">🎯 Meses Futuros</h4>
-            <p class="text-sm text-gray-600">Quantos meses à frente você quer projetar?</p>
+      <div class="p-3 sm:p-4 bg-gray-50 dark:bg-slate-700">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 space-y-3 sm:space-y-0">
+          <div class="flex-1">
+            <h4 class="font-medium text-gray-800 dark:text-slate-100 text-sm sm:text-base">🎯 Meses Futuros</h4>
+            <p class="text-xs sm:text-sm text-gray-600 dark:text-slate-300">Quantos meses à frente você quer projetar?
+            </p>
           </div>
-          <div class="flex items-center space-x-3">
+          <div class="flex items-center justify-center sm:justify-end space-x-3">
             <button @click="changeFutureMonths(-1)" :disabled="futureMonths <= 1"
-              class="w-8 h-8 flex items-center justify-center bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
-              <i class="fas fa-minus text-xs"></i>
+              class="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center bg-white dark:bg-slate-600 border border-gray-300 dark:border-slate-500 rounded-md hover:bg-gray-50 dark:hover:bg-slate-500 disabled:opacity-50 disabled:cursor-not-allowed">
+              <i class="fas fa-minus text-xs text-gray-700 dark:text-slate-200"></i>
             </button>
-            <span class="w-12 text-center font-semibold text-lg">{{ futureMonths }}</span>
+            <span class="w-12 sm:w-16 text-center font-semibold text-lg sm:text-xl text-gray-800 dark:text-slate-100">{{
+              futureMonths }}</span>
             <button @click="changeFutureMonths(1)" :disabled="futureMonths >= 12"
-              class="w-8 h-8 flex items-center justify-center bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
-              <i class="fas fa-plus text-xs"></i>
+              class="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center bg-white dark:bg-slate-600 border border-gray-300 dark:border-slate-500 rounded-md hover:bg-gray-50 dark:hover:bg-slate-500 disabled:opacity-50 disabled:cursor-not-allowed">
+              <i class="fas fa-plus text-xs text-gray-700 dark:text-slate-200"></i>
             </button>
           </div>
         </div>
 
         <!-- Quick presets -->
-        <div class="flex flex-wrap gap-2 mb-4">
+        <div class="grid grid-cols-2 sm:flex sm:flex-wrap gap-2 mb-4">
           <button v-for="preset in quickPresets" :key="preset.months" @click="setFutureMonths(preset.months)" :class="[
-            'px-3 py-1.5 text-sm font-medium rounded-md transition-colors',
+            'px-2 sm:px-3 py-1.5 text-xs sm:text-sm font-medium rounded-md transition-colors',
             futureMonths === preset.months
-              ? 'bg-blue-600 text-white'
-              : 'bg-blue-100 text-blue-700 hover:bg-blue-200'
+              ? 'bg-blue-600 dark:bg-blue-500 text-white'
+              : 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 hover:bg-blue-200 dark:hover:bg-blue-800'
           ]">
             {{ preset.label }}
           </button>
         </div>
 
         <!-- Include past months toggle -->
-        <div class="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-200">
-          <div class="flex items-center space-x-3">
+        <div
+          class="flex flex-col sm:flex-row sm:items-center sm:justify-between p-3 bg-white dark:bg-slate-600 rounded-lg border border-gray-200 dark:border-slate-500 space-y-3 sm:space-y-0">
+          <div class="flex items-start sm:items-center space-x-3">
             <input v-model="includePastMonths" type="checkbox"
-              class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-            <div>
-              <label class="font-medium text-gray-800 cursor-pointer" @click="includePastMonths = !includePastMonths">
+              class="h-4 w-4 text-blue-600 dark:text-blue-400 focus:ring-blue-500 dark:focus:ring-blue-400 border-gray-300 dark:border-slate-400 rounded mt-0.5 sm:mt-0">
+            <div class="flex-1">
+              <label class="font-medium text-gray-800 dark:text-slate-100 cursor-pointer text-sm sm:text-base"
+                @click="includePastMonths = !includePastMonths">
                 📊 Incluir Meses Passados
               </label>
-              <div class="text-sm text-gray-600">Para comparação com períodos anteriores</div>
+              <div class="text-xs sm:text-sm text-gray-600 dark:text-slate-300">Para comparação com períodos anteriores
+              </div>
             </div>
           </div>
-          <div v-if="includePastMonths" class="flex items-center space-x-2">
+          <div v-if="includePastMonths" class="flex items-center justify-center sm:justify-end space-x-2">
             <button @click="changePastMonths(-1)" :disabled="pastMonths <= 1"
-              class="w-6 h-6 flex items-center justify-center bg-gray-100 border border-gray-300 rounded text-xs hover:bg-gray-200 disabled:opacity-50">
-              <i class="fas fa-minus"></i>
+              class="w-6 h-6 flex items-center justify-center bg-gray-100 dark:bg-slate-500 border border-gray-300 dark:border-slate-400 rounded text-xs hover:bg-gray-200 dark:hover:bg-slate-400 disabled:opacity-50">
+              <i class="fas fa-minus text-gray-700 dark:text-slate-200"></i>
             </button>
-            <span class="w-6 text-center text-sm font-medium">{{ pastMonths }}</span>
+            <span class="w-6 text-center text-sm font-medium text-gray-800 dark:text-slate-100">{{ pastMonths }}</span>
             <button @click="changePastMonths(1)" :disabled="pastMonths >= 6"
-              class="w-6 h-6 flex items-center justify-center bg-gray-100 border border-gray-300 rounded text-xs hover:bg-gray-200 disabled:opacity-50">
-              <i class="fas fa-plus"></i>
+              class="w-6 h-6 flex items-center justify-center bg-gray-100 dark:bg-slate-500 border border-gray-300 dark:border-slate-400 rounded text-xs hover:bg-gray-200 dark:hover:bg-slate-400 disabled:opacity-50">
+              <i class="fas fa-plus text-gray-700 dark:text-slate-200"></i>
             </button>
           </div>
         </div>
       </div>
 
       <!-- Active months preview -->
-      <div class="border-t border-gray-200 p-4">
-        <h4 class="font-medium text-gray-800 mb-3">📅 Meses Ativos na Projeção</h4>
-        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2">
+      <div class="border-t border-gray-200 dark:border-slate-600 p-3 sm:p-4">
+        <h4 class="font-medium text-gray-800 dark:text-slate-100 mb-3 text-sm sm:text-base">📅 Meses Ativos na Projeção
+        </h4>
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-2">
           <div v-for="monthKey in visibleMonthKeys" :key="monthKey" :class="[
-            'px-3 py-2 text-sm font-medium rounded-lg text-center border',
+            'px-2 sm:px-3 py-2 text-xs sm:text-sm font-medium rounded-lg text-center border',
             isCurrentMonth(monthKey)
-              ? 'bg-green-100 text-green-800 border-green-300 ring-2 ring-green-200'
+              ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200 border-green-300 dark:border-green-700 ring-2 ring-green-200 dark:ring-green-800'
               : isPastMonth(monthKey)
-                ? 'bg-gray-100 text-gray-700 border-gray-300'
-                : 'bg-blue-100 text-blue-800 border-blue-300'
+                ? 'bg-gray-100 dark:bg-slate-600 text-gray-700 dark:text-slate-200 border-gray-300 dark:border-slate-500'
+                : 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 border-blue-300 dark:border-blue-700'
           ]">
             <div class="flex items-center justify-center space-x-1">
-              <span>{{ formatMonthKey(monthKey) }}</span>
-              <i v-if="isCurrentMonth(monthKey)" class="fas fa-star text-green-600 text-xs"></i>
-              <i v-else-if="isPastMonth(monthKey)" class="fas fa-history text-gray-500 text-xs"></i>
-              <i v-else class="fas fa-arrow-right text-blue-600 text-xs"></i>
+              <span class="truncate">{{ formatMonthKey(monthKey) }}</span>
+              <i v-if="isCurrentMonth(monthKey)"
+                class="fas fa-star text-green-600 dark:text-green-400 text-xs flex-shrink-0"></i>
+              <i v-if="isCurrentMonth(monthKey)" class="fas fa-star text-green-600 text-xs flex-shrink-0"></i>
+              <i v-else-if="isPastMonth(monthKey)" class="fas fa-history text-gray-500 text-xs flex-shrink-0"></i>
+              <i v-else class="fas fa-arrow-right text-blue-600 text-xs flex-shrink-0"></i>
             </div>
           </div>
         </div>
 
         <!-- Summary info -->
         <div class="mt-4 p-3 bg-blue-50 rounded-lg">
-          <div class="flex items-center justify-center space-x-6 text-sm">
+          <div class="flex items-center justify-center space-x-4 sm:space-x-6 text-xs sm:text-sm">
             <div v-if="includePastMonths" class="text-center">
               <div class="font-semibold text-gray-700">{{ pastMonths }}</div>
               <div class="text-gray-600">Passados</div>

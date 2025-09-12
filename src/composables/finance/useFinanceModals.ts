@@ -39,13 +39,11 @@ export function useFinanceModals() {
   const confirmDelete = (record: IFinanceRecord, index: number) => {
     itemToDelete.value = { record, index }
     showDeleteConfirm.value = true
-    console.log('🗑️ [MODAL] Showing delete confirmation for:', record.Descrição)
   }
 
   const cancelDelete = () => {
     itemToDelete.value = null
     showDeleteConfirm.value = false
-    console.log('❌ [MODAL] Cancelled delete operation')
   }
 
   const executeDelete = () => {
@@ -65,7 +63,6 @@ export function useFinanceModals() {
       const success = financeStore.removeRecord(index)
 
       if (success) {
-        console.log('✅ [MODAL] Record deleted successfully:', record.Descrição)
 
         // Close delete modal
         showDeleteConfirm.value = false
@@ -107,7 +104,6 @@ export function useFinanceModals() {
       hideUndoToast()
     }, 5000)
 
-    console.log('⏰ [MODAL] Undo toast shown with 5 second timer')
   }
 
   const undoDelete = () => {
@@ -119,7 +115,6 @@ export function useFinanceModals() {
       // Add the record back to the data
       financeStore.addRecord(restoreData)
 
-      console.log('↩️ [MODAL] Restored deleted record:', record.Descrição)
 
       // Clear undo state
       hideUndoToast()
@@ -143,29 +138,24 @@ export function useFinanceModals() {
       undoCountdown = null
     }
 
-    console.log('❌ [MODAL] Undo toast hidden')
   }
 
   // Edit sheet modal
   const openEditSheet = () => {
     showEditSheet.value = true
-    console.log('✏️ [MODAL] Edit sheet opened')
   }
 
   const closeEditSheet = () => {
     showEditSheet.value = false
-    console.log('❌ [MODAL] Edit sheet closed')
   }
 
   // Multiple records modal
   const openMultipleRecords = () => {
     showMultipleRecords.value = true
-    console.log('📝 [MODAL] Multiple records modal opened')
   }
 
   const closeMultipleRecords = () => {
     showMultipleRecords.value = false
-    console.log('❌ [MODAL] Multiple records modal closed')
   }
 
   // Computed properties

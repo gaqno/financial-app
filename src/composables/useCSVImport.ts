@@ -1,5 +1,6 @@
 import { ref } from 'vue';
 import { financeRecordSchema } from '../types/finance';
+import { formatDateForStorage } from '../utils/dateUtils';
 import type { IFinanceRecord } from '../types/finance';
 
 export function useCSVImport() {
@@ -35,21 +36,12 @@ export function useCSVImport() {
   };
 
   const parseDate = (dateStr: string): string => {
-    // Handle different date formats
-    const formats = [
-      { regex: /^(\d{1,2})\/(\d{1,2})$/, format: (d: string[], y = new Date().getFullYear()) => `${y}-${d[2].padStart(2, '0')}-${d[1].padStart(2, '0')}` },
-      { regex: /^(\d{4})-(\d{1,2})-(\d{1,2})$/, format: (d: string[]) => `${d[1]}-${d[2].padStart(2, '0')}-${d[3].padStart(2, '0')}` },
-      { regex: /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/, format: (d: string[]) => `${d[3]}-${d[2].padStart(2, '0')}-${d[1].padStart(2, '0')}` }
-    ];
-
-    for (const { regex, format } of formats) {
-      const match = dateStr.match(regex);
-      if (match) {
-        return format(match);
-      }
+    // Use the standardized date parser from utils
+    const result = formatDateForStorage(dateStr);
+    if (!result) {
+      throw new Error(`Data inválida: ${dateStr}`);
     }
-
-    throw new Error(`Data inválida: ${dateStr}`);
+    return result;
   };
 
   const parseValue = (valueStr: string): number => {

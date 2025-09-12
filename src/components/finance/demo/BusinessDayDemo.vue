@@ -163,7 +163,7 @@ const dayOfWeek = computed(() => {
 // Methods
 const handleBusinessDayChange = (info: typeof businessDayInfo.value) => {
   businessDayInfo.value = info
-  console.log('📅 [BUSINESS_DAY_DEMO] Business day info updated:', info)
+    ('📅 [BUSINESS_DAY_DEMO] Business day info updated:', info)
 }
 
 const formatDate = (dateStr: string): string => {
@@ -187,16 +187,16 @@ const getMonthName = (monthNumber?: number): string => {
 // Test methods
 const testToday = () => {
   selectedDate.value = new Date().toISOString().split('T')[0]
-  console.log('🧪 [TEST] Set to today:', selectedDate.value)
+    ('🧪 [TEST] Set to today:', selectedDate.value)
 }
 
 const testFirstBusinessDay = () => {
   // This would trigger business day mode with 1st business day
-  console.log('🧪 [TEST] Testing 1st business day - use the toggle in the component')
+  ('🧪 [TEST] Testing 1st business day - use the toggle in the component')
 }
 
 const testFifthBusinessDay = () => {
-  console.log('🧪 [TEST] Testing 5th business day - use the toggle in the component')
+  ('🧪 [TEST] Testing 5th business day - use the toggle in the component')
 }
 
 const testNextMonth = () => {
@@ -204,7 +204,7 @@ const testNextMonth = () => {
   nextMonth.setMonth(nextMonth.getMonth() + 1)
   nextMonth.setDate(1)
   selectedDate.value = nextMonth.toISOString().split('T')[0]
-  console.log('🧪 [TEST] Set to next month:', selectedDate.value)
+    ('🧪 [TEST] Set to next month:', selectedDate.value)
 }
 </script>
 

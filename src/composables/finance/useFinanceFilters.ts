@@ -72,12 +72,10 @@ export function useFinanceFilters() {
   // Filter actions
   const setFilter = (newFilter: IFilter) => {
     setFinanceFilter(newFilter)
-    console.log('🔍 [FILTER] Type filter changed to:', newFilter)
   }
 
   const filterByCategory = (category: string) => {
     setCategoryFilter(category)
-    console.log('🔍 [FILTER] Category filter changed to:', category)
   }
 
   const clearAllFilters = () => {
@@ -86,35 +84,29 @@ export function useFinanceFilters() {
     searchTerm.value = ''
     statusFilter.value = 'all'
     dateRange.value = {}
-    console.log('🧹 [FILTER] All filters cleared')
   }
 
   const setSearchTerm = (term: string) => {
     searchTerm.value = term
-    console.log('🔍 [FILTER] Search term changed to:', term)
   }
 
   const setStatusFilter = (status: 'all' | '❌' | '✔️') => {
     statusFilter.value = status
-    console.log('🔍 [FILTER] Status filter changed to:', status)
   }
 
   const setDateRange = (start?: string, end?: string) => {
     dateRange.value = { start, end }
-    console.log('🔍 [FILTER] Date range changed:', { start, end })
   }
 
   // Quick filter presets
   const showPendingOnly = () => {
     setFilter('all')
     setStatusFilter('❌')
-    console.log('🔍 [FILTER] Applied pending filter')
   }
 
   const showCompletedOnly = () => {
     setFilter('all')
     setStatusFilter('✔️')
-    console.log('🔍 [FILTER] Applied completed filter')
   }
 
   const showRecentTransactions = (days: number = 7) => {
@@ -124,7 +116,6 @@ export function useFinanceFilters() {
     const start = startDate.toISOString().split('T')[0]
 
     setDateRange(start, endDate)
-    console.log('🔍 [FILTER] Applied recent transactions filter:', { days, start, endDate })
   }
 
   // Active filter indicators

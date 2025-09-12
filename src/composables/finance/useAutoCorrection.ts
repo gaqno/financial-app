@@ -20,7 +20,6 @@ export function useAutoCorrection() {
     saveToStorage: () => void,
     cleanInvalidRecurrences: () => void
   ): void => {
-    console.log('🔧 [AUTO_CORRECTION] Starting automatic correction of future records...')
 
     const corrections = {
       removed: 0,
@@ -35,11 +34,6 @@ export function useAutoCorrection() {
       const recurrenceId = originalRecord.recurrence?.recurrenceId || updatedRecord.recurrence?.recurrenceId
 
       if (recurrenceId && originalEndDate !== newEndDate) {
-        console.log('🔧 [AUTO_CORRECTION] Detected recurrence end date change:', {
-          original: originalEndDate,
-          new: newEndDate,
-          recurrenceId
-        })
 
         // Se a nova data limite é anterior à original, remover lançamentos além da nova data
         if (newEndDate && originalEndDate && newEndDate < originalEndDate) {
@@ -59,14 +53,12 @@ export function useAutoCorrection() {
         originalRecord.Descrição !== updatedRecord.Descrição ||
         originalRecord.Tipo !== updatedRecord.Tipo
       )) {
-        console.log('🔧 [AUTO_CORRECTION] Detected changes in recurring record properties')
         corrections.updated += validateAndCorrectRecurringRecords(recurrenceId, updatedRecord, records, saveToStorage)
       }
 
       // Sempre executar limpeza geral após edições
       cleanInvalidRecurrences()
 
-      console.log('✅ [AUTO_CORRECTION] Completed automatic correction:', corrections)
 
       // Notificar usuário se houver correções significativas
       if (corrections.removed > 0 || corrections.updated > 0) {
@@ -78,7 +70,6 @@ export function useAutoCorrection() {
           message.push(`${corrections.updated} lançamento(s) futuro(s) corrigido(s)`)
         }
 
-        console.log('ℹ️ [AUTO_CORRECTION] Correções aplicadas: ' + message.join('; '))
       }
 
     } catch (error) {
@@ -101,7 +92,6 @@ export function useAutoCorrection() {
     records: { value: IFinanceRecord[] },
     saveToStorage: () => void
   ): number => {
-    console.log('🗑️ [AUTO_CORRECTION] Removing recurring records beyond date:', { recurrenceId, endDate })
 
     // Parse da data limite
     let limitDate: Date
@@ -134,11 +124,6 @@ export function useAutoCorrection() {
       const shouldKeep = recordDate <= limitDate
 
       if (!shouldKeep) {
-        console.log('🗑️ [AUTO_CORRECTION] Removing record beyond end date:', {
-          description: record.Descrição,
-          date: record.Data,
-          endDate: endDate
-        })
       }
 
       return shouldKeep
@@ -148,7 +133,6 @@ export function useAutoCorrection() {
 
     if (removedCount > 0) {
       saveToStorage()
-      console.log(`✅ [AUTO_CORRECTION] Removed ${removedCount} records beyond end date`)
     }
 
     return removedCount
@@ -168,7 +152,6 @@ export function useAutoCorrection() {
     records: { value: IFinanceRecord[] },
     saveToStorage: () => void
   ): number => {
-    console.log('🔧 [AUTO_CORRECTION] Validating and correcting recurring records for:', recurrenceId)
 
     let correctedCount = 0
 
@@ -198,18 +181,12 @@ export function useAutoCorrection() {
           records.value[index] = { ...record, ...updates }
           correctedCount++
 
-          console.log('🔧 [AUTO_CORRECTION] Corrected record:', {
-            date: record.Data,
-            description: record.Descrição,
-            updates
-          })
         }
       }
     })
 
     if (correctedCount > 0) {
       saveToStorage()
-      console.log(`✅ [AUTO_CORRECTION] Corrected ${correctedCount} recurring records`)
     }
 
     return correctedCount

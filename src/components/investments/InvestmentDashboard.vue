@@ -1,7 +1,7 @@
 <template>
   <!-- Investment Dashboard Content -->
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
-    
+
     <!-- Resumo da Carteira -->
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
       <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
@@ -22,8 +22,8 @@
         <div class="flex items-center justify-between">
           <div>
             <p class="text-sm font-medium text-gray-600">Rendimento</p>
-            <p class="text-2xl font-bold" :class="totalYield >= 0 ? 'text-green-600' : 'text-red-600'">
-              {{ totalYield.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) }}
+            <p class="text-2xl font-bold" :class="(totalReturn || 0) >= 0 ? 'text-green-600' : 'text-red-600'">
+              {{ (totalReturn || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) }}
             </p>
           </div>
           <div class="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
@@ -36,8 +36,8 @@
         <div class="flex items-center justify-between">
           <div>
             <p class="text-sm font-medium text-gray-600">Rentabilidade</p>
-            <p class="text-2xl font-bold" :class="totalYieldPercentage >= 0 ? 'text-green-600' : 'text-red-600'">
-              {{ totalYieldPercentage.toFixed(2) }}%
+            <p class="text-2xl font-bold" :class="(returnPercentage || 0) >= 0 ? 'text-green-600' : 'text-red-600'">
+              {{ (returnPercentage || 0).toFixed(2) }}%
             </p>
           </div>
           <div class="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center">
@@ -51,7 +51,7 @@
           <div>
             <p class="text-sm font-medium text-gray-600">Investimentos</p>
             <p class="text-2xl font-bold text-gray-900">{{ investments.length }}</p>
-            <p class="text-xs text-gray-500">{{ activeInvestments.length }} ativos</p>
+            <p class="text-xs text-gray-500">{{investments.filter(inv => inv.status === 'ACTIVE').length}} ativos</p>
           </div>
           <div class="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
             <i class="fas fa-layer-group text-purple-600"></i>
@@ -60,281 +60,318 @@
       </div>
     </div>
 
-      <!-- Gráfico de Alocação -->
-      <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-        <h3 class="text-lg font-semibold text-gray-900 mb-4">🎯 Distribuição da Carteira</h3>
-        <div class="grid lg:grid-cols-2 gap-6">
-          <div class="flex items-center justify-center">
-            <canvas ref="allocationChartRef" width="300" height="300"></canvas>
-          </div>
-          <div class="space-y-3">
-            <div 
-              v-for="allocation in portfolioAllocation" 
-              :key="allocation.category"
-              class="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
-            >
-              <div class="flex items-center space-x-3">
-                <div 
-                  class="w-4 h-4 rounded-full"
-                  :style="{ backgroundColor: allocation.color }"
-                ></div>
-                <span class="text-sm font-medium text-gray-700">{{ allocation.category }}</span>
-              </div>
-              <div class="text-right">
-                <p class="text-sm font-semibold text-gray-900">
-                  {{ allocation.amount.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) }}
-                </p>
-                <p class="text-xs text-gray-500">{{ allocation.percentage.toFixed(1) }}%</p>
-              </div>
+    <!-- Gráfico de Alocação -->
+    <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+      <h3 class="text-lg font-semibold text-gray-900 mb-4">🎯 Distribuição da Carteira</h3>
+      <div class="grid lg:grid-cols-2 gap-6">
+        <div class="flex items-center justify-center">
+          <canvas ref="allocationChartRef" width="300" height="300"></canvas>
+        </div>
+        <div class="space-y-3">
+          <div v-for="allocation in portfolioAllocation" :key="allocation.category"
+            class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+            <div class="flex items-center space-x-3">
+              <div class="w-4 h-4 rounded-full" :style="{ backgroundColor: allocation.color }"></div>
+              <span class="text-sm font-medium text-gray-700">{{ allocation.category }}</span>
+            </div>
+            <div class="text-right">
+              <p class="text-sm font-semibold text-gray-900">
+                {{ allocation.amount.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) }}
+              </p>
+              <p class="text-xs text-gray-500">{{ allocation.percentage.toFixed(1) }}%</p>
             </div>
           </div>
         </div>
       </div>
+    </div>
 
-      <!-- Projeções de Rendimento -->
-      <ProjectionPanel 
-        :projections="portfolioProjections"
-        :total-portfolio-value="totalPortfolioValue"
-        :simulate-investment="simulateInvestment"
-      />
+    <!-- Projeções de Rendimento -->
+    <ProjectionPanel :projections="portfolioProjections" :total-portfolio-value="totalPortfolioValue"
+      :simulate-investment="simulateInvestment" />
 
-      <!-- Formulário de Adição -->
-      <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
-        <h3 class="text-lg font-semibold text-gray-900 mb-4">➕ Adicionar Investimento</h3>
-        <form @submit.prevent="handleAdd" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-          <div>
-            <select 
-              v-model="newInvestment.type" 
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              required
-            >
-              <option value="" disabled>Selecione o tipo</option>
-              <option v-for="(typeData, key) in INVESTMENT_TYPES" :key="key" :value="key">
-                {{ typeData.icon }} {{ typeData.name }}
-              </option>
-            </select>
-          </div>
-          
-          <div>
-            <input 
-              v-model="newInvestment.name"
-              type="text" 
-              placeholder="Nome do investimento"
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              required
-            />
+    <!-- Formulário de Adição - Layout de Dois Cards -->
+    <div class="space-y-4">
+      <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+        <i class="fas fa-plus mr-2 text-blue-600"></i>
+        Adicionar Novo Investimento
+      </h3>
+
+      <form @submit="onSubmit" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+        <!-- Card 1: Informações Básicas -->
+        <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+          <div class="flex items-center justify-between mb-4">
+            <h4 class="text-md font-semibold text-gray-800 flex items-center">
+              <i class="fas fa-info-circle mr-2 text-blue-500"></i>
+              Informações Básicas
+            </h4>
+            <span class="text-xs bg-blue-50 text-blue-600 px-2 py-1 rounded-full">Obrigatório</span>
           </div>
 
-          <div>
-            <input 
-              v-model="newInvestment.institution"
-              type="text" 
-              placeholder="Instituição"
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              required
-            />
+          <div class="space-y-4">
+            <!-- Tipo de Investimento -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                <i class="fas fa-chart-pie mr-1"></i>
+                Tipo de Investimento
+              </label>
+              <select v-model="type" v-bind="typeAttrs"
+                class="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50 hover:bg-white transition-colors"
+                required>
+                <option value="" disabled>Selecione o tipo de investimento</option>
+                <option v-for="(typeData, key) in INVESTMENT_TYPES" :key="key" :value="key">
+                  {{ typeData.icon }} {{ typeData.name }}
+                </option>
+              </select>
+            </div>
+
+            <!-- Nome do Investimento -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                <i class="fas fa-tag mr-1"></i>
+                Nome do Investimento
+              </label>
+              <input v-model="name" v-bind="nameAttrs" type="text" placeholder="Ex: CDB Banco X, Tesouro IPCA+ 2029..."
+                class="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50 hover:bg-white transition-colors"
+                required />
+            </div>
+
+            <!-- Instituição -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                <i class="fas fa-university mr-1"></i>
+                Instituição Financeira
+              </label>
+              <input v-model="institution" v-bind="institutionAttrs" type="text"
+                placeholder="Ex: Nubank, BTG Pactual, XP Investimentos..."
+                class="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50 hover:bg-white transition-colors"
+                required />
+            </div>
+
+            <!-- Valor Inicial -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                <i class="fas fa-dollar-sign mr-1"></i>
+                Valor do Investimento (R$)
+              </label>
+              <input v-model.number="initialAmount" v-bind="initialAmountAttrs" type="number" step="0.01"
+                placeholder="10000.00" min="0"
+                class="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50 hover:bg-white transition-colors"
+                required />
+              <p class="text-xs text-gray-500 mt-1">Este será o valor inicial aplicado</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 2: Configurações Avançadas -->
+        <div class="bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+          <div class="flex items-center justify-between mb-4">
+            <h4 class="text-md font-semibold text-gray-800 flex items-center">
+              <i class="fas fa-cog mr-2 text-green-500"></i>
+              Configurações Avançadas
+            </h4>
+            <span class="text-xs bg-green-50 text-green-600 px-2 py-1 rounded-full">Opcional</span>
           </div>
 
-          <div>
-            <input 
-              v-model.number="newInvestment.initialAmount"
-              type="number" 
-              step="0.01"
-              placeholder="Valor inicial"
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-              required
-            />
-          </div>
+          <div class="space-y-4">
+            <!-- Taxa de Rendimento -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                <i class="fas fa-percentage mr-1"></i>
+                Taxa de Rendimento
+              </label>
+              <div class="grid grid-cols-2 gap-2">
+                <input v-model.number="yieldRate" v-bind="yieldRateAttrs" type="number" step="0.01" placeholder="120"
+                  min="0"
+                  class="px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-gray-50 hover:bg-white transition-colors" />
+                <select v-model="yieldType" v-bind="yieldTypeAttrs"
+                  class="px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-gray-50 hover:bg-white transition-colors">
+                  <option v-for="(label, key) in YIELD_TYPES" :key="key" :value="key">{{ label }}</option>
+                </select>
+              </div>
+              <p class="text-xs text-gray-500 mt-1">Ex: 120% do CDI, 10% ao ano, etc.</p>
+            </div>
 
-          <div>
-            <button 
-              type="submit"
-              class="w-full bg-blue-500 text-white py-2 px-4 rounded-lg font-medium hover:bg-blue-600 transition-colors"
-            >
-              <i class="fas fa-plus mr-2"></i>Adicionar
+            <!-- Data de Aplicação -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                <i class="fas fa-calendar-alt mr-1"></i>
+                Data de Aplicação
+              </label>
+              <input v-model="startDate" v-bind="startDateAttrs" type="date"
+                class="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-gray-50 hover:bg-white transition-colors" />
+            </div>
+
+            <!-- Data de Vencimento -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">
+                <i class="fas fa-calendar-check mr-1"></i>
+                Data de Vencimento
+              </label>
+              <input v-model="maturityDate" v-bind="maturityDateAttrs" type="date"
+                class="w-full px-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-gray-50 hover:bg-white transition-colors" />
+              <p class="text-xs text-gray-500 mt-1">Deixe em branco se não houver vencimento definido</p>
+            </div>
+
+            <!-- Reinvestimento Automático -->
+            <div class="bg-gray-50 p-3 rounded-lg">
+              <label class="flex items-center space-x-3">
+                <input v-model="autoReinvest" v-bind="autoReinvestAttrs" type="checkbox"
+                  class="w-4 h-4 text-green-600 bg-gray-100 border-gray-300 rounded focus:ring-green-500" />
+                <div>
+                  <span class="text-sm font-medium text-gray-700">Reinvestimento Automático</span>
+                  <p class="text-xs text-gray-500">Reinvestir automaticamente os rendimentos</p>
+                </div>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Botão de Ação (spanning both columns) -->
+        <div class="lg:col-span-2">
+          <div
+            class="flex items-center justify-between p-6 bg-gradient-to-r from-blue-50 to-green-50 rounded-xl border border-blue-100">
+            <div>
+              <p class="text-sm font-medium text-gray-700">Pronto para adicionar seu investimento?</p>
+              <p class="text-xs text-gray-500">Verifique se todos os dados estão corretos antes de prosseguir</p>
+            </div>
+            <button type="submit" :disabled="isAddingInvestment"
+              class="bg-gradient-to-r from-blue-500 to-green-500 text-white py-3 px-8 rounded-lg font-medium hover:from-blue-600 hover:to-green-600 disabled:from-gray-400 disabled:to-gray-400 disabled:cursor-not-allowed transition-all duration-300 transform hover:scale-105 disabled:hover:scale-100 shadow-lg">
+              <i v-if="!isAddingInvestment" class="fas fa-plus mr-2"></i>
+              <i v-else class="fas fa-spinner fa-spin mr-2"></i>
+              {{ isAddingInvestment ? 'Adicionando...' : 'Adicionar Investimento' }}
             </button>
           </div>
-        </form>
+        </div>
+      </form>
+    </div>
 
-        <!-- Campos adicionais (expandido) -->
-        <div v-if="showAdvancedForm" class="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Taxa de Rendimento (%)</label>
-            <input 
-              v-model.number="newInvestment.yieldRate"
-              type="number" 
-              step="0.01"
-              placeholder="Ex: 120 (para 120% do CDI)"
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            />
-          </div>
+    <!-- Filtros -->
+    <div class="flex flex-wrap gap-2">
+      <button @click="setFilter('all')"
+        :class="filter === 'all' ? 'bg-blue-500 text-white' : 'bg-white text-gray-700 border border-gray-300'"
+        class="px-4 py-2 rounded-lg font-medium hover:bg-blue-600 hover:text-white transition-colors">
+        Todos ({{ investments.length }})
+      </button>
+      <button @click="setFilter('RENDA_FIXA')"
+        :class="filter === 'RENDA_FIXA' ? 'bg-green-500 text-white' : 'bg-white text-gray-700 border border-gray-300'"
+        class="px-4 py-2 rounded-lg font-medium hover:bg-green-600 hover:text-white transition-colors">
+        🏦 Renda Fixa
+      </button>
+      <button @click="setFilter('RENDA_VARIAVEL')"
+        :class="filter === 'RENDA_VARIAVEL' ? 'bg-blue-500 text-white' : 'bg-white text-gray-700 border border-gray-300'"
+        class="px-4 py-2 rounded-lg font-medium hover:bg-blue-600 hover:text-white transition-colors">
+        📊 Renda Variável
+      </button>
+      <button @click="setFilter('FUNDOS')"
+        :class="filter === 'FUNDOS' ? 'bg-yellow-500 text-white' : 'bg-white text-gray-700 border border-gray-300'"
+        class="px-4 py-2 rounded-lg font-medium hover:bg-yellow-600 hover:text-white transition-colors">
+        💼 Fundos
+      </button>
+    </div>
 
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Tipo de Rendimento</label>
-            <select 
-              v-model="newInvestment.yieldType"
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            >
-              <option value="CDI_PERCENTAGE">% do CDI</option>
-              <option value="SELIC_PERCENTAGE">% da Selic</option>
-              <option value="PERCENTAGE">Taxa Fixa (%)</option>
-              <option value="FIXED">Valor Fixo</option>
-            </select>
+    <!-- Lista de Investimentos -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
+      <div v-for="investment in filteredInvestments" :key="investment.id"
+        class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition-shadow cursor-pointer"
+        @click="selectInvestment(investment)">
+        <div class="flex items-start justify-between mb-4">
+          <div class="flex items-center space-x-2">
+            <span class="text-2xl">{{ getInvestmentTypeIcon(investment.type) }}</span>
+            <div>
+              <h4 class="font-semibold text-gray-900">{{ investment.name }}</h4>
+              <p class="text-sm text-gray-600">{{ investment.institution }}</p>
+            </div>
           </div>
-
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Data de Aplicação</label>
-            <input 
-              v-model="newInvestment.startDate"
-              type="date" 
-              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            />
-          </div>
+          <span :class="investment.status === 'ACTIVE' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'"
+            class="px-2 py-1 text-xs font-medium rounded-full">
+            {{ investment.status === 'ACTIVE' ? 'Ativo' : 'Inativo' }}
+          </span>
         </div>
 
-        <button 
-          @click="showAdvancedForm = !showAdvancedForm"
-          class="mt-3 text-sm text-blue-600 hover:text-blue-800"
-        >
-          {{ showAdvancedForm ? 'Ocultar' : 'Mostrar' }} opções avançadas
-        </button>
-      </div>
-
-      <!-- Filtros -->
-      <div class="flex flex-wrap gap-2">
-        <button 
-          @click="setFilter('all')"
-          :class="filter === 'all' ? 'bg-blue-500 text-white' : 'bg-white text-gray-700 border border-gray-300'"
-          class="px-4 py-2 rounded-lg font-medium hover:bg-blue-600 hover:text-white transition-colors"
-        >
-          Todos ({{ investments.length }})
-        </button>
-        <button 
-          @click="setFilter('RENDA_FIXA')"
-          :class="filter === 'RENDA_FIXA' ? 'bg-green-500 text-white' : 'bg-white text-gray-700 border border-gray-300'"
-          class="px-4 py-2 rounded-lg font-medium hover:bg-green-600 hover:text-white transition-colors"
-        >
-          🏦 Renda Fixa
-        </button>
-        <button 
-          @click="setFilter('RENDA_VARIAVEL')"
-          :class="filter === 'RENDA_VARIAVEL' ? 'bg-blue-500 text-white' : 'bg-white text-gray-700 border border-gray-300'"
-          class="px-4 py-2 rounded-lg font-medium hover:bg-blue-600 hover:text-white transition-colors"
-        >
-          📊 Renda Variável
-        </button>
-        <button 
-          @click="setFilter('FUNDOS')"
-          :class="filter === 'FUNDOS' ? 'bg-yellow-500 text-white' : 'bg-white text-gray-700 border border-gray-300'"
-          class="px-4 py-2 rounded-lg font-medium hover:bg-yellow-600 hover:text-white transition-colors"
-        >
-          💼 Fundos
-        </button>
-      </div>
-
-      <!-- Lista de Investimentos -->
-      <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
-        <div 
-          v-for="investment in filteredInvestments" 
-          :key="investment.id"
-          class="bg-white rounded-xl shadow-sm p-6 border border-gray-100 hover:shadow-md transition-shadow cursor-pointer"
-          @click="selectInvestment(investment)"
-        >
-          <div class="flex items-start justify-between mb-4">
-            <div class="flex items-center space-x-2">
-              <span class="text-2xl">{{ getInvestmentTypeIcon(investment.type) }}</span>
-              <div>
-                <h4 class="font-semibold text-gray-900">{{ investment.name }}</h4>
-                <p class="text-sm text-gray-600">{{ investment.institution }}</p>
-              </div>
-            </div>
-            <span 
-              :class="investment.status === 'ACTIVE' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'"
-              class="px-2 py-1 text-xs font-medium rounded-full"
-            >
-              {{ investment.status === 'ACTIVE' ? 'Ativo' : 'Inativo' }}
+        <div class="space-y-2">
+          <div class="flex justify-between">
+            <span class="text-sm text-gray-600">Valor Aplicado:</span>
+            <span class="text-sm font-medium">
+              {{ investment.appliedAmount.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) }}
             </span>
           </div>
 
-          <div class="space-y-2">
-            <div class="flex justify-between">
-              <span class="text-sm text-gray-600">Valor Aplicado:</span>
-              <span class="text-sm font-medium">
-                {{ investment.appliedAmount.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) }}
-              </span>
-            </div>
-
-            <div class="flex justify-between">
-              <span class="text-sm text-gray-600">Valor Atual:</span>
-              <span class="text-sm font-medium">
-                {{ investment.currentAmount.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) }}
-              </span>
-            </div>
-
-            <div class="flex justify-between">
-              <span class="text-sm text-gray-600">Rendimento:</span>
-              <span 
-                :class="getInvestmentYieldAmount(investment) >= 0 ? 'text-green-600' : 'text-red-600'"
-                class="text-sm font-medium"
-              >
-                {{ getInvestmentYieldAmount(investment).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) }}
-                ({{ getInvestmentYieldPercentage(investment).toFixed(2) }}%)
-              </span>
-            </div>
-
-            <div v-if="investment.maturityDate" class="flex justify-between">
-              <span class="text-sm text-gray-600">Vencimento:</span>
-              <span class="text-sm font-medium">
-                {{ new Date(investment.maturityDate).toLocaleDateString('pt-BR') }}
-              </span>
-            </div>
+          <div class="flex justify-between">
+            <span class="text-sm text-gray-600">Valor Atual:</span>
+            <span class="text-sm font-medium">
+              {{ investment.currentAmount.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) }}
+            </span>
           </div>
 
-          <div class="mt-4 flex space-x-2">
-            <button 
-              @click.stop="editInvestment(investment)"
-              class="flex-1 bg-blue-50 text-blue-600 py-2 px-3 rounded-lg text-sm font-medium hover:bg-blue-100 transition-colors"
-            >
-              <i class="fas fa-edit mr-1"></i>Editar
-            </button>
-            <button 
-              @click.stop="confirmDelete(investment)"
-              class="flex-1 bg-red-50 text-red-600 py-2 px-3 rounded-lg text-sm font-medium hover:bg-red-100 transition-colors"
-            >
-              <i class="fas fa-trash mr-1"></i>Excluir
-            </button>
+          <div class="flex justify-between">
+            <span class="text-sm text-gray-600">Rendimento:</span>
+            <span :class="getInvestmentYieldAmount(investment) >= 0 ? 'text-green-600' : 'text-red-600'"
+              class="text-sm font-medium">
+              {{ getInvestmentYieldAmount(investment).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) }}
+              ({{ getInvestmentYieldPercentage(investment).toFixed(2) }}%)
+            </span>
+          </div>
+
+          <div v-if="investment.maturityDate" class="flex justify-between">
+            <span class="text-sm text-gray-600">Vencimento:</span>
+            <span class="text-sm font-medium">
+              {{ formatDateForDisplay(investment.maturityDate) }}
+            </span>
           </div>
         </div>
-      </div>
 
-      <!-- Estado vazio -->
-      <div v-if="filteredInvestments.length === 0" class="text-center py-12">
-        <div class="w-24 h-24 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
-          <i class="fas fa-chart-line text-gray-400 text-3xl"></i>
+        <div class="mt-4 flex space-x-2">
+          <button @click.stop="editInvestment(investment)"
+            class="flex-1 bg-blue-50 text-blue-600 py-2 px-3 rounded-lg text-sm font-medium hover:bg-blue-100 transition-colors">
+            <i class="fas fa-edit mr-1"></i>Editar
+          </button>
+          <button @click.stop="confirmDelete(investment)"
+            class="flex-1 bg-red-50 text-red-600 py-2 px-3 rounded-lg text-sm font-medium hover:bg-red-100 transition-colors">
+            <i class="fas fa-trash mr-1"></i>Excluir
+          </button>
         </div>
-        <h3 class="text-lg font-medium text-gray-900 mb-2">Nenhum investimento encontrado</h3>
-        <p class="text-gray-600 mb-4">
-          {{ filter === 'all' ? 'Comece adicionando seu primeiro investimento!' : 'Nenhum investimento nesta categoria.' }}
-        </p>
-        <button 
-          v-if="filter !== 'all'"
-          @click="clearFilter"
-          class="bg-blue-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-600 transition-colors"
-        >
-          Ver todos os investimentos
-        </button>
       </div>
+    </div>
+
+    <!-- Estado vazio -->
+    <div v-if="filteredInvestments.length === 0" class="text-center py-12">
+      <div class="w-24 h-24 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
+        <i class="fas fa-chart-line text-gray-400 text-3xl"></i>
+      </div>
+      <h3 class="text-lg font-medium text-gray-900 mb-2">Nenhum investimento encontrado</h3>
+      <p class="text-gray-600 mb-4">
+        {{ filter === 'all' ? 'Comece adicionando seu primeiro investimento!' : 'Nenhum investimento nesta categoria.'
+        }}
+      </p>
+      <button v-if="filter !== 'all'" @click="clearFilter"
+        class="bg-blue-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-600 transition-colors">
+        Ver todos os investimentos
+      </button>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted, nextTick } from 'vue';
+import { ref, reactive, computed, watch, onMounted, nextTick } from 'vue';
 import { Chart, registerables } from 'chart.js';
+import { useForm } from 'vee-validate';
+import { toTypedSchema } from '@vee-validate/zod';
 import { useInvestments } from '../../composables/useInvestments';
 import { INVESTMENT_TYPES, type InvestmentTypeKey } from '../../types/investments';
+import { formatDateForDisplay, getCurrentDateISO } from '../../utils/dateUtils';
+import { investmentSchema, transformInvestmentData, getDefaultValues, YIELD_TYPES, INVESTMENT_STATUS } from '../../schemas/investmentSchema';
 import ProjectionPanel from './ProjectionPanel.vue';
 
+// Import Zod
+import { z } from 'zod';
+
 Chart.register(...registerables);
+
+// Emits
+const emit = defineEmits<{
+  'portfolio-updated': [data: { totalValue: number; count: number }]
+}>();
 
 // Composables
 const {
@@ -342,81 +379,88 @@ const {
   filteredInvestments,
   totalPortfolioValue,
   totalInvested,
-  totalYield,
-  totalYieldPercentage,
+  totalReturn,
+  returnPercentage,
   portfolioAllocation,
-  portfolioProjections,
-  activeInvestments,
   filter,
   addInvestment,
-  removeInvestment,
+  deleteInvestment,
+  getInvestmentProjections,
+  getPortfolioProjections,
+  simulateInvestment,
   setFilter,
   clearFilter,
   getInvestmentTypeIcon,
   getInvestmentYieldAmount,
   getInvestmentYieldPercentage,
-  simulateInvestment,
-  updateCurrentValues
+  INVESTMENT_TYPES
 } = useInvestments();
 
 // State
-const showAdvancedForm = ref(false);
 const selectedInvestment = ref(null);
 const allocationChartRef = ref<HTMLCanvasElement | null>(null);
+const isAddingInvestment = ref(false);
 let allocationChart: Chart | null = null;
 
-// Reactive form data
-const newInvestment = reactive({
-  name: '',
-  type: '' as InvestmentTypeKey,
-  institution: '',
-  initialAmount: 0,
-  yieldType: 'CDI_PERCENTAGE' as const,
-  yieldRate: 100,
-  startDate: getCurrentDate(),
-  maturityDate: '',
-  status: 'ACTIVE' as const,
-  autoReinvest: false
+// Form validation with vee-validate and Zod
+const { defineField, handleSubmit, errors, meta, resetForm, setValues } = useForm({
+  validationSchema: toTypedSchema(investmentSchema),
+  initialValues: getDefaultValues()
 });
 
-function getCurrentDate(): string {
-  return new Date().toISOString().split('T')[0];
-}
+// Define campos do formulário com validação
+const [name, nameAttrs] = defineField('name');
+const [type, typeAttrs] = defineField('type');
+const [institution, institutionAttrs] = defineField('institution');
+const [initialAmount, initialAmountAttrs] = defineField('initialAmount');
+const [yieldType, yieldTypeAttrs] = defineField('yieldType');
+const [yieldRate, yieldRateAttrs] = defineField('yieldRate');
+const [startDate, startDateAttrs] = defineField('startDate');
+const [maturityDate, maturityDateAttrs] = defineField('maturityDate');
+const [autoReinvest, autoReinvestAttrs] = defineField('autoReinvest');
 
-function resetForm(): void {
-  Object.assign(newInvestment, {
-    name: '',
-    type: '',
-    institution: '',
-    initialAmount: 0,
-    yieldType: 'CDI_PERCENTAGE',
-    yieldRate: 100,
-    startDate: getCurrentDate(),
-    maturityDate: '',
-    status: 'ACTIVE',
-    autoReinvest: false
-  });
-}
+// Inicializar valores padrão
+const initializeFormDefaults = () => {
+  const defaults = getDefaultValues();
+  setValues(defaults);
+};
 
-function handleAdd(): void {
-  if (!newInvestment.name || !newInvestment.type || !newInvestment.institution || newInvestment.initialAmount <= 0) {
-    alert('Por favor, preencha todos os campos obrigatórios!');
-    return;
-  }
+// Resetar formulário com valores padrão
+const resetFormWithDefaults = () => {
+  const defaults = getDefaultValues();
+  setValues(defaults);
+};
 
-  addInvestment({
-    ...newInvestment,
-    currentAmount: newInvestment.initialAmount,
-    appliedAmount: newInvestment.initialAmount,
-    lastUpdate: getCurrentDate()
-  });
+// Inicializar valores padrão na montagem do componente
+onMounted(() => {
+  initializeFormDefaults();
+});
 
-  resetForm();
-  showAdvancedForm.value = false;
-  nextTick(() => {
+// Submit handler com validação
+const onSubmit = handleSubmit(async (values) => {
+  if (isAddingInvestment.value) return;
+
+  isAddingInvestment.value = true;
+
+  try {
+    const investmentData = transformInvestmentData(values);
+    await addInvestment(investmentData);
+
+    resetFormWithDefaults();
+
+    await nextTick();
     renderAllocationChart();
-  });
-}
+  } catch (error) {
+    console.error('❌ Erro ao adicionar investimento:', error);
+    alert('Erro ao adicionar investimento. Tente novamente.');
+  } finally {
+    isAddingInvestment.value = false;
+  }
+});
+
+// Computed para validação visual
+const isFormValid = computed(() => meta.value.valid);
+const hasErrors = computed(() => Object.keys(errors.value).length > 0);
 
 function selectInvestment(investment: any): void {
   selectedInvestment.value = investment;
@@ -425,12 +469,11 @@ function selectInvestment(investment: any): void {
 
 function editInvestment(investment: any): void {
   // Implementar edição
-  console.log('Editar investimento:', investment);
 }
 
 function confirmDelete(investment: any): void {
   if (confirm(`Tem certeza que deseja excluir "${investment.name}"?`)) {
-    removeInvestment(investment.id);
+    deleteInvestment(investment.id);
     nextTick(() => {
       renderAllocationChart();
     });
@@ -480,8 +523,20 @@ function renderAllocationChart(): void {
   });
 }
 
+// Computed properties for projections
+const portfolioProjections = computed(() => {
+  return getPortfolioProjections()
+})
+
+// Watch for portfolio changes and emit to parent
+watch([totalPortfolioValue, investments], ([newTotal, newInvestments]) => {
+  emit('portfolio-updated', {
+    totalValue: newTotal,
+    count: newInvestments.length
+  });
+}, { immediate: true });
+
 onMounted(() => {
-  updateCurrentValues();
   nextTick(() => {
     renderAllocationChart();
   });
@@ -492,4 +547,4 @@ onMounted(() => {
 export default {
   name: 'InvestmentDashboard'
 };
-</script> 
+</script>

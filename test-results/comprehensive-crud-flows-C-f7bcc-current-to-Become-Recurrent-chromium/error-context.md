@@ -1,0 +1,964 @@
+# Page snapshot
+
+```yaml
+- text: " Demo User demo@financeapp.com  Último acesso: Hoje"
+- button " 1"
+- button ""
+- banner:
+  - heading "💰 FinanceApp" [level=1]
+  - navigation "Tabs":
+    - button "💰 Transações 177"
+    - button "📈 Investimentos 4"
+    - button "📊 Relatórios"
+  - text: "Saldo: R$ 20.000,00"
+  - button " Novo Registro"
+- main:
+  - heading " Importar CSV" [level=2]
+  - text: 
+  - button " 📅 Projeção de Meses 28 meses ativos setembro de 2025 + 3 meses ":
+    - text: 
+    - heading "📅 Projeção de Meses" [level=3]
+    - text: 28 meses ativos setembro de 2025 + 3 meses 
+  - button "📊 Todos"
+  - button "💰 Receitas"
+  - button "💸 Despesas"
+  - text: 79 registros encontrados
+  - button " Auto-categorizar (176)"
+  - button ""
+  - heading " Projeção Anual 2025" [level=2]
+  - paragraph: Baseado nos últimos 4 meses de dados
+  - text: R$ 175.413,72 Projeção para dezembro
+  - button ""
+  - heading "setembro de 2025" [level=3]
+  - paragraph: 36 registros • 4 concluídos
+  - text: R$ 12.284,64 ↑ R$ 20.059,73↓ R$ 7.775,09 Progresso do mês 4/36  -R$ 7.715,36 pendente (32)  Resumo por Categoria 📋 Sem categoria 33x R$ 12.350,14 🍽️ Alimentação 1x -R$ 85,50 📋 Outros 2x R$ 20,00
+  - table:
+    - rowgroup:
+      - row "Data  Descrição  Valor  Tipo  Categoria  Status  Saldo Ações":
+        - cell "Data "
+        - cell "Descrição "
+        - cell "Valor "
+        - cell "Tipo "
+        - cell "Categoria "
+        - cell "Status "
+        - cell "Saldo"
+        - cell "Ações"
+    - rowgroup:
+      - row "11/09/2025 Conta de Luz - Normal -R$ 150,00 💸 Despesa Sem categoria ❌ Pendente  ":
+        - cell "11/09/2025"
+        - cell "Conta de Luz - Normal"
+        - cell "-R$ 150,00"
+        - cell "💸 Despesa"
+        - cell "Sem categoria"
+        - cell "❌ Pendente":
+          - button "❌ Pendente"
+        - cell " ":
+          - button ""
+          - button ""
+      - row "11/09/2025 Internet Mensal - TESTE CORREÇÃO -R$ 99,90 💸 Despesa Sem categoria ❌ Pendente  ":
+        - cell "11/09/2025"
+        - cell "Internet Mensal - TESTE CORREÇÃO"
+        - cell "-R$ 99,90"
+        - cell "💸 Despesa"
+        - cell "Sem categoria"
+        - cell "❌ Pendente":
+          - button "❌ Pendente"
+        - cell " ":
+          - button ""
+          - button ""
+      - row "11/09/2025 Conta de Luz - Normal -R$ 150,00 💸 Despesa Sem categoria ❌ Pendente  ":
+        - cell "11/09/2025"
+        - cell "Conta de Luz - Normal"
+        - cell "-R$ 150,00"
+        - cell "💸 Despesa"
+        - cell "Sem categoria"
+        - cell "❌ Pendente":
+          - button "❌ Pendente"
+        - cell " ":
+          - button ""
+          - button ""
+      - row "11/09/2025 Aluguel - TESTE FINAL CORREÇÃO -R$ 1.500,00 💸 Despesa Sem categoria ❌ Pendente  ":
+        - cell "11/09/2025"
+        - cell "Aluguel - TESTE FINAL CORREÇÃO"
+        - cell "-R$ 1.500,00"
+        - cell "💸 Despesa"
+        - cell "Sem categoria"
+        - cell "❌ Pendente":
+          - button "❌ Pendente"
+        - cell " ":
+          - button ""
+          - button ""
+      - row "11/09/2025 Compra Supermercado - TESTE E2E -R$ 85,50 💸 Despesa 🍽️ Alimentação ❌ Pendente  ":
+        - cell "11/09/2025"
+        - cell "Compra Supermercado - TESTE E2E"
+        - cell "-R$ 85,50"
+        - cell "💸 Despesa"
+        - cell "🍽️ Alimentação"
+        - cell "❌ Pendente":
+          - button "❌ Pendente"
+        - cell " ":
+          - button ""
+          - button ""
+      - row "11/09/2025 Aluguel Mensal -R$ 1.500,00 💸 Despesa Sem categoria ❌ Pendente  ":
+        - cell "11/09/2025"
+        - cell "Aluguel Mensal"
+        - cell "-R$ 1.500,00"
+        - cell "💸 Despesa"
+        - cell "Sem categoria"
+        - cell "❌ Pendente":
+          - button "❌ Pendente"
+        - cell " ":
+          - button ""
+          - button ""
+      - row "11/09/2025 Conta de Luz - Normal -R$ 150,00 💸 Despesa Sem categoria ❌ Pendente  ":
+        - cell "11/09/2025"
+        - cell "Conta de Luz - Normal"
+        - cell "-R$ 150,00"
+        - cell "💸 Despesa"
+        - cell "Sem categoria"
+        - cell "❌ Pendente":
+          - button "❌ Pendente"
+        - cell " ":
+          - button ""
+          - button ""
+      - row "11/09/2025 EDITED Description -R$ 250,00 💸 Despesa Sem categoria ❌ Pendente  ":
+        - cell "11/09/2025"
+        - cell "EDITED Description"
+        - cell "-R$ 250,00"
+        - cell "💸 Despesa"
+        - cell "Sem categoria"
+        - cell "❌ Pendente":
+          - button "❌ Pendente"
+        - cell " ":
+          - button ""
+          - button ""
+      - row "11/09/2025 Teste com correção completa -R$ 1.246,29 💸 Despesa Sem categoria ❌ Pendente  ":
+        - cell "11/09/2025"
+        - cell "Teste com correção completa"
+        - cell "-R$ 1.246,29"
+        - cell "💸 Despesa"
+        - cell "Sem categoria"
+        - cell "❌ Pendente":
+          - button "❌ Pendente"
+        - cell " ":
+          - button ""
+          - button ""
+      - row "11/09/2025 Conta de Luz - EDITADO COM SUCESSO -R$ 300,00 💸 Despesa Sem categoria ❌ Pendente  ":
+        - cell "11/09/2025"
+        - cell "Conta de Luz - EDITADO COM SUCESSO"
+        - cell "-R$ 300,00"
+        - cell "💸 Despesa"
+        - cell "Sem categoria"
+        - cell "❌ Pendente":
+          - button "❌ Pendente"
+        - cell " ":
+          - button ""
+          - button ""
+      - row "11/09/2025 Salário - Status Test R$ 5.000,00 💰 Receita Sem categoria ✔️ Concluído  ":
+        - cell "11/09/2025"
+        - cell "Salário - Status Test"
+        - cell "R$ 5.000,00"
+        - cell "💰 Receita"
+        - cell "Sem categoria"
+        - cell "✔️ Concluído":
+          - button "✔️ Concluído"
+        - cell " ":
+          - button ""
+          - button ""
+      - row "11/09/2025 Salário - Status Test R$ 5.000,00 💰 Receita Sem categoria ✔️ Concluído  ":
+        - cell "11/09/2025"
+        - cell "Salário - Status Test"
+        - cell "R$ 5.000,00"
+        - cell "💰 Receita"
+        - cell "Sem categoria"
+        - cell "✔️ Concluído":
+          - button "✔️ Concluído"
+        - cell " ":
+          - button ""
+          - button ""
+      - row "11/09/2025 Conta de Luz - Normal -R$ 150,00 💸 Despesa Sem categoria ❌ Pendente  ":
+        - cell "11/09/2025"
+        - cell "Conta de Luz - Normal"
+        - cell "-R$ 150,00"
+        - cell "💸 Despesa"
+        - cell "Sem categoria"
+        - cell "❌ Pendente":
+          - button "❌ Pendente"
+        - cell " ":
+          - button ""
+          - button ""
+      - row "11/09/2025 Netflix Premium - EDITADO -R$ 29,90 💸 Despesa Sem categoria ❌ Pendente  ":
+        - cell "11/09/2025"
+        - cell "Netflix Premium - EDITADO"
+        - cell "-R$ 29,90"
+        - cell "💸 Despesa"
+        - cell "Sem categoria"
+        - cell "❌ Pendente":
+          - button "❌ Pendente"
+        - cell " ":
+          - button ""
+          - button ""
+      - row "11/09/2025 Conta de Luz - Normal -R$ 150,00 💸 Despesa Sem categoria ❌ Pendente  ":
+        - cell "11/09/2025"
+        - cell "Conta de Luz - Normal"
+        - cell "-R$ 150,00"
+        - cell "💸 Despesa"
+        - cell "Sem categoria"
+        - cell "❌ Pendente":
+          - button "❌ Pendente"
+        - cell " ":
+          - button ""
+          - button ""
+      - row "11/09/2025 Netflix Premium - EDITADO -R$ 29,90 💸 Despesa Sem categoria ❌ Pendente  ":
+        - cell "11/09/2025"
+        - cell "Netflix Premium - EDITADO"
+        - cell "-R$ 29,90"
+        - cell "💸 Despesa"
+        - cell "Sem categoria"
+        - cell "❌ Pendente":
+          - button "❌ Pendente"
+        - cell " ":
+          - button ""
+          - button ""
+      - row "11/09/2025 Conta de Luz - Normal -R$ 150,00 💸 Despesa Sem categoria ❌ Pendente  ":
+        - cell "11/09/2025"
+        - cell "Conta de Luz - Normal"
+        - cell "-R$ 150,00"
+        - cell "💸 Despesa"
+        - cell "Sem categoria"
+        - cell "❌ Pendente":
+          - button "❌ Pendente"
+        - cell " ":
+          - button ""
+          - button ""
+      - row "11/09/2025 Netflix Premium - EDITADO -R$ 29,90 💸 Despesa Sem categoria ❌ Pendente  ":
+        - cell "11/09/2025"
+        - cell "Netflix Premium - EDITADO"
+        - cell "-R$ 29,90"
+        - cell "💸 Despesa"
+        - cell "Sem categoria"
+        - cell "❌ Pendente":
+          - button "❌ Pendente"
+        - cell " ":
+          - button ""
+          - button ""
+      - row "11/09/2025 Freelance Project R$ 25,00 💰 Receita Sem categoria ❌ Pendente  ":
+        - cell "11/09/2025"
+        - cell "Freelance Project"
+        - cell "R$ 25,00"
+        - cell "💰 Receita"
+        - cell "Sem categoria"
+        - cell "❌ Pendente":
+          - button "❌ Pendente"
+        - cell " ":
+          - button ""
+          - button ""
+      - row "11/09/2025 Salário - Status Test R$ 5.000,00 💰 Receita Sem categoria ✔️ Concluído  ":
+        - cell "11/09/2025"
+        - cell "Salário - Status Test"
+        - cell "R$ 5.000,00"
+        - cell "💰 Receita"
+        - cell "Sem categoria"
+        - cell "✔️ Concluído":
+          - button "✔️ Concluído"
+        - cell " ":
+          - button ""
+          - button ""
+      - row "11/09/2025 Monthly Rent -R$ 12,00 💸 Despesa Sem categoria ❌ Pendente  ":
+        - cell "11/09/2025"
+        - cell "Monthly Rent"
+        - cell "-R$ 12,00"
+        - cell "💸 Despesa"
+        - cell "Sem categoria"
+        - cell "❌ Pendente":
+          - button "❌ Pendente"
+        - cell " ":
+          - button ""
+          - button ""
+      - row "11/09/2025 Rapid Test 1 -R$ 1,00 💸 Despesa Sem categoria ❌ Pendente  ":
+        - cell "11/09/2025"
+        - cell "Rapid Test 1"
+        - cell "-R$ 1,00"
+        - cell "💸 Despesa"
+        - cell "Sem categoria"
+        - cell "❌ Pendente":
+          - button "❌ Pendente"
+        - cell " ":
+          - button ""
+          - button ""
+      - row "11/09/2025 Rapid Test 4 R$ 4,00 💰 Receita Sem categoria ❌ Pendente  ":
+        - cell "11/09/2025"
+        - cell "Rapid Test 4"
+        - cell "R$ 4,00"
+        - cell "💰 Receita"
+        - cell "Sem categoria"
+        - cell "❌ Pendente":
+          - button "❌ Pendente"
+        - cell " ":
+          - button ""
+          - button ""
+      - row "11/09/2025 Grocery Shopping -R$ 2,00 💸 Despesa Sem categoria ❌ Pendente  ":
+        - cell "11/09/2025"
+        - cell "Grocery Shopping"
+        - cell "-R$ 2,00"
+        - cell "💸 Despesa"
+        - cell "Sem categoria"
+        - cell "❌ Pendente":
+          - button "❌ Pendente"
+        - cell " ":
+          - button ""
+          - button ""
+      - row "11/09/2025 Rapid Test 2 R$ 2,00 💰 Receita Sem categoria ❌ Pendente  ":
+        - cell "11/09/2025"
+        - cell "Rapid Test 2"
+        - cell "R$ 2,00"
+        - cell "💰 Receita"
+        - cell "Sem categoria"
+        - cell "❌ Pendente":
+          - button "❌ Pendente"
+        - cell " ":
+          - button ""
+          - button ""
+      - row "11/09/2025 Rapid Test 3 -R$ 3,00 💸 Despesa Sem categoria ❌ Pendente  ":
+        - cell "11/09/2025"
+        - cell "Rapid Test 3"
+        - cell "-R$ 3,00"
+        - cell "💸 Despesa"
+        - cell "Sem categoria"
+        - cell "❌ Pendente":
+          - button "❌ Pendente"
+        - cell " ":
+          - button ""
+          - button ""
+      - row "11/09/2025 Rapid Test 5 -R$ 5,00 💸 Despesa Sem categoria ❌ Pendente  ":
+        - cell "11/09/2025"
+        - cell "Rapid Test 5"
+        - cell "-R$ 5,00"
+        - cell "💸 Despesa"
+        - cell "Sem categoria"
+        - cell "❌ Pendente":
+          - button "❌ Pendente"
+        - cell " ":
+          - button ""
+          - button ""
+      - row "11/09/2025 Internet Bill -R$ 0,80 💸 Despesa Sem categoria ❌ Pendente  ":
+        - cell "11/09/2025"
+        - cell "Internet Bill"
+        - cell "-R$ 0,80"
+        - cell "💸 Despesa"
+        - cell "Sem categoria"
+        - cell "❌ Pendente":
+          - button "❌ Pendente"
+        - cell " ":
+          - button ""
+          - button ""
+      - row "11/09/2025 EDITED Description -R$ 250,00 💸 Despesa Sem categoria ❌ Pendente  ":
+        - cell "11/09/2025"
+        - cell "EDITED Description"
+        - cell "-R$ 250,00"
+        - cell "💸 Despesa"
+        - cell "Sem categoria"
+        - cell "❌ Pendente":
+          - button "❌ Pendente"
+        - cell " ":
+          - button ""
+          - button ""
+      - row "11/09/2025 Aluguel Mensal -R$ 1.500,00 💸 Despesa Sem categoria ❌ Pendente  ":
+        - cell "11/09/2025"
+        - cell "Aluguel Mensal"
+        - cell "-R$ 1.500,00"
+        - cell "💸 Despesa"
+        - cell "Sem categoria"
+        - cell "❌ Pendente":
+          - button "❌ Pendente"
+        - cell " ":
+          - button ""
+          - button ""
+      - row "11/09/2025 Salário - Status Test R$ 5.000,00 💰 Receita Sem categoria ✔️ Concluído  ":
+        - cell "11/09/2025"
+        - cell "Salário - Status Test"
+        - cell "R$ 5.000,00"
+        - cell "💰 Receita"
+        - cell "Sem categoria"
+        - cell "✔️ Concluído":
+          - button "✔️ Concluído"
+        - cell " ":
+          - button ""
+          - button ""
+      - row "11/09/2025 Netflix Premium - EDITADO -R$ 29,90 💸 Despesa Sem categoria ❌ Pendente  ":
+        - cell "11/09/2025"
+        - cell "Netflix Premium - EDITADO"
+        - cell "-R$ 29,90"
+        - cell "💸 Despesa"
+        - cell "Sem categoria"
+        - cell "❌ Pendente":
+          - button "❌ Pendente"
+        - cell " ":
+          - button ""
+          - button ""
+      - row "10/09/2025 Teste Correção Loop R$ 10,00 💰 Receita 📋 Outros ❌ Pendente  ":
+        - cell "10/09/2025"
+        - cell "Teste Correção Loop"
+        - cell "R$ 10,00"
+        - cell "💰 Receita"
+        - cell "📋 Outros"
+        - cell "❌ Pendente":
+          - button "❌ Pendente"
+        - cell " ":
+          - button ""
+          - button ""
+      - row "10/09/2025 Teste Correção Loop R$ 10,00 💰 Receita 📋 Outros ❌ Pendente  ":
+        - cell "10/09/2025"
+        - cell "Teste Correção Loop"
+        - cell "R$ 10,00"
+        - cell "💰 Receita"
+        - cell "📋 Outros"
+        - cell "❌ Pendente":
+          - button "❌ Pendente"
+        - cell " ":
+          - button ""
+          - button ""
+      - row "10/09/2025 Teste Modal Criação R$ 7,50 💰 Receita Sem categoria ❌ Pendente  ":
+        - cell "10/09/2025"
+        - cell "Teste Modal Criação"
+        - cell "R$ 7,50"
+        - cell "💰 Receita"
+        - cell "Sem categoria"
+        - cell "❌ Pendente":
+          - button "❌ Pendente"
+        - cell " ":
+          - button ""
+          - button ""
+      - row "10/09/2025 Teste Debug Criar R$ 1,23 💰 Receita Sem categoria ❌ Pendente  ":
+        - cell "10/09/2025"
+        - cell "Teste Debug Criar"
+        - cell "R$ 1,23"
+        - cell "💰 Receita"
+        - cell "Sem categoria"
+        - cell "❌ Pendente":
+          - button "❌ Pendente"
+        - cell " ":
+          - button ""
+          - button ""
+  - button ""
+  - heading "outubro de 2025" [level=3]
+  - paragraph: 11 registros
+  - text: R$ 15.495,20 ↑ R$ 20.010,00↓ R$ 4.514,80 Progresso do mês 0/11  R$ 15.495,20 pendente (11)  Resumo por Categoria 📋 Sem categoria 10x R$ 15.485,20 📋 Outros 1x R$ 10,00
+  - table:
+    - rowgroup:
+      - row "Data  Descrição  Valor  Tipo  Categoria  Status  Saldo Ações":
+        - cell "Data "
+        - cell "Descrição "
+        - cell "Valor "
+        - cell "Tipo "
+        - cell "Categoria "
+        - cell "Status "
+        - cell "Saldo"
+        - cell "Ações"
+    - rowgroup:
+      - row "13/10/2025 Aluguel - TESTE FINAL CORREÇÃO -R$ 1.500,00 💸 Despesa Sem categoria ❌ Pendente  ":
+        - cell "13/10/2025"
+        - cell "Aluguel - TESTE FINAL CORREÇÃO"
+        - cell "-R$ 1.500,00"
+        - cell "💸 Despesa"
+        - cell "Sem categoria"
+        - cell "❌ Pendente":
+          - button "❌ Pendente"
+        - cell " ":
+          - button ""
+          - button ""
+      - row "13/10/2025 Aluguel Mensal -R$ 1.500,00 💸 Despesa Sem categoria ❌ Pendente  ":
+        - cell "13/10/2025"
+        - cell "Aluguel Mensal"
+        - cell "-R$ 1.500,00"
+        - cell "💸 Despesa"
+        - cell "Sem categoria"
+        - cell "❌ Pendente":
+          - button "❌ Pendente"
+        - cell " ":
+          - button ""
+          - button ""
+      - row "13/10/2025 Salário - Status Test R$ 5.000,00 💰 Receita Sem categoria ❌ Pendente  ":
+        - cell "13/10/2025"
+        - cell "Salário - Status Test"
+        - cell "R$ 5.000,00"
+        - cell "💰 Receita"
+        - cell "Sem categoria"
+        - cell "❌ Pendente":
+          - button "❌ Pendente"
+        - cell " ":
+          - button ""
+          - button ""
+      - row "13/10/2025 Salário - Status Test R$ 5.000,00 💰 Receita Sem categoria ❌ Pendente  ":
+        - cell "13/10/2025"
+        - cell "Salário - Status Test"
+        - cell "R$ 5.000,00"
+        - cell "💰 Receita"
+        - cell "Sem categoria"
+        - cell "❌ Pendente":
+          - button "❌ Pendente"
+        - cell " ":
+          - button ""
+          - button ""
+      - row "13/10/2025 Salário - Status Test R$ 5.000,00 💰 Receita Sem categoria ❌ Pendente  ":
+        - cell "13/10/2025"
+        - cell "Salário - Status Test"
+        - cell "R$ 5.000,00"
+        - cell "💰 Receita"
+        - cell "Sem categoria"
+        - cell "❌ Pendente":
+          - button "❌ Pendente"
+        - cell " ":
+          - button ""
+          - button ""
+      - row "13/10/2025 Salário - Status Test R$ 5.000,00 💰 Receita Sem categoria ❌ Pendente  ":
+        - cell "13/10/2025"
+        - cell "Salário - Status Test"
+        - cell "R$ 5.000,00"
+        - cell "💰 Receita"
+        - cell "Sem categoria"
+        - cell "❌ Pendente":
+          - button "❌ Pendente"
+        - cell " ":
+          - button ""
+          - button ""
+      - row "13/10/2025 Monthly Rent -R$ 12,00 💸 Despesa Sem categoria ❌ Pendente  ":
+        - cell "13/10/2025"
+        - cell "Monthly Rent"
+        - cell "-R$ 12,00"
+        - cell "💸 Despesa"
+        - cell "Sem categoria"
+        - cell "❌ Pendente":
+          - button "❌ Pendente"
+        - cell " ":
+          - button ""
+          - button ""
+      - row "13/10/2025 Grocery Shopping -R$ 2,00 💸 Despesa Sem categoria ❌ Pendente  ":
+        - cell "13/10/2025"
+        - cell "Grocery Shopping"
+        - cell "-R$ 2,00"
+        - cell "💸 Despesa"
+        - cell "Sem categoria"
+        - cell "❌ Pendente":
+          - button "❌ Pendente"
+        - cell " ":
+          - button ""
+          - button ""
+      - row "13/10/2025 Internet Bill -R$ 0,80 💸 Despesa Sem categoria ❌ Pendente  ":
+        - cell "13/10/2025"
+        - cell "Internet Bill"
+        - cell "-R$ 0,80"
+        - cell "💸 Despesa"
+        - cell "Sem categoria"
+        - cell "❌ Pendente":
+          - button "❌ Pendente"
+        - cell " ":
+          - button ""
+          - button ""
+      - row "13/10/2025 Aluguel Mensal -R$ 1.500,00 💸 Despesa Sem categoria ❌ Pendente  ":
+        - cell "13/10/2025"
+        - cell "Aluguel Mensal"
+        - cell "-R$ 1.500,00"
+        - cell "💸 Despesa"
+        - cell "Sem categoria"
+        - cell "❌ Pendente":
+          - button "❌ Pendente"
+        - cell " ":
+          - button ""
+          - button ""
+      - row "10/10/2025 Teste Correção Loop R$ 10,00 💰 Receita 📋 Outros ❌ Pendente  ":
+        - cell "10/10/2025"
+        - cell "Teste Correção Loop"
+        - cell "R$ 10,00"
+        - cell "💰 Receita"
+        - cell "📋 Outros"
+        - cell "❌ Pendente":
+          - button "❌ Pendente"
+        - cell " ":
+          - button ""
+          - button ""
+  - button ""
+  - heading "novembro de 2025" [level=3]
+  - paragraph: 16 registros
+  - text: R$ 15.345,70 ↑ R$ 20.010,00↓ R$ 4.664,30 Progresso do mês 0/16  R$ 15.345,70 pendente (16)  Resumo por Categoria 📋 Sem categoria 15x R$ 15.335,70 📋 Outros 1x R$ 10,00
+  - table:
+    - rowgroup:
+      - row "Data  Descrição  Valor  Tipo  Categoria  Status  Saldo Ações":
+        - cell "Data "
+        - cell "Descrição "
+        - cell "Valor "
+        - cell "Tipo "
+        - cell "Categoria "
+        - cell "Status "
+        - cell "Saldo"
+        - cell "Ações"
+    - rowgroup:
+      - row "13/11/2025 Netflix - Recorrente Test -R$ 29,90 💸 Despesa Sem categoria ❌ Pendente  ":
+        - cell "13/11/2025"
+        - cell "Netflix - Recorrente Test"
+        - cell "-R$ 29,90"
+        - cell "💸 Despesa"
+        - cell "Sem categoria"
+        - cell "❌ Pendente":
+          - button "❌ Pendente"
+        - cell " ":
+          - button ""
+          - button ""
+      - row "13/11/2025 Aluguel - TESTE FINAL CORREÇÃO -R$ 1.500,00 💸 Despesa Sem categoria ❌ Pendente  ":
+        - cell "13/11/2025"
+        - cell "Aluguel - TESTE FINAL CORREÇÃO"
+        - cell "-R$ 1.500,00"
+        - cell "💸 Despesa"
+        - cell "Sem categoria"
+        - cell "❌ Pendente":
+          - button "❌ Pendente"
+        - cell " ":
+          - button ""
+          - button ""
+      - row "13/11/2025 Aluguel Mensal -R$ 1.500,00 💸 Despesa Sem categoria ❌ Pendente  ":
+        - cell "13/11/2025"
+        - cell "Aluguel Mensal"
+        - cell "-R$ 1.500,00"
+        - cell "💸 Despesa"
+        - cell "Sem categoria"
+        - cell "❌ Pendente":
+          - button "❌ Pendente"
+        - cell " ":
+          - button ""
+          - button ""
+      - row "13/11/2025 Netflix - Recorrente Test -R$ 29,90 💸 Despesa Sem categoria ❌ Pendente  ":
+        - cell "13/11/2025"
+        - cell "Netflix - Recorrente Test"
+        - cell "-R$ 29,90"
+        - cell "💸 Despesa"
+        - cell "Sem categoria"
+        - cell "❌ Pendente":
+          - button "❌ Pendente"
+        - cell " ":
+          - button ""
+          - button ""
+      - row "13/11/2025 Netflix - E2E RECORRENTE -R$ 29,90 💸 Despesa Sem categoria ❌ Pendente  ":
+        - cell "13/11/2025"
+        - cell "Netflix - E2E RECORRENTE"
+        - cell "-R$ 29,90"
+        - cell "💸 Despesa"
+        - cell "Sem categoria"
+        - cell "❌ Pendente":
+          - button "❌ Pendente"
+        - cell " ":
+          - button ""
+          - button ""
+      - row "13/11/2025 Salário - Status Test R$ 5.000,00 💰 Receita Sem categoria ❌ Pendente  ":
+        - cell "13/11/2025"
+        - cell "Salário - Status Test"
+        - cell "R$ 5.000,00"
+        - cell "💰 Receita"
+        - cell "Sem categoria"
+        - cell "❌ Pendente":
+          - button "❌ Pendente"
+        - cell " ":
+          - button ""
+          - button ""
+      - row "13/11/2025 Salário - Status Test R$ 5.000,00 💰 Receita Sem categoria ❌ Pendente  ":
+        - cell "13/11/2025"
+        - cell "Salário - Status Test"
+        - cell "R$ 5.000,00"
+        - cell "💰 Receita"
+        - cell "Sem categoria"
+        - cell "❌ Pendente":
+          - button "❌ Pendente"
+        - cell " ":
+          - button ""
+          - button ""
+      - row "13/11/2025 Netflix - Recorrente Test -R$ 29,90 💸 Despesa Sem categoria ❌ Pendente  ":
+        - cell "13/11/2025"
+        - cell "Netflix - Recorrente Test"
+        - cell "-R$ 29,90"
+        - cell "💸 Despesa"
+        - cell "Sem categoria"
+        - cell "❌ Pendente":
+          - button "❌ Pendente"
+        - cell " ":
+          - button ""
+          - button ""
+      - row "13/11/2025 Monthly Rent -R$ 12,00 💸 Despesa Sem categoria ❌ Pendente  ":
+        - cell "13/11/2025"
+        - cell "Monthly Rent"
+        - cell "-R$ 12,00"
+        - cell "💸 Despesa"
+        - cell "Sem categoria"
+        - cell "❌ Pendente":
+          - button "❌ Pendente"
+        - cell " ":
+          - button ""
+          - button ""
+      - row "13/11/2025 Salário - Status Test R$ 5.000,00 💰 Receita Sem categoria ❌ Pendente  ":
+        - cell "13/11/2025"
+        - cell "Salário - Status Test"
+        - cell "R$ 5.000,00"
+        - cell "💰 Receita"
+        - cell "Sem categoria"
+        - cell "❌ Pendente":
+          - button "❌ Pendente"
+        - cell " ":
+          - button ""
+          - button ""
+      - row "13/11/2025 Grocery Shopping -R$ 2,00 💸 Despesa Sem categoria ❌ Pendente  ":
+        - cell "13/11/2025"
+        - cell "Grocery Shopping"
+        - cell "-R$ 2,00"
+        - cell "💸 Despesa"
+        - cell "Sem categoria"
+        - cell "❌ Pendente":
+          - button "❌ Pendente"
+        - cell " ":
+          - button ""
+          - button ""
+      - row "13/11/2025 Internet Bill -R$ 0,80 💸 Despesa Sem categoria ❌ Pendente  ":
+        - cell "13/11/2025"
+        - cell "Internet Bill"
+        - cell "-R$ 0,80"
+        - cell "💸 Despesa"
+        - cell "Sem categoria"
+        - cell "❌ Pendente":
+          - button "❌ Pendente"
+        - cell " ":
+          - button ""
+          - button ""
+      - row "13/11/2025 Aluguel Mensal -R$ 1.500,00 💸 Despesa Sem categoria ❌ Pendente  ":
+        - cell "13/11/2025"
+        - cell "Aluguel Mensal"
+        - cell "-R$ 1.500,00"
+        - cell "💸 Despesa"
+        - cell "Sem categoria"
+        - cell "❌ Pendente":
+          - button "❌ Pendente"
+        - cell " ":
+          - button ""
+          - button ""
+      - row "13/11/2025 Salário - Status Test R$ 5.000,00 💰 Receita Sem categoria ❌ Pendente  ":
+        - cell "13/11/2025"
+        - cell "Salário - Status Test"
+        - cell "R$ 5.000,00"
+        - cell "💰 Receita"
+        - cell "Sem categoria"
+        - cell "❌ Pendente":
+          - button "❌ Pendente"
+        - cell " ":
+          - button ""
+          - button ""
+      - row "13/11/2025 Netflix - Recorrente Test -R$ 29,90 💸 Despesa Sem categoria ❌ Pendente  ":
+        - cell "13/11/2025"
+        - cell "Netflix - Recorrente Test"
+        - cell "-R$ 29,90"
+        - cell "💸 Despesa"
+        - cell "Sem categoria"
+        - cell "❌ Pendente":
+          - button "❌ Pendente"
+        - cell " ":
+          - button ""
+          - button ""
+      - row "12/11/2025 Teste Correção Loop R$ 10,00 💰 Receita 📋 Outros ❌ Pendente  ":
+        - cell "12/11/2025"
+        - cell "Teste Correção Loop"
+        - cell "R$ 10,00"
+        - cell "💰 Receita"
+        - cell "📋 Outros"
+        - cell "❌ Pendente":
+          - button "❌ Pendente"
+        - cell " ":
+          - button ""
+          - button ""
+  - button ""
+  - heading "dezembro de 2025" [level=3]
+  - paragraph: 16 registros
+  - text: R$ 15.345,70 ↑ R$ 20.010,00↓ R$ 4.664,30 Progresso do mês 0/16  R$ 15.345,70 pendente (16)  Resumo por Categoria 📋 Sem categoria 15x R$ 15.335,70 📋 Outros 1x R$ 10,00
+  - table:
+    - rowgroup:
+      - row "Data  Descrição  Valor  Tipo  Categoria  Status  Saldo Ações":
+        - cell "Data "
+        - cell "Descrição "
+        - cell "Valor "
+        - cell "Tipo "
+        - cell "Categoria "
+        - cell "Status "
+        - cell "Saldo"
+        - cell "Ações"
+    - rowgroup:
+      - row "11/12/2025 Netflix - Recorrente Test -R$ 29,90 💸 Despesa Sem categoria ❌ Pendente  ":
+        - cell "11/12/2025"
+        - cell "Netflix - Recorrente Test"
+        - cell "-R$ 29,90"
+        - cell "💸 Despesa"
+        - cell "Sem categoria"
+        - cell "❌ Pendente":
+          - button "❌ Pendente"
+        - cell " ":
+          - button ""
+          - button ""
+      - row "11/12/2025 Aluguel - TESTE FINAL CORREÇÃO -R$ 1.500,00 💸 Despesa Sem categoria ❌ Pendente  ":
+        - cell "11/12/2025"
+        - cell "Aluguel - TESTE FINAL CORREÇÃO"
+        - cell "-R$ 1.500,00"
+        - cell "💸 Despesa"
+        - cell "Sem categoria"
+        - cell "❌ Pendente":
+          - button "❌ Pendente"
+        - cell " ":
+          - button ""
+          - button ""
+      - row "11/12/2025 Aluguel Mensal -R$ 1.500,00 💸 Despesa Sem categoria ❌ Pendente  ":
+        - cell "11/12/2025"
+        - cell "Aluguel Mensal"
+        - cell "-R$ 1.500,00"
+        - cell "💸 Despesa"
+        - cell "Sem categoria"
+        - cell "❌ Pendente":
+          - button "❌ Pendente"
+        - cell " ":
+          - button ""
+          - button ""
+      - row "11/12/2025 Netflix - Recorrente Test -R$ 29,90 💸 Despesa Sem categoria ❌ Pendente  ":
+        - cell "11/12/2025"
+        - cell "Netflix - Recorrente Test"
+        - cell "-R$ 29,90"
+        - cell "💸 Despesa"
+        - cell "Sem categoria"
+        - cell "❌ Pendente":
+          - button "❌ Pendente"
+        - cell " ":
+          - button ""
+          - button ""
+      - row "11/12/2025 Netflix - E2E RECORRENTE -R$ 29,90 💸 Despesa Sem categoria ❌ Pendente  ":
+        - cell "11/12/2025"
+        - cell "Netflix - E2E RECORRENTE"
+        - cell "-R$ 29,90"
+        - cell "💸 Despesa"
+        - cell "Sem categoria"
+        - cell "❌ Pendente":
+          - button "❌ Pendente"
+        - cell " ":
+          - button ""
+          - button ""
+      - row "11/12/2025 Salário - Status Test R$ 5.000,00 💰 Receita Sem categoria ❌ Pendente  ":
+        - cell "11/12/2025"
+        - cell "Salário - Status Test"
+        - cell "R$ 5.000,00"
+        - cell "💰 Receita"
+        - cell "Sem categoria"
+        - cell "❌ Pendente":
+          - button "❌ Pendente"
+        - cell " ":
+          - button ""
+          - button ""
+      - row "11/12/2025 Salário - Status Test R$ 5.000,00 💰 Receita Sem categoria ❌ Pendente  ":
+        - cell "11/12/2025"
+        - cell "Salário - Status Test"
+        - cell "R$ 5.000,00"
+        - cell "💰 Receita"
+        - cell "Sem categoria"
+        - cell "❌ Pendente":
+          - button "❌ Pendente"
+        - cell " ":
+          - button ""
+          - button ""
+      - row "11/12/2025 Netflix - Recorrente Test -R$ 29,90 💸 Despesa Sem categoria ❌ Pendente  ":
+        - cell "11/12/2025"
+        - cell "Netflix - Recorrente Test"
+        - cell "-R$ 29,90"
+        - cell "💸 Despesa"
+        - cell "Sem categoria"
+        - cell "❌ Pendente":
+          - button "❌ Pendente"
+        - cell " ":
+          - button ""
+          - button ""
+      - row "11/12/2025 Monthly Rent -R$ 12,00 💸 Despesa Sem categoria ❌ Pendente  ":
+        - cell "11/12/2025"
+        - cell "Monthly Rent"
+        - cell "-R$ 12,00"
+        - cell "💸 Despesa"
+        - cell "Sem categoria"
+        - cell "❌ Pendente":
+          - button "❌ Pendente"
+        - cell " ":
+          - button ""
+          - button ""
+      - row "11/12/2025 Salário - Status Test R$ 5.000,00 💰 Receita Sem categoria ❌ Pendente  ":
+        - cell "11/12/2025"
+        - cell "Salário - Status Test"
+        - cell "R$ 5.000,00"
+        - cell "💰 Receita"
+        - cell "Sem categoria"
+        - cell "❌ Pendente":
+          - button "❌ Pendente"
+        - cell " ":
+          - button ""
+          - button ""
+      - row "11/12/2025 Grocery Shopping -R$ 2,00 💸 Despesa Sem categoria ❌ Pendente  ":
+        - cell "11/12/2025"
+        - cell "Grocery Shopping"
+        - cell "-R$ 2,00"
+        - cell "💸 Despesa"
+        - cell "Sem categoria"
+        - cell "❌ Pendente":
+          - button "❌ Pendente"
+        - cell " ":
+          - button ""
+          - button ""
+      - row "11/12/2025 Internet Bill -R$ 0,80 💸 Despesa Sem categoria ❌ Pendente  ":
+        - cell "11/12/2025"
+        - cell "Internet Bill"
+        - cell "-R$ 0,80"
+        - cell "💸 Despesa"
+        - cell "Sem categoria"
+        - cell "❌ Pendente":
+          - button "❌ Pendente"
+        - cell " ":
+          - button ""
+          - button ""
+      - row "11/12/2025 Aluguel Mensal -R$ 1.500,00 💸 Despesa Sem categoria ❌ Pendente  ":
+        - cell "11/12/2025"
+        - cell "Aluguel Mensal"
+        - cell "-R$ 1.500,00"
+        - cell "💸 Despesa"
+        - cell "Sem categoria"
+        - cell "❌ Pendente":
+          - button "❌ Pendente"
+        - cell " ":
+          - button ""
+          - button ""
+      - row "11/12/2025 Salário - Status Test R$ 5.000,00 💰 Receita Sem categoria ❌ Pendente  ":
+        - cell "11/12/2025"
+        - cell "Salário - Status Test"
+        - cell "R$ 5.000,00"
+        - cell "💰 Receita"
+        - cell "Sem categoria"
+        - cell "❌ Pendente":
+          - button "❌ Pendente"
+        - cell " ":
+          - button ""
+          - button ""
+      - row "11/12/2025 Netflix - Recorrente Test -R$ 29,90 💸 Despesa Sem categoria ❌ Pendente  ":
+        - cell "11/12/2025"
+        - cell "Netflix - Recorrente Test"
+        - cell "-R$ 29,90"
+        - cell "💸 Despesa"
+        - cell "Sem categoria"
+        - cell "❌ Pendente":
+          - button "❌ Pendente"
+        - cell " ":
+          - button ""
+          - button ""
+      - row "10/12/2025 Teste Correção Loop R$ 10,00 💰 Receita 📋 Outros ❌ Pendente  ":
+        - cell "10/12/2025"
+        - cell "Teste Correção Loop"
+        - cell "R$ 10,00"
+        - cell "💰 Receita"
+        - cell "📋 Outros"
+        - cell "❌ Pendente":
+          - button "❌ Pendente"
+        - cell " ":
+          - button ""
+          - button ""
+```

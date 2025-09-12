@@ -39,7 +39,7 @@
               class="flex-1 px-4 py-3 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition-colors">
               Cancelar
             </button>
-            <button @click="financeStore.executeDelete"
+            <button @click="handleExecuteDelete"
               class="flex-1 px-4 py-3 bg-red-500 text-white rounded-xl font-medium hover:bg-red-600 transition-colors">
               <i class="fas fa-trash mr-1"></i>
               Excluir
@@ -54,6 +54,7 @@
 <script setup lang="ts">
 import { watch, onMounted } from 'vue'
 import { useFinanceStore } from '../../stores/financeStore'
+import { formatDateForDisplay } from '../../utils/dateUtils'
 
 const financeStore = useFinanceStore()
 
@@ -80,12 +81,19 @@ watch(
 )
 
 const formatDate = (dateStr: string): string => {
-  const date = new Date(dateStr)
-  return date.toLocaleDateString('pt-BR')
+  return formatDateForDisplay(dateStr)
 }
 
 const isRecurringRecord = (record: any): boolean => {
   return !!(record.recurrence && record.recurrence.isActive && record.recurrence.recurrenceId)
+}
+
+const handleExecuteDelete = async (): Promise<void> => {
+  try {
+    await financeStore.executeDelete()
+  } catch (error) {
+    console.error('❌ [DELETE_MODAL] Erro ao excluir registro:', error)
+  }
 }
 </script>
 

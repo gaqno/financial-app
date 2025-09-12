@@ -1,21 +1,21 @@
 <template>
-  <section class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-    <div class="flex items-center justify-between cursor-pointer p-4 hover:bg-gray-50 transition-colors"
+  <section class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-600 overflow-hidden theme-transition">
+    <div class="flex items-center justify-between cursor-pointer p-4 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors"
       @click="toggleSection">
-      <h2 class="text-lg font-semibold text-gray-900">
+      <h2 class="text-lg font-semibold text-gray-900 dark:text-slate-100">
         <i class="fas fa-code mr-2 text-purple-500"></i>
         Debug do Estado (LocalStorage)
       </h2>
       <div class="flex items-center gap-2">
-        <span class="text-xs bg-purple-100 text-purple-700 px-2 py-1 rounded-full font-medium">
+        <span class="text-xs bg-purple-100 dark:bg-purple-900 text-purple-700 dark:text-purple-300 px-2 py-1 rounded-full font-medium">
           {{ Object.keys(localStorageState).length }} chaves
         </span>
         <i :class="isExpanded ? 'fas fa-chevron-up' : 'fas fa-chevron-down'"
-          class="text-gray-400 transition-transform duration-200"></i>
+          class="text-gray-400 dark:text-slate-500 transition-transform duration-200"></i>
       </div>
     </div>
 
-    <div v-show="isExpanded" class="border-t border-gray-200">
+    <div v-show="isExpanded" class="border-t border-gray-200 dark:border-slate-600">
       <div class="p-4 space-y-4">
         <!-- Header com controles -->
         <div class="flex items-center justify-between">

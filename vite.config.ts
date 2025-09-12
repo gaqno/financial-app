@@ -3,4 +3,9 @@ import vue from '@vitejs/plugin-vue';
 
 export default defineConfig({
   plugins: [vue()],
+  test: {
+    setupFiles: ['./src/test/setup.ts'],
+    environment: 'node',
+    globals: true
+  }
 });

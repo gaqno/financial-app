@@ -44,11 +44,9 @@ export function useRecurrence() {
     recurrenceId: string,
     updates: Partial<Omit<IFinanceRecord, 'Data' | 'recurrence'>>
   ): IFinanceRecord[] {
-    console.log('🔄 [RECURRENCE_GROUP] Updating all records with ID:', recurrenceId);
 
     const updatedRecords = allRecords.map(record => {
       if (record.recurrence?.recurrenceId === recurrenceId) {
-        console.log('✏️ [RECURRENCE_GROUP] Updating record:', record.Data, record.Descrição);
         return {
           ...record,
           ...updates,
@@ -64,23 +62,19 @@ export function useRecurrence() {
       r.recurrence?.recurrenceId === recurrenceId
     ).length;
 
-    console.log(`✅ [RECURRENCE_GROUP] Updated ${updatedCount} records in group`);
 
     return updatedRecords;
   }
 
   // Remove all records in a recurrence group
   function removeRecurrenceGroup(allRecords: IFinanceRecord[], recurrenceId: string): IFinanceRecord[] {
-    console.log('🗑️ [RECURRENCE_GROUP] Removing all records with ID:', recurrenceId);
 
     const recordsToRemove = allRecords.filter(r => r.recurrence?.recurrenceId === recurrenceId);
-    console.log('🗑️ [RECURRENCE_GROUP] Found records to remove:', recordsToRemove.length);
 
     const remainingRecords = allRecords.filter(record =>
       record.recurrence?.recurrenceId !== recurrenceId
     );
 
-    console.log(`✅ [RECURRENCE_GROUP] Removed ${recordsToRemove.length} records, ${remainingRecords.length} remaining`);
 
     return remainingRecords;
   }
@@ -105,7 +99,6 @@ export function useRecurrence() {
       const calculatedDate = new Date(calculatedBusinessDay)
 
       if (calculatedDate.getDate() === targetDay) {
-        console.log(`📅 [BUSINESS_DAY] Date ${dateStr} is the ${businessDayNum}th business day of ${month}/${year}`)
         return { isBusinessDay: true, dayNumber: businessDayNum }
       }
     }
@@ -145,7 +138,6 @@ export function useRecurrence() {
       const month = date.getMonth() + 1;
       const businessDayDate = calculateBusinessDay(year, month, businessDayNumber);
 
-      console.log(`📅 [BUSINESS_DAY] Calculated ${businessDayNumber}th business day for ${month}/${year}: ${businessDayDate}`);
       return businessDayDate;
     }
 
@@ -170,18 +162,9 @@ export function useRecurrence() {
 
   // Generate all recurring records up to end date
   function generateRecurringRecords(baseRecord: Omit<IFinanceRecord, 'Saldo'>): Omit<IFinanceRecord, 'Saldo'>[] {
-    console.log('🔄 [RECURRENCE] Starting recurrence generation for:', {
-      description: baseRecord.Descrição,
-      startDate: baseRecord.Data,
-      frequency: recurrenceSettings.value.frequency,
-      endDate: recurrenceSettings.value.endDate,
-      isRecurring: isRecurring.value,
-      isActive: recurrenceSettings.value.isActive
-    });
 
     // If recurrence is not active, return only the base record
     if (!isRecurring.value || !recurrenceSettings.value.isActive) {
-      console.log('🔄 [RECURRENCE] Recurrence not active, returning single record');
       return [baseRecord];
     }
 
@@ -190,10 +173,6 @@ export function useRecurrence() {
     const isBusinessDayRecurrence = businessDayInfo.isBusinessDay;
     const businessDayNumber = businessDayInfo.dayNumber;
 
-    console.log('🔄 [RECURRENCE] Business day detection:', {
-      isBusinessDayRecurrence,
-      businessDayNumber
-    });
 
     const records: Omit<IFinanceRecord, 'Saldo'>[] = [];
     let currentDate = baseRecord.Data;
@@ -218,11 +197,6 @@ export function useRecurrence() {
       }
     }
 
-    console.log('🔄 [RECURRENCE] End date configuration:', {
-      endDateStr,
-      parsedEndDate: endDate.toISOString().split('T')[0],
-      endDateTimestamp: endDate.getTime()
-    });
 
     const maxOccurrences = 50; // Safety limit
     let occurrenceCount = 1;
@@ -257,16 +231,7 @@ export function useRecurrence() {
         nextDate = new Date(currentDate);
       }
 
-      console.log('🔄 [RECURRENCE] Checking occurrence #' + (occurrenceCount) + ':', {
-        currentDate,
-        nextDateParsed: nextDate.toISOString().split('T')[0],
-        nextDateTimestamp: nextDate.getTime(),
-        endDateTimestamp: endDate.getTime(),
-        isAfterEndDate: nextDate > endDate,
-        willStop: nextDate > endDate,
-        isBusinessDay: isBusinessDayRecurrence,
-        businessDayNumber
-      });
+
 
       // CRITICAL FIX: Stop if next date is after end date (inclusive comparison)
       if (nextDate > endDate) {

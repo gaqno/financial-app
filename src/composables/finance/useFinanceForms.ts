@@ -26,6 +26,10 @@ export function useFinanceForms() {
   const isMultipleMode = ref<boolean>(false)
   const multipleRecords = ref<Omit<IFinanceRecord, 'Saldo'>[]>([])
 
+  // Loading states
+  const isAdding = ref<boolean>(false)
+  const isSavingMultiple = ref<boolean>(false)
+
   // Edit recurrence state
   const editRecurrence = reactive({
     isActive: false,
@@ -90,12 +94,13 @@ export function useFinanceForms() {
 
   const onCategoryChange = () => {
     // Reset auto-detection when user manually selects category
-    console.log('🔄 [FORM] Category manually changed:', newRecord.value.Categoria)
   }
 
   // Handle form submission
   const handleAdd = async () => {
-    if (!isNewRecordValid.value) return
+    if (!isNewRecordValid.value || isAdding.value) return
+
+    isAdding.value = true
 
     try {
       const categoria = newRecord.value.Categoria || detectCategory(newRecord.value.Descrição)
@@ -105,19 +110,16 @@ export function useFinanceForms() {
         Categoria: categoria
       }
 
-      console.log('📝 [FORM] Adding new record:', recordToAdd)
 
       if (recurrence.isRecurring.value && recurrence.recurrenceSettings.value.isActive) {
         // Generate recurring records
         const recordsToAdd = recurrence.generateRecurringRecords(recordToAdd)
-        console.log('🔄 [FORM] Generated recurring records:', recordsToAdd.length)
 
-        recordsToAdd.forEach(record => {
-          financeStore.addRecord(record)
-        })
+        // Use batch insert for multiple records
+        await financeStore.addRecordsBatch(recordsToAdd)
       } else {
         // Add single record
-        financeStore.addRecord(recordToAdd)
+        await financeStore.addRecord(recordToAdd)
       }
 
       resetNewRecord()
@@ -127,6 +129,8 @@ export function useFinanceForms() {
 
     } catch (error) {
       console.error('❌ [FORM] Error adding record:', error)
+    } finally {
+      isAdding.value = false
     }
   }
 
@@ -142,7 +146,6 @@ export function useFinanceForms() {
     }
 
     multipleRecords.value.push(recordToAdd)
-    console.log('📝 [FORM] Added to multiple records list:', recordToAdd)
 
     // Reset form but keep some values for convenience
     const currentDate = newRecord.value.Data
@@ -159,28 +162,30 @@ export function useFinanceForms() {
 
   const removeMultipleRecord = (index: number) => {
     multipleRecords.value.splice(index, 1)
-    console.log('🗑️ [FORM] Removed multiple record at index:', index)
   }
 
   const saveAllMultipleRecords = async () => {
-    try {
-      console.log('💾 [FORM] Saving all multiple records:', multipleRecords.value.length)
+    if (isSavingMultiple.value) return
 
-      for (const record of multipleRecords.value) {
-        financeStore.addRecord(record)
-      }
+    isSavingMultiple.value = true
+
+    try {
+
+      // Use batch insert for better performance
+      await financeStore.addRecordsBatch(multipleRecords.value)
 
       clearMultipleRecords()
       isMultipleMode.value = false
 
     } catch (error) {
       console.error('❌ [FORM] Error saving multiple records:', error)
+    } finally {
+      isSavingMultiple.value = false
     }
   }
 
   const clearMultipleRecords = () => {
     multipleRecords.value = []
-    console.log('🧹 [FORM] Cleared multiple records list')
   }
 
   // Edit functionality
@@ -190,45 +195,43 @@ export function useFinanceForms() {
 
     // Load existing recurrence settings
     if (record.recurrence && record.recurrence.isActive) {
-      console.log('📄 [FORM] Loading existing recurrence settings:', record.recurrence)
       editRecurrence.isActive = true
       editRecurrence.frequency = record.recurrence.frequency
       editRecurrence.endDate = record.recurrence.endDate
     } else {
-      console.log('📄 [FORM] No existing recurrence found, setting defaults')
       editRecurrence.isActive = false
       editRecurrence.frequency = 'mensal'
       editRecurrence.endDate = ''
     }
 
-    console.log('✏️ [FORM] Opened edit sheet for record:', record)
   }
 
   const closeEditSheet = () => {
     resetEditRecord()
     existingRecurrenceWarning.value = null
-    console.log('❌ [FORM] Closed edit sheet')
   }
 
   const saveEditSheet = async () => {
     if (!editingRecord.value || !isEditRecordValid.value) return
 
     try {
-      const updatedRecord = {
-        ...editingRecord.value,
-        recurrence: editRecurrence.isActive ? {
+      // Update the editing record with recurrence settings
+      if (editRecurrence.isActive) {
+        editingRecord.value.recurrence = {
           frequency: editRecurrence.frequency,
           endDate: editRecurrence.endDate,
           isActive: true
-        } : undefined
+        }
+      } else {
+        // Remove recurrence if disabled
+        delete editingRecord.value.recurrence
       }
 
-      console.log('💾 [FORM] Saving edited record:', updatedRecord)
 
-      const success = financeStore.updateRecord(originalEditIndex.value, updatedRecord)
+      // Use saveEdit instead of updateRecord for proper recurrence handling
+      const success = await financeStore.saveEdit()
 
       if (success) {
-        console.log('✅ [FORM] Record updated successfully')
         closeEditSheet()
       } else {
         console.error('❌ [FORM] Failed to update record')
@@ -245,10 +248,8 @@ export function useFinanceForms() {
 
     if (isMultipleMode.value) {
       resetNewRecord()
-      console.log('🔀 [FORM] Enabled multiple mode')
     } else {
       clearMultipleRecords()
-      console.log('🔀 [FORM] Disabled multiple mode')
     }
   }
 
@@ -261,6 +262,10 @@ export function useFinanceForms() {
     multipleRecords,
     editRecurrence,
     existingRecurrenceWarning,
+
+    // Loading states
+    isAdding,
+    isSavingMultiple,
 
     // Computed
     isNewRecordValid,

@@ -1,0 +1,336 @@
+<template>
+  <div class="login-form">
+    <div class="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md">
+      <!-- Header -->
+      <div class="text-center mb-8">
+        <div class="w-16 h-16 mx-auto mb-4 bg-blue-100 rounded-full flex items-center justify-center">
+          <i class="fas fa-wallet text-blue-600 text-2xl"></i>
+        </div>
+        <h1 class="text-2xl font-bold text-gray-900 mb-2">
+          Bem-vindo ao FinanceApp
+        </h1>
+        <p class="text-gray-600">
+          {{ isRegisterMode ? 'Crie sua conta' : 'Entre na sua conta' }}
+        </p>
+      </div>
+
+      <!-- Form -->
+      <form @submit.prevent="handleSubmit" class="space-y-6">
+        <!-- Full Name (only for register) -->
+        <div v-if="isRegisterMode">
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            Nome Completo
+          </label>
+          <input
+            v-model="formData.fullName"
+            type="text"
+            placeholder="Seu nome completo"
+            class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+            :disabled="isLoading"
+          />
+        </div>
+
+        <!-- Email -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            Email
+          </label>
+          <input
+            v-model="formData.email"
+            type="email"
+            placeholder="seu@email.com"
+            required
+            class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+            :disabled="isLoading"
+          />
+        </div>
+
+        <!-- Password -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            Senha
+          </label>
+          <div class="relative">
+            <input
+              v-model="formData.password"
+              :type="showPassword ? 'text' : 'password'"
+              placeholder="••••••••"
+              required
+              :minlength="isRegisterMode ? 6 : undefined"
+              class="w-full border border-gray-300 rounded-lg px-4 py-3 pr-12 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+              :disabled="isLoading"
+            />
+            <button
+              type="button"
+              @click="showPassword = !showPassword"
+              class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+              :disabled="isLoading"
+            >
+              <i :class="showPassword ? 'fas fa-eye-slash' : 'fas fa-eye'"></i>
+            </button>
+          </div>
+          <div v-if="isRegisterMode" class="text-xs text-gray-500 mt-1">
+            Mínimo de 6 caracteres
+          </div>
+        </div>
+
+        <!-- Confirm Password (only for register) -->
+        <div v-if="isRegisterMode">
+          <label class="block text-sm font-medium text-gray-700 mb-2">
+            Confirmar Senha
+          </label>
+          <input
+            v-model="formData.confirmPassword"
+            type="password"
+            placeholder="••••••••"
+            required
+            class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors"
+            :disabled="isLoading"
+          />
+          <div v-if="passwordMismatch" class="text-xs text-red-600 mt-1">
+            As senhas não coincidem
+          </div>
+        </div>
+
+        <!-- Error Message -->
+        <div v-if="error" class="bg-red-50 border border-red-200 rounded-lg p-3">
+          <div class="flex items-center">
+            <i class="fas fa-exclamation-triangle text-red-500 mr-2"></i>
+            <span class="text-red-700 text-sm">{{ error.message }}</span>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <button
+          type="submit"
+          :disabled="isLoading || !isFormValid"
+          class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg font-medium hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors flex items-center justify-center"
+        >
+          <i v-if="isLoading" class="fas fa-spinner fa-spin mr-2"></i>
+          <i v-else :class="isRegisterMode ? 'fas fa-user-plus' : 'fas fa-sign-in-alt'" class="mr-2"></i>
+          {{ isLoading ? 'Aguarde...' : (isRegisterMode ? 'Criar Conta' : 'Entrar') }}
+        </button>
+
+        <!-- Toggle Mode -->
+        <div class="text-center">
+          <button
+            type="button"
+            @click="toggleMode"
+            class="text-sm text-blue-600 hover:text-blue-800 font-medium"
+            :disabled="isLoading"
+          >
+            {{ isRegisterMode 
+              ? 'Já tem uma conta? Entrar' 
+              : 'Não tem uma conta? Registrar-se'
+            }}
+          </button>
+        </div>
+
+        <!-- Forgot Password (only for login) -->
+        <div v-if="!isRegisterMode" class="text-center">
+          <button
+            type="button"
+            @click="handleForgotPassword"
+            class="text-sm text-gray-600 hover:text-gray-800"
+            :disabled="isLoading"
+          >
+            Esqueceu a senha?
+          </button>
+        </div>
+      </form>
+
+      <!-- Demo Credentials (development only) -->
+      <div v-if="isDevelopment" class="mt-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+        <h4 class="text-sm font-medium text-gray-700 mb-2">
+          <i class="fas fa-code mr-1"></i>
+          Credenciais de Demonstração
+        </h4>
+        <div class="text-xs text-gray-600 space-y-1">
+          <div><strong>Email:</strong> demo@financeapp.com</div>
+          <div><strong>Senha:</strong> demo123</div>
+        </div>
+        <button
+          @click="fillDemoCredentials"
+          class="mt-2 text-xs bg-gray-200 hover:bg-gray-300 px-2 py-1 rounded transition-colors"
+        >
+          Usar credenciais demo
+        </button>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref, computed, onMounted } from 'vue'
+import { useAuth } from '../../composables/useAuth'
+import type { ILoginCredentials, IRegisterCredentials } from '../../types/auth'
+
+interface Emits {
+  'login-success': []
+  'register-success': []
+}
+
+const emit = defineEmits<Emits>()
+
+// Use auth composable
+const { login, register, resetPassword, error, isLoading, clearError } = useAuth()
+
+// Component state
+const isRegisterMode = ref(false)
+const showPassword = ref(false)
+const showForgotPassword = ref(false)
+
+// Form data
+const formData = ref({
+  email: '',
+  password: '',
+  confirmPassword: '',
+  fullName: ''
+})
+
+// Environment check
+const isDevelopment = computed(() => import.meta.env.DEV)
+
+// Form validation
+const isFormValid = computed(() => {
+  const { email, password, confirmPassword, fullName } = formData.value
+  
+  // Verificações básicas para login e registro
+  if (!email?.trim() || !password?.trim()) {
+    return false
+  }
+  
+  if (isRegisterMode.value) {
+    return !!(fullName?.trim() && password.length >= 6 && password === confirmPassword)
+  }
+  
+  // Para login, apenas email e senha são necessários
+  return true
+})
+
+const passwordMismatch = computed(() => {
+  return isRegisterMode.value && 
+         formData.value.confirmPassword && 
+         formData.value.password !== formData.value.confirmPassword
+})
+
+// Methods
+const handleSubmit = async () => {
+  // Verificar se clearError está disponível antes de chamar
+  if (typeof clearError === 'function') {
+    clearError()
+  }
+  
+  if (!isFormValid.value) return
+  
+  try {
+    if (isRegisterMode.value) {
+      const credentials: IRegisterCredentials = {
+        email: formData.value.email,
+        password: formData.value.password,
+        fullName: formData.value.fullName
+      }
+      
+      const success = await register(credentials)
+      if (success) {
+        emit('register-success')
+        resetForm()
+      }
+    } else {
+      const credentials: ILoginCredentials = {
+        email: formData.value.email,
+        password: formData.value.password
+      }
+      
+      const success = await login(credentials)
+      if (success) {
+        emit('login-success')
+        resetForm()
+      }
+    }
+  } catch (err) {
+    console.error('❌ [LOGIN_FORM] Erro no formulário:', err)
+  }
+}
+
+const handleForgotPassword = async () => {
+  if (!formData.value.email) {
+    alert('Por favor, digite seu email primeiro')
+    return
+  }
+  
+  // Verificar se clearError está disponível antes de chamar
+  if (typeof clearError === 'function') {
+    clearError()
+  }
+  
+  try {
+    const success = await resetPassword({ email: formData.value.email })
+    if (success) {
+      alert('Email de recuperação enviado! Verifique sua caixa de entrada.')
+    }
+  } catch (err) {
+    console.error('❌ [LOGIN_FORM] Erro ao enviar email de recuperação:', err)
+  }
+}
+
+const toggleMode = () => {
+  isRegisterMode.value = !isRegisterMode.value
+  // Verificar se clearError está disponível antes de chamar
+  if (typeof clearError === 'function') {
+    clearError()
+  }
+  resetForm()
+}
+
+const resetForm = () => {
+  formData.value = {
+    email: '',
+    password: '',
+    confirmPassword: '',
+    fullName: ''
+  }
+  showPassword.value = false
+}
+
+const fillDemoCredentials = () => {
+  formData.value.email = 'demo@financeapp.com'
+  formData.value.password = 'demo123'
+  isRegisterMode.value = false
+}
+
+// Lifecycle
+onMounted(() => {
+  // Clear any existing errors
+  if (typeof clearError === 'function') {
+    clearError()
+  }
+})
+</script>
+
+<style scoped>
+.login-form {
+  @apply min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4;
+}
+
+/* Smooth transitions */
+.login-form input,
+.login-form button {
+  @apply transition-all duration-200;
+}
+
+/* Focus ring improvements */
+.login-form input:focus {
+  @apply ring-2 ring-blue-500 ring-offset-1;
+}
+
+/* Loading state */
+.login-form button:disabled {
+  @apply cursor-not-allowed transform-none;
+}
+
+/* Animation for mode toggle */
+.login-form .space-y-6 > div {
+  @apply transition-all duration-300 ease-in-out;
+}
+</style>

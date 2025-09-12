@@ -1,25 +1,25 @@
 <template>
-  <section class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-    <div class="flex items-center justify-between cursor-pointer p-4 hover:bg-gray-50 transition-colors"
+  <section class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-600 overflow-hidden theme-transition">
+    <div class="flex items-center justify-between cursor-pointer p-4 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors"
       @click="toggleImportSection">
-      <h2 class="text-lg font-semibold text-gray-900">
+      <h2 class="text-lg font-semibold text-gray-900 dark:text-slate-100">
         <i class="fas fa-file-csv mr-2 text-blue-500"></i>
         Importar CSV
       </h2>
       <i :class="isExpanded ? 'fas fa-chevron-up' : 'fas fa-chevron-down'"
-        class="text-gray-400 transition-transform duration-200"></i>
+        class="text-gray-400 dark:text-slate-500 transition-transform duration-200"></i>
     </div>
 
-    <div v-show="isExpanded" class="border-t border-gray-200">
+    <div v-show="isExpanded" class="border-t border-gray-200 dark:border-slate-600">
       <div class="p-4 space-y-4">
         <!-- Upload Area -->
         <div
-          class="border-2 border-dashed border-gray-300 rounded-xl p-6 text-center hover:border-blue-300 transition-colors">
+          class="border-2 border-dashed border-gray-300 dark:border-slate-600 rounded-xl p-6 text-center hover:border-blue-300 dark:hover:border-blue-500 transition-colors">
           <input ref="fileInputRef" type="file" accept=".csv" @change="onFileSelected" class="hidden" />
 
           <div v-if="!selectedFile" class="space-y-3">
-            <i class="fas fa-upload text-gray-400 text-4xl"></i>
-            <p class="text-gray-600 text-sm">Clique para selecionar um arquivo CSV</p>
+            <i class="fas fa-upload text-gray-400 dark:text-slate-500 text-4xl"></i>
+            <p class="text-gray-600 dark:text-slate-300 text-sm">Clique para selecionar um arquivo CSV</p>
             <button @click="triggerFileInput"
               class="bg-blue-500 text-white px-6 py-3 rounded-xl hover:bg-blue-600 transition-colors font-medium">
               📁 Selecionar Arquivo
@@ -28,8 +28,8 @@
 
           <div v-else class="space-y-2">
             <i class="fas fa-file-csv text-green-500 text-3xl"></i>
-            <p class="text-gray-800 font-medium">{{ selectedFile.name }}</p>
-            <p class="text-gray-600 text-sm">{{ formatFileSize(selectedFile.size) }}</p>
+            <p class="text-gray-800 dark:text-slate-200 font-medium">{{ selectedFile.name }}</p>
+            <p class="text-gray-600 dark:text-slate-300 text-sm">{{ formatFileSize(selectedFile.size) }}</p>
             <div class="flex gap-2 justify-center">
               <button @click="importFile" :disabled="isImporting"
                 class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">

@@ -1,19 +1,19 @@
 <template>
-  <div class="lg:hidden bg-white rounded-xl shadow-sm p-6 border border-gray-100">
+  <div class="lg:hidden bg-white dark:bg-slate-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-slate-600 theme-transition">
     <div class="text-center">
-      <h2 class="text-lg font-semibold text-gray-900 mb-2">
+      <h2 class="text-lg font-semibold text-gray-900 dark:text-slate-100 mb-2">
         {{ title }}
       </h2>
       <p :class="balanceColorClass" class="text-3xl font-bold">
         {{ formattedBalance }}
       </p>
-      <p class="text-sm text-gray-600 mt-2">
+      <p class="text-sm text-gray-600 dark:text-slate-300 mt-2">
         {{ recordCountText }}
       </p>
 
       <!-- Hidden months indicator -->
       <div v-if="hiddenMonthsCount > 0" class="mt-2">
-        <span class="text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded-full">
+        <span class="text-xs bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-300 px-2 py-1 rounded-full">
           <i class="fas fa-eye-slash mr-1"></i>
           {{ hiddenMonthsText }}
         </span>
@@ -22,13 +22,13 @@
       <!-- Quick stats -->
       <div v-if="showQuickStats" class="mt-4 grid grid-cols-2 gap-4">
         <div class="text-center">
-          <div class="text-xs text-gray-500">Receitas</div>
+          <div class="text-xs text-gray-500 dark:text-slate-400">Receitas</div>
           <div class="text-green-600 font-semibold">
             {{ formatCurrency(totalReceitas) }}
           </div>
         </div>
         <div class="text-center">
-          <div class="text-xs text-gray-500">Despesas</div>
+          <div class="text-xs text-gray-500 dark:text-slate-400">Despesas</div>
           <div class="text-red-600 font-semibold">
             {{ formatCurrency(Math.abs(totalDespesas)) }}
           </div>

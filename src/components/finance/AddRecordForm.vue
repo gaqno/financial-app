@@ -1,13 +1,14 @@
 <template>
-  <section class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-    <div class="px-4 py-3 bg-gray-50 border-b border-gray-200">
+  <section
+    class="bg-white dark:bg-slate-800 rounded-2xl shadow-sm border border-gray-200 dark:border-slate-600 overflow-hidden theme-transition">
+    <div class="px-4 py-3 bg-gray-50 dark:bg-slate-700 border-b border-gray-200 dark:border-slate-600">
       <div class="flex items-center justify-between">
-        <h2 class="text-lg font-semibold text-gray-900">
+        <h2 class="text-lg font-semibold text-gray-900 dark:text-slate-100">
           <i class="fas fa-plus-circle text-blue-500 mr-2"></i>
           {{ isMultipleMode ? 'Múltiplos Registros' : 'Novo Registro' }}
         </h2>
         <div class="flex items-center gap-2">
-          <span class="text-sm text-gray-600">{{ isMultipleMode ? 'Múltiplos' : 'Único' }}</span>
+          <span class="text-sm text-gray-600 dark:text-slate-300">{{ isMultipleMode ? 'Múltiplos' : 'Único' }}</span>
           <label class="relative inline-flex items-center cursor-pointer">
             <input v-model="isMultipleMode" type="checkbox" class="sr-only peer">
             <div
@@ -51,9 +52,11 @@
             <option value="❌">❌</option>
             <option value="✔️">✔️</option>
           </select>
-          <button type="submit"
-            class="bg-blue-500 hover:bg-blue-600 text-white rounded-lg px-4 py-2 font-medium transition-colors">
-            <i class="fa fa-plus mr-1"></i>Adicionar
+          <button type="submit" :disabled="isAdding"
+            class="bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white rounded-lg px-4 py-2 font-medium transition-colors">
+            <i v-if="!isAdding" class="fa fa-plus mr-1"></i>
+            <i v-else class="fas fa-spinner fa-spin mr-1"></i>
+            {{ isAdding ? 'Adicionando...' : 'Adicionar' }}
           </button>
         </form>
       </div>
@@ -63,13 +66,13 @@
         <form @submit.prevent="handleSubmit" class="space-y-4">
           <div class="grid grid-cols-2 gap-3">
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Data</label>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-100 mb-1">Data</label>
               <input v-model="newRecord.Data" type="date"
                 class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 required />
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Valor</label>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-100 mb-1">Valor</label>
               <CurrencyInput v-model="newRecord.Valor" :tipo="newRecord.Tipo" placeholder="R$ 0,00"
                 inputClass="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 required />
@@ -77,7 +80,7 @@
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Descrição</label>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-100 mb-1">Descrição</label>
             <input v-model="newRecord.Descrição" type="text" placeholder="Ex: Supermercado, Salário..."
               class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
               required />
@@ -85,7 +88,7 @@
 
           <div class="grid grid-cols-2 gap-3">
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Tipo</label>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-100 mb-1">Tipo</label>
               <select v-model="newRecord.Tipo"
                 class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
                 required>
@@ -94,7 +97,7 @@
               </select>
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-100 mb-1">Status</label>
               <select v-model="newRecord.Status"
                 class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
                 required>
@@ -105,7 +108,7 @@
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Categoria</label>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-100 mb-1">Categoria</label>
             <select v-model="newRecord.Categoria"
               class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none">
               <option value="">🤖 Auto-detectar categoria</option>
@@ -117,10 +120,11 @@
             </select>
           </div>
 
-          <button type="submit"
-            class="w-full bg-blue-500 hover:bg-blue-600 text-white rounded-xl p-4 font-semibold text-lg transition-colors shadow-lg">
-            <i class="fa fa-plus mr-2"></i>
-            Adicionar Registro
+          <button type="submit" :disabled="isAdding"
+            class="w-full bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white rounded-xl p-4 font-semibold text-lg transition-colors shadow-lg">
+            <i v-if="!isAdding" class="fa fa-plus mr-2"></i>
+            <i v-else class="fas fa-spinner fa-spin mr-2"></i>
+            {{ isAdding ? 'Adicionando...' : 'Adicionar Registro' }}
           </button>
         </form>
       </div>
@@ -138,8 +142,11 @@
               <i class="fas fa-plus mr-1"></i>Adicionar à Lista
             </button>
             <button @click="saveAllMultiple" type="button" v-if="multipleRecords.length > 0"
-              class="bg-blue-500 hover:bg-blue-600 text-white rounded-lg px-3 py-2 text-sm font-medium transition-colors">
-              <i class="fas fa-save mr-1"></i>Salvar Todos ({{ multipleRecords.length }})
+              :disabled="isSavingMultiple"
+              class="bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white rounded-lg px-3 py-2 text-sm font-medium transition-colors">
+              <i v-if="!isSavingMultiple" class="fas fa-save mr-1"></i>
+              <i v-else class="fas fa-spinner fa-spin mr-1"></i>
+              {{ isSavingMultiple ? 'Salvando...' : `Salvar Todos (${multipleRecords.length})` }}
             </button>
             <button @click="clearMultiple" type="button" v-if="multipleRecords.length > 0"
               class="bg-red-500 hover:bg-red-600 text-white rounded-lg px-3 py-2 text-sm font-medium transition-colors">
@@ -213,70 +220,65 @@
   </section>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue'
+<script setup lang="ts">
 import { useFinanceForms } from '../../composables/finance/useFinanceForms'
 import { useCategoryDetection } from '../../composables/useCategoryDetection'
+import { formatDateForDisplay } from '../../utils/dateUtils'
 import CurrencyInput from '../CurrencyInput.vue'
 
-export default defineComponent({
-  name: 'AddRecordForm',
-  components: {
-    CurrencyInput
-  },
-  setup() {
-    const {
-      newRecord,
-      isMultipleMode,
-      multipleRecords,
-      handleAdd,
-      addMultipleRecord,
-      saveAllMultipleRecords,
-      clearMultipleRecords,
-      removeMultipleRecord
-    } = useFinanceForms()
+const {
+  newRecord,
+  isMultipleMode,
+  multipleRecords,
+  isAdding,
+  isSavingMultiple,
+  handleAdd,
+  addMultipleRecord,
+  saveAllMultipleRecords,
+  clearMultipleRecords,
+  removeMultipleRecord
+} = useFinanceForms()
 
-    const { getAllCategories, getCategoryIcon } = useCategoryDetection()
+const { getAllCategories, getCategoryIcon } = useCategoryDetection()
 
-    // Methods
-    const handleSubmit = () => {
-      handleAdd()
-    }
+// Methods
+const handleSubmit = () => {
+  handleAdd()
+}
 
-    const addToMultipleList = () => {
-      addMultipleRecord()
-    }
+const addToMultipleList = () => {
+  addMultipleRecord()
+}
 
-    const saveAllMultiple = () => {
-      saveAllMultipleRecords()
-    }
+const saveAllMultiple = () => {
+  saveAllMultipleRecords()
+}
 
-    const clearMultiple = () => {
-      clearMultipleRecords()
-    }
+const clearMultiple = () => {
+  clearMultipleRecords()
+}
 
-    const removeFromMultiple = (index: number) => {
-      removeMultipleRecord(index)
-    }
+const removeFromMultiple = (index: number) => {
+  removeMultipleRecord(index)
+}
 
-    const formatDate = (dateStr: string): string => {
-      const date = new Date(dateStr)
-      return date.toLocaleDateString('pt-BR')
-    }
-
-    return {
-      newRecord,
-      isMultipleMode,
-      multipleRecords,
-      getAllCategories,
-      getCategoryIcon,
-      handleSubmit,
-      addToMultipleList,
-      saveAllMultiple,
-      clearMultiple,
-      removeFromMultiple,
-      formatDate
-    }
-  }
-})
+const formatDate = (dateStr: string): string => {
+  return formatDateForDisplay(dateStr)
+}
 </script>
+
+<script lang="ts">
+// Component name for debugging and DevTools
+export default {
+  name: 'AddRecordForm'
+}
+</script>
+
+<!-- 
+CONVERSÃO PARA COMPOSITION API:
+- Convertido de Options API (defineComponent + setup) para Composition API puro com <script setup>
+- Removido defineComponent, components e setup() wrapper
+- Toda lógica mantida igual, apenas removida do objeto de retorno do setup()
+- Adicionado displayName conforme padrão do projeto
+- Imports mantidos iguais
+-->

@@ -2,11 +2,11 @@
   <div class="business-day-selector">
     <!-- Toggle between date input and business day mode -->
     <div class="flex items-center gap-2 mb-3">
-      <label class="block text-sm font-medium text-gray-700">
+      <label class="block text-sm font-medium text-gray-700 dark:text-gray-100">
         {{ label }}
       </label>
       <button @click="toggleMode" type="button" class="text-xs px-2 py-1 rounded-md transition-colors"
-        :class="isBusinessDayMode ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-600'"
+        :class="isBusinessDayMode ? 'bg-blue-100 text-blue-700 dark:text-blue-400' : 'bg-gray-100 text-gray-600 dark:text-gray-400'"
         :title="isBusinessDayMode ? 'Voltar para data normal' : 'Usar dia útil'">
         <i class="fas fa-calendar-week mr-1"></i>
         {{ isBusinessDayMode ? 'Dia Útil' : 'Data Normal' }}
@@ -27,7 +27,7 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
           <!-- Business Day Number -->
           <div>
-            <label class="block text-xs font-medium text-gray-700 mb-1">
+            <label class="block text-xs font-medium text-gray-700 dark:text-gray-100 mb-1">
               Dia Útil
             </label>
             <select v-model="businessDayNumber" @change="calculateAndEmitDate"
@@ -40,7 +40,7 @@
 
           <!-- Month -->
           <div>
-            <label class="block text-xs font-medium text-gray-700 mb-1">
+            <label class="block text-xs font-medium text-gray-700 dark:text-gray-100 mb-1">
               Mês
             </label>
             <select v-model="selectedMonth" @change="calculateAndEmitDate"
@@ -53,7 +53,7 @@
 
           <!-- Year -->
           <div>
-            <label class="block text-xs font-medium text-gray-700 mb-1">
+            <label class="block text-xs font-medium text-gray-700 dark:text-gray-100 mb-1">
               Ano
             </label>
             <select v-model="selectedYear" @change="calculateAndEmitDate"
@@ -68,12 +68,12 @@
         <!-- Calculated Date Preview -->
         <div class="mt-3 p-2 bg-white border border-blue-200 rounded-md">
           <div class="flex items-center justify-between text-sm">
-            <span class="text-gray-600">Data calculada:</span>
+            <span class="text-gray-600 dark:text-gray-400">Data calculada:</span>
             <span class="font-semibold text-blue-700">
               {{ calculatedDateFormatted }}
             </span>
           </div>
-          <div class="text-xs text-gray-500 mt-1">
+          <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">
             {{ businessDayDescription }}
           </div>
         </div>
@@ -81,7 +81,7 @@
         <!-- Business Day Calendar Preview -->
         <div v-if="showCalendarPreview" class="mt-3">
           <button @click="toggleCalendarPreview" type="button"
-            class="text-xs text-blue-600 hover:text-blue-800 flex items-center gap-1">
+            class="text-xs text-blue-600 hover:text-blue-800 dark:text-blue-400 flex items-center gap-1">
             <i :class="showCalendar ? 'fas fa-chevron-up' : 'fas fa-chevron-down'"></i>
             {{ showCalendar ? 'Ocultar' : 'Ver' }} calendário
           </button>
@@ -96,14 +96,14 @@
       <!-- Quick Business Day Presets -->
       <div class="flex flex-wrap gap-1">
         <button v-for="preset in quickPresets" :key="preset.label" @click="applyPreset(preset)" type="button"
-          class="text-xs px-2 py-1 bg-gray-100 hover:bg-gray-200 rounded-md transition-colors">
+          class="text-xs px-2 py-1 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-md transition-colors">
           {{ preset.label }}
         </button>
       </div>
     </div>
 
     <!-- Validation Message -->
-    <div v-if="validationMessage" class="mt-2 text-xs text-red-600">
+    <div v-if="validationMessage" class="mt-2 text-xs text-red-600 dark:text-red-400">
       <i class="fas fa-exclamation-triangle mr-1"></i>
       {{ validationMessage }}
     </div>
@@ -113,6 +113,7 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue'
 import { useBusinessDays } from '../../../composables/finance/useBusinessDays'
+import { formatDateForDisplay } from '../../../utils/dateUtils'
 import BusinessDayCalendar from './BusinessDayCalendar.vue'
 
 interface Props {
@@ -199,17 +200,18 @@ const calculatedDateFormatted = computed(() => {
   if (!calculatedDate.value) return 'Data inválida'
 
   try {
+    const formatted = formatDateForDisplay(calculatedDate.value)
+    if (!formatted) return 'Data inválida'
+
+    // Adiciona informação completa com dia da semana
     let date: Date
-    
-    // For date-only strings (YYYY-MM-DD), parse as local date to avoid timezone issues
     if (calculatedDate.value.match(/^\d{4}-\d{2}-\d{2}$/)) {
       const [year, month, day] = calculatedDate.value.split('-').map(Number)
-      date = new Date(year, month - 1, day) // month is 0-based in constructor
+      date = new Date(year, month - 1, day)
     } else {
-      // For other date formats, use regular parsing
       date = new Date(calculatedDate.value)
     }
-    
+
     return date.toLocaleDateString('pt-BR', {
       weekday: 'long',
       year: 'numeric',

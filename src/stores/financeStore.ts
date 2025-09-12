@@ -1,10 +1,11 @@
 import { defineStore } from 'pinia'
-import { ref, computed, reactive } from 'vue'
+import { ref, computed, reactive, watch } from 'vue'
 import { useLocalStorage } from '../composables/useLocalStorage'
 import { useRecurrence } from '../composables/useRecurrence'
 import { useBusinessDays } from '../composables/finance/useBusinessDays'
 import { useAutoCorrection } from '../composables/finance/useAutoCorrection'
 import { useRecurrenceHelpers } from '../composables/finance/useRecurrenceHelpers'
+import { useSupabaseFinance } from '../composables/useSupabaseFinance'
 import type { IFinanceRecord, IFinanceFormData, IRecurrence, IFilter } from '../types/finance'
 import { financeRecordSchema } from '../types/finance'
 
@@ -64,7 +65,7 @@ export const useFinanceStore = defineStore('finance', () => {
 
   // Import composables for extracted functionality
   const { correctFutureRecordsAfterEdit, removeRecurringRecordsBeyondDate, validateAndCorrectRecurringRecords } = useAutoCorrection()
-  const { updateAllLinkedRecurringRecords, generateRecurringRecordsForEdit } = useRecurrenceHelpers()
+  const { updateAllLinkedRecurringRecords, generateRecurringRecordsForEdit, generateMissingFutureRecords } = useRecurrenceHelpers()
 
   // Debug watchers (development only)
   if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
@@ -87,45 +88,58 @@ export const useFinanceStore = defineStore('finance', () => {
   })
 
   // ===========================================
-  // PERSISTENCE
+  // SUPABASE INTEGRATION
   // ===========================================
 
-  const STORAGE_KEY = 'financeData'
-  const HIDDEN_MONTHS_KEY = `${STORAGE_KEY}_hiddenMonths`
-  const FILTERS_KEY = `${STORAGE_KEY}_filters`
+  const {
+    records: supabaseRecords,
+    hiddenMonths: supabaseHiddenMonths,
+    filters: supabaseFilters,
+    isLoading: supabaseLoading,
+    loadData,
+    addRecord: addSupabaseRecord,
+    addRecordsBatch: addSupabaseRecordsBatch,
+    updateRecord: updateSupabaseRecord,
+    updateRecordsBatch,
+    deleteRecord: deleteSupabaseRecord,
+    saveSettings
+  } = useSupabaseFinance()
 
+  // Sync local state with Supabase state
+  watch(supabaseRecords, (newRecords) => {
+    console.log('🔄 [SYNC] Syncing Store with Supabase:', {
+      supabaseCount: newRecords.length,
+      storeCountBefore: records.value.length,
+      supabaseFirst3: newRecords.slice(0, 3).map(r => ({ desc: r.Descrição, date: r.Data })),
+      storeFirst3Before: records.value.slice(0, 3).map(r => ({ desc: r.Descrição, date: r.Data }))
+    })
+
+    records.value = [...newRecords]
+
+    console.log('✅ [SYNC] Store synchronized:', {
+      storeCountAfter: records.value.length,
+      storeFirst3After: records.value.slice(0, 3).map(r => ({ desc: r.Descrição, date: r.Data })),
+      arraysMatch: records.value.length === newRecords.length
+    })
+  }, { immediate: true })
+
+  watch(supabaseHiddenMonths, (newHiddenMonths) => {
+    hiddenMonths.value = new Set(newHiddenMonths)
+  }, { immediate: true })
+
+  watch(supabaseFilters, (newFilters) => {
+    filters.value = { ...newFilters }
+  }, { immediate: true })
+
+  // Legacy methods for backward compatibility
   const loadFromStorage = (): void => {
-    try {
-      // Load records
-      const storedRecords = localStorage.getItem(STORAGE_KEY)
-      if (storedRecords) {
-        records.value = JSON.parse(storedRecords)
-      }
-
-      // Load hidden months
-      const storedHiddenMonths = localStorage.getItem(HIDDEN_MONTHS_KEY)
-      if (storedHiddenMonths) {
-        hiddenMonths.value = new Set(JSON.parse(storedHiddenMonths))
-      }
-
-      // Load filters
-      const storedFilters = localStorage.getItem(FILTERS_KEY)
-      if (storedFilters) {
-        filters.value = { ...filters.value, ...JSON.parse(storedFilters) }
-      }
-    } catch (error) {
-      // Error loading data from storage - silent in production
-    }
+    // Now loads from Supabase instead of localStorage
+    loadData()
   }
 
   const saveToStorage = (): void => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(records.value))
-      localStorage.setItem(HIDDEN_MONTHS_KEY, JSON.stringify(Array.from(hiddenMonths.value)))
-      localStorage.setItem(FILTERS_KEY, JSON.stringify(filters.value))
-    } catch (error) {
-      // Error saving data to storage - silent in production
-    }
+    // Now saves to Supabase instead of localStorage
+    saveSettings()
   }
 
   // ===========================================
@@ -271,7 +285,7 @@ export const useFinanceStore = defineStore('finance', () => {
 
   // Smart month projection settings (SIMPLIFIED)
   const projectionSettings = ref({
-    includePastMonths: 0,    // Por padrão: sem meses passados
+    includePastMonths: 24,   // Por padrão: inclui 24 meses passados para mostrar todos os dados históricos
     includeFutureMonths: 3,  // Próximos 3 meses por padrão
     maxFutureMonths: 12      // Máximo 12 meses no futuro
   })
@@ -380,58 +394,80 @@ export const useFinanceStore = defineStore('finance', () => {
   // ACTIONS - RECORD MANAGEMENT
   // ===========================================
 
-  const addRecord = (recordData: IFinanceFormData): boolean => {
-    try {
-      const validatedRecord = financeRecordSchema.parse(recordData)
-      records.value.push(validatedRecord)
-      saveToStorage()
-      return true
-    } catch (error) {
-      return false
-    }
-  }
+  // NOTE: addRecord now uses addSupabaseRecord from useSupabaseFinance
 
-  const updateRecord = (index: number, updatedData: Partial<IFinanceRecord>): boolean => {
+  const updateRecord = async (index: number, updatedData: Partial<IFinanceRecord>): Promise<boolean> => {
     try {
       if (index < 0 || index >= records.value.length) {
+        console.error('❌ [STORE_UPDATE] Invalid index:', { index, totalRecords: records.value.length })
         return false
       }
 
       const currentRecord = records.value[index]
+      console.log('🏪 [STORE_UPDATE] Updating record:', {
+        index,
+        currentRecord: { desc: currentRecord.Descrição, date: currentRecord.Data, status: currentRecord.Status, hasRecurrence: !!currentRecord.recurrence },
+        updatedData: { desc: updatedData.Descrição, status: updatedData.Status, hasRecurrence: !!updatedData.recurrence },
+        totalRecordsInStore: records.value.length,
+        storeRecordsDesc: records.value.map((r, i) => `${i}: ${r.Descrição}`)
+      })
+
       const mergedRecord = { ...currentRecord, ...updatedData }
+
+      // DEBUG: Log what happens to recurrence data during validation
+      console.log('🔍 [STORE_DEBUG] Before Zod validation:', {
+        currentRecordHasRecurrence: !!currentRecord.recurrence,
+        currentRecurrenceId: currentRecord.recurrence?.recurrenceId,
+        mergedRecordHasRecurrence: !!mergedRecord.recurrence,
+        mergedRecurrenceId: mergedRecord.recurrence?.recurrenceId,
+        updatedDataHasRecurrence: !!updatedData.recurrence
+      })
+
       const validatedRecord = financeRecordSchema.parse(mergedRecord)
 
-      records.value[index] = validatedRecord
-      saveToStorage()
+      console.log('🔍 [STORE_DEBUG] After Zod validation:', {
+        validatedRecordHasRecurrence: !!validatedRecord.recurrence,
+        validatedRecurrenceId: validatedRecord.recurrence?.recurrenceId,
+        wasRecurrenceRemoved: !!mergedRecord.recurrence && !validatedRecord.recurrence
+      })
+
+      // Use Supabase update function instead of local manipulation
+      await updateSupabaseRecord(index, validatedRecord)
       return true
     } catch (error) {
+      console.error('❌ [STORE] Erro ao atualizar registro:', error)
       return false
     }
   }
 
-  const removeRecord = (index: number): boolean => {
+  const removeRecord = async (index: number): Promise<boolean> => {
     try {
       if (index < 0 || index >= records.value.length) {
         return false
       }
 
-      const newRecords = [...records.value]
-      newRecords.splice(index, 1)
-      records.value = newRecords
-      saveToStorage()
+      // Use Supabase delete function instead of local manipulation
+      await deleteSupabaseRecord(index)
       return true
     } catch (error) {
+      console.error('❌ [STORE] Erro ao remover registro:', error)
       return false
     }
   }
 
-  const importRecords = (newRecords: IFinanceRecord[]): boolean => {
+  const importRecords = async (newRecords: IFinanceRecord[]): Promise<boolean> => {
     try {
       const validatedRecords = newRecords.map(record => financeRecordSchema.parse(record))
-      records.value.push(...validatedRecords)
-      saveToStorage()
+
+      console.log('📥 [STORE] Importing records via batch insert:', validatedRecords.length)
+
+      // Use batch insert to Supabase instead of just local storage
+      await addSupabaseRecordsBatch(validatedRecords)
+
+      console.log('✅ [STORE] Successfully imported records to Supabase')
       return true
     } catch (error) {
+      console.error('❌ [STORE] Error importing records:', error)
       return false
     }
   }
@@ -552,10 +588,8 @@ export const useFinanceStore = defineStore('finance', () => {
       sortDirection: 'desc'
     }
 
-    // Clear storage
-    localStorage.removeItem(STORAGE_KEY)
-    localStorage.removeItem(HIDDEN_MONTHS_KEY)
-    localStorage.removeItem(FILTERS_KEY)
+    // Storage is now managed by Supabase
+    console.log('🧹 [STORE] All data cleared')
   }
 
   const getStateSnapshot = () => {
@@ -596,7 +630,7 @@ export const useFinanceStore = defineStore('finance', () => {
     showDeleteConfirm.value = false
   }
 
-  const executeDelete = (): boolean => {
+  const executeDelete = async (): Promise<boolean> => {
     if (!itemToDelete.value) return false
 
     const { record, index } = itemToDelete.value
@@ -610,7 +644,7 @@ export const useFinanceStore = defineStore('finance', () => {
       }
 
       // Remove the record
-      const success = removeRecord(index)
+      const success = await removeRecord(index)
 
       if (success) {
         // Close delete modal
@@ -741,7 +775,7 @@ export const useFinanceStore = defineStore('finance', () => {
   // Functions moved to useRecurrenceHelpers composable
 
   // Modified saveEdit function to handle recurring records
-  const saveEdit = (): boolean => {
+  const saveEdit = async (): Promise<boolean> => {
     if (!editingRecord.value || originalEditIndex.value === -1) {
       // No record being edited - silent in production
       return false
@@ -784,17 +818,25 @@ export const useFinanceStore = defineStore('finance', () => {
           const generatedRecords = generateRecurringRecordsForEdit(baseRecord, tempRecurrenceSettings)
 
           if (generatedRecords.length > 0) {
+            console.log('💾 [EDIT] Saving generated recurring records to Supabase:', generatedRecords.length)
+
             // Remove the original record
             records.value.splice(originalEditIndex.value, 1)
 
-            // Add all generated records (including the updated original)
-            generatedRecords.forEach(record => {
-              records.value.push({ ...record, Saldo: 0 })
-            })
+            // OPTIMIZATION: Use batch insert for multiple recurring records
+            // This ensures proper synchronization between Store and Supabase arrays
+            try {
+              await addSupabaseRecordsBatch(generatedRecords)
 
-            saveToStorage()
-            closeEditSheet()
-            return true
+              console.log('✅ [EDIT] All recurring records saved to Supabase successfully via batch insert')
+              closeEditSheet()
+              return true
+            } catch (error) {
+              console.error('❌ [EDIT] Error saving recurring records to Supabase:', error)
+              // Restore the original record if save failed
+              records.value.splice(originalEditIndex.value, 0, originalRecord)
+              return false
+            }
           }
         } else {
           // Update existing recurrence metadata
@@ -823,16 +865,48 @@ export const useFinanceStore = defineStore('finance', () => {
 
         if (shouldUpdateAll) {
           // Update all linked recurring records
-          const batchUpdateSuccess = updateAllLinkedRecurringRecords(originalRecord, {
+          const batchUpdateSuccess = await updateAllLinkedRecurringRecords(originalRecord, {
+            Data: updatedRecord.Data, // 🔥 CRITICAL FIX: Include date for proper date offset calculation
             Descrição: updatedRecord.Descrição,
             Valor: updatedRecord.Valor,
             Tipo: updatedRecord.Tipo,
             Categoria: updatedRecord.Categoria,
             Status: updatedRecord.Status,
             recurrence: updatedRecord.recurrence
-          }, records, saveToStorage)
+          }, records, saveToStorage, {
+            skipAutoCorrection: false, // Allow auto-correction for full edits
+            isStatusOnlyChange: false
+          })
 
           if (batchUpdateSuccess) {
+            // 🔮 FUTURE GENERATION: Check and generate missing future records
+            if (originalRecord.recurrence?.recurrenceId) {
+              try {
+                const generatedCount = await generateMissingFutureRecords(
+                  originalRecord.recurrence.recurrenceId,
+                  records.value,
+                  saveToStorage
+                )
+
+                if (generatedCount > 0) {
+                  console.log(`✅ [EDIT] Generated ${generatedCount} missing future records for recurrence`)
+
+                  // Refresh data from Supabase to sync local store with new records
+                  const { useSupabaseFinance } = await import('../composables/useSupabaseFinance')
+                  const { loadData } = useSupabaseFinance()
+                  await loadData()
+
+                  // Notify user about generated records
+                  if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+                    console.log(`ℹ️ [EDIT] Adicionados ${generatedCount} registros futuros faltantes para completar a recorrência`)
+                  }
+                }
+              } catch (error) {
+                console.error('❌ [EDIT] Error generating missing future records:', error)
+                // Don't fail the edit because of this - it's an enhancement
+              }
+            }
+
             // ✨ AUTO CORRECTION: Apply corrections after batch update
             correctFutureRecordsAfterEdit(originalRecord, updatedRecord, records, saveToStorage, cleanInvalidRecurrences)
             closeEditSheet()
@@ -840,8 +914,30 @@ export const useFinanceStore = defineStore('finance', () => {
           }
         } else {
           // User declined batch update, just update the single record without auto-correction
-          const success = updateRecord(originalEditIndex.value, updatedRecord)
+          const success = await updateRecord(originalEditIndex.value, updatedRecord)
           if (success) {
+            // 🔮 FUTURE GENERATION: Even for single record updates, check for missing future records
+            if (originalRecord.recurrence?.recurrenceId) {
+              try {
+                const generatedCount = await generateMissingFutureRecords(
+                  originalRecord.recurrence.recurrenceId,
+                  records.value,
+                  saveToStorage
+                )
+
+                if (generatedCount > 0) {
+                  console.log(`✅ [EDIT] Generated ${generatedCount} missing future records (single record edit)`)
+
+                  // Refresh data from Supabase
+                  const { useSupabaseFinance } = await import('../composables/useSupabaseFinance')
+                  const { loadData } = useSupabaseFinance()
+                  await loadData()
+                }
+              } catch (error) {
+                console.error('❌ [EDIT] Error generating missing future records (single record):', error)
+              }
+            }
+
             editProcessed = true
             closeEditSheet()
             return true
@@ -853,7 +949,7 @@ export const useFinanceStore = defineStore('finance', () => {
       // Only continue if we haven't processed the edit yet
       if (!editProcessed) {
         // Update the single record using the store's updateRecord method
-        const success = updateRecord(originalEditIndex.value, updatedRecord)
+        const success = await updateRecord(originalEditIndex.value, updatedRecord)
 
         if (success) {
           // ✨ AUTO CORRECTION: Apply corrections after single record update (only for non-recurring)
@@ -905,6 +1001,9 @@ export const useFinanceStore = defineStore('finance', () => {
     saldoFinal,
     saldoPendente,
     saldoCompleto,
+    hiddenMonths,
+    filters,
+    isLoading: supabaseLoading,
 
     // Filter state
     filter: computed(() => filters.value.filter),
@@ -917,8 +1016,10 @@ export const useFinanceStore = defineStore('finance', () => {
     formErrors: computed(() => formErrors.value),
 
     // Actions - Records
-    addRecord,
+    addRecord: addSupabaseRecord,
+    addRecordsBatch: addSupabaseRecordsBatch,
     updateRecord,
+    updateRecordsBatch,
     removeRecord,
     importRecords,
     cleanInvalidRecurrences, // Add the new function to the return object
@@ -956,6 +1057,8 @@ export const useFinanceStore = defineStore('finance', () => {
     clearAllData,
     getStateSnapshot,
     restoreFromSnapshot,
+    loadFromStorage,
+    saveToStorage,
 
     // Actions - Modal
     showDeleteConfirm,

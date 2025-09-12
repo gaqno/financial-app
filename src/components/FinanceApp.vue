@@ -1,49 +1,42 @@
 <template>
-  <div class="min-h-screen bg-gray-50">
+  <div class="min-h-screen bg-gray-50 dark:bg-slate-900 theme-transition">
     <!-- Header with Tabs -->
-    <header class="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-50">
+    <header
+      class="bg-white dark:bg-slate-800 shadow-sm border-b border-gray-200 dark:border-slate-600 sticky top-0 z-40 theme-transition">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between items-center h-16">
           <div class="flex items-center">
-            <h1 class="text-xl font-bold text-gray-900">💰 FinanceApp</h1>
-          </div>
-          <div class="flex items-center space-x-2">
-            <span class="text-sm font-medium text-gray-600 hidden sm:block">
-              {{ currentActiveTab === 'transactions' ? 'Saldo:' : 'Carteira:' }}
-            </span>
-            <span 
-              :class="currentBalance < 0 ? 'text-red-600' : 'text-green-600'" 
-              class="text-sm font-semibold hidden sm:block"
-            >
-              {{ currentBalance.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) }}
-            </span>
+            <h1 class="text-xl font-bold text-gray-900 dark:text-slate-100">💰 FinanceApp</h1>
           </div>
         </div>
 
-        <!-- Tab Navigation -->
-        <div class="border-t border-gray-200">
-          <nav class="flex space-x-8" aria-label="Tabs">
-            <button
-              v-for="tab in tabs"
-              :key="tab.id"
-              @click="activeTab = tab.id"
-              :class="[
-                activeTab === tab.id
-                  ? 'border-blue-500 text-blue-600'
-                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300',
-                'whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm'
-              ]"
-            >
-              <span class="mr-2">{{ tab.icon }}</span>
-              {{ tab.label }}
-              <span 
-                v-if="tab.badge"
-                class="ml-2 bg-gray-100 text-gray-600 py-0.5 px-2 rounded-full text-xs"
-              >
-                {{ tab.badge }}
-              </span>
-            </button>
-          </nav>
+        <!-- Tab Navigation with Balance and Actions -->
+        <div class="border-t border-gray-200 dark:border-slate-600">
+          <div class="flex justify-between items-center">
+            <!-- Tabs -->
+            <NavigationTabs :tabs="tabs" :active-tab="activeTab" @update:active-tab="activeTab = $event" />
+
+            <!-- Balance and Actions -->
+            <div class="hidden md:flex items-center space-x-4">
+              <!-- Balance -->
+              <div class="flex items-center space-x-2">
+                <span class="text-sm font-medium text-gray-600 dark:text-slate-300">
+                  {{ currentActiveTab === 'transactions' ? 'Saldo:' : 'Carteira:' }}
+                </span>
+                <span :class="currentBalance < 0 ? 'text-red-600' : 'text-green-600'" class="text-lg font-semibold">
+                  {{ currentBalance.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) }}
+                </span>
+              </div>
+
+              <!-- New Record Button (only for transactions tab) -->
+              <button v-if="activeTab === 'transactions'" @click="handleNewRecord"
+                class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg font-medium transition-colors flex items-center gap-2 text-sm">
+                <i class="fas fa-plus-circle"></i>
+                <span class="hidden sm:inline">Novo Registro</span>
+                <span class="sm:hidden">+</span>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </header>
@@ -52,12 +45,12 @@
     <main>
       <!-- Transações Tab -->
       <div v-show="activeTab === 'transactions'">
-        <FinanceTable />
+        <FinanceTable ref="financeTableRef" />
       </div>
 
       <!-- Investimentos Tab -->
       <div v-show="activeTab === 'investments'">
-        <InvestmentDashboard />
+        <InvestmentDashboard ref="investmentDashboardRef" @portfolio-updated="handlePortfolioUpdate" />
       </div>
 
       <!-- Relatórios Tab (Placeholder) -->
@@ -85,15 +78,22 @@
 import { ref, computed } from 'vue';
 import FinanceTable from './FinanceTable.vue';
 import InvestmentDashboard from './investments/InvestmentDashboard.vue';
+import NavigationTabs from './navigation/NavigationTabs/index.vue';
 import { useFinanceStore } from '../stores/financeStore';
-import { useInvestments } from '../composables/useInvestments';
 
 // Composables - FIXED: Use store instead of composable to respect smart projection
 const store = useFinanceStore();
-const { totalPortfolioValue, investments } = useInvestments();
+
+// Investment data will be received from InvestmentDashboard component via ref
+const totalPortfolioValue = ref(0);
+const investmentCount = ref(0);
 
 // State
 const activeTab = ref('transactions');
+
+// Refs for child components
+const financeTableRef = ref<InstanceType<typeof FinanceTable> | null>(null);
+const investmentDashboardRef = ref<InstanceType<typeof InvestmentDashboard> | null>(null);
 
 // Tabs configuration
 const tabs = computed(() => [
@@ -107,7 +107,7 @@ const tabs = computed(() => [
     id: 'investments',
     label: 'Investimentos',
     icon: '📈',
-    badge: investments.value.length || null
+    badge: investmentCount.value || null
   },
   {
     id: 'reports',
@@ -131,10 +131,23 @@ const currentBalance = computed(() => {
       return 0;
   }
 });
+
+// Methods
+const handleNewRecord = () => {
+  // Open the create sheet in FinanceTable
+  if (financeTableRef.value) {
+    financeTableRef.value.openCreateSheet();
+  }
+};
+
+const handlePortfolioUpdate = (data: { totalValue: number; count: number }) => {
+  totalPortfolioValue.value = data.totalValue;
+  investmentCount.value = data.count;
+};
 </script>
 
 <script lang="ts">
 export default {
   name: 'FinanceApp'
 };
-</script> 
+</script>
