@@ -1,0 +1,16 @@
+{
+    "name": "por.quinho",
+    "short_name": "porquinho",
+    "description": "De pouco em pouco se enche o porquinho - Aplicação de gestão financeira pessoal",
+    "icons": [
+        {
+            "src": "/favicon.svg",
+            "sizes": "any",
+            "type": "image/svg+xml"
+        }
+    ],
+    "theme_color": "#EC4899",
+    "background_color": "#FFB6C1",
+    "display": "standalone",
+    "start_url": "/"
+}

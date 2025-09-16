@@ -8,17 +8,17 @@
 </template>
 
 <script setup lang="ts">
-import type { IAuthError } from '../../types/auth'
+  import type { IAuthError } from '../../types/auth';
 
-interface Props {
-  error: IAuthError | null
-}
+  interface Props {
+    error: IAuthError | null;
+  }
 
-defineProps<Props>()
+  defineProps<Props>();
 </script>
 
 <style scoped>
-.error-message {
-  @apply bg-red-50 border border-red-200 rounded-lg p-3;
-}
+  .error-message {
+    @apply bg-red-50 border border-red-200 rounded-lg p-3;
+  }
 </style>

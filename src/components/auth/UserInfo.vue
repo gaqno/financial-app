@@ -17,30 +17,30 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
-import UserAvatar from './UserAvatar.vue'
-import type { IUser } from '../../types/auth'
+  import { computed } from 'vue';
+  import UserAvatar from './UserAvatar.vue';
+  import type { IUser } from '../../types/auth';
 
-interface Props {
-  user?: IUser | null
-  showDetails?: boolean
-  showRole?: boolean
-  avatarSize?: 'sm' | 'md' | 'lg' | 'xl'
-}
+  interface Props {
+    user?: IUser | null;
+    showDetails?: boolean;
+    showRole?: boolean;
+    avatarSize?: 'sm' | 'md' | 'lg' | 'xl';
+  }
 
-const props = withDefaults(defineProps<Props>(), {
-  showDetails: true,
-  showRole: false,
-  avatarSize: 'md'
-})
+  const props = withDefaults(defineProps<Props>(), {
+    showDetails: true,
+    showRole: false,
+    avatarSize: 'md',
+  });
 
-const displayName = computed(() => {
-  if (!props.user) return 'Usuário'
-  return props.user.fullName || props.user.email || 'Usuário'
-})
+  const displayName = computed(() => {
+    if (!props.user) return 'Usuário';
+    return props.user.fullName || props.user.email || 'Usuário';
+  });
 
-const userRole = computed(() => {
-  // Could be extended to get role from user metadata
-  return 'Usuário'
-})
+  const userRole = computed(() => {
+    // Could be extended to get role from user metadata
+    return 'Usuário';
+  });
 </script>

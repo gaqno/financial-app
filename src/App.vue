@@ -5,6 +5,6 @@
 </template>
 
 <script setup lang="ts">
-import PorQuinho from './components/PorQuinho.vue';
-import AuthGuard from './components/auth/AuthGuard.vue';
+  import PorQuinho from './components/PorQuinho.vue';
+  import AuthGuard from './components/auth/AuthGuard.vue';
 </script>

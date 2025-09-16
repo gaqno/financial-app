@@ -25,20 +25,22 @@ export const financeRecordSchema = z.object({
   Tipo: z.enum(['Receita', 'Despesa']),
   Categoria: z.string().optional(),
   Status: z.enum(['❌', '✔️', '⏰']),
-  Saldo: z.number().optional(),
-  recurrence: z.object({
-    frequency: z.enum(['mensal', 'semanal', 'quinzenal', 'trimestral']),
-    endDate: z.string(),
-    isActive: z.boolean(),
-    nextDate: z.string().optional(),
-    // New fields for better tracking
-    recurrenceId: z.string().optional(),
-    originalDate: z.string().optional(),
-    instanceNumber: z.number().optional(),
-    // Business day recurrence fields
-    isBusinessDayRecurrence: z.boolean().optional(),
-    businessDayNumber: z.number().optional(),
-  }).nullable().optional(),
+  recurrence: z
+    .object({
+      frequency: z.enum(['mensal', 'semanal', 'quinzenal', 'trimestral']),
+      endDate: z.string(),
+      isActive: z.boolean(),
+      nextDate: z.string().optional(),
+      // New fields for better tracking
+      recurrenceId: z.string().optional(),
+      originalDate: z.string().optional(),
+      instanceNumber: z.number().optional(),
+      // Business day recurrence fields
+      isBusinessDayRecurrence: z.boolean().optional(),
+      businessDayNumber: z.number().optional(),
+    })
+    .nullable()
+    .optional(),
 });
 
 // Type for finance record

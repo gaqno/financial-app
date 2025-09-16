@@ -12,4 +12,4 @@ app.use(pinia);
 // Configura formato brasileiro para inputs de data
 configureBrowserDateFormat();
 
-app.mount('#app'); 
+app.mount('#app');

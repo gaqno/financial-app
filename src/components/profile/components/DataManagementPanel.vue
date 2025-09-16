@@ -76,14 +76,13 @@
         <div class="space-y-4">
           <!-- Formato -->
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
-              Formato do Arquivo
-            </label>
+            <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2"> Formato do Arquivo </label>
             <div class="grid grid-cols-2 gap-3">
               <label class="relative">
                 <input v-model="exportOptions.format" type="radio" value="csv" class="sr-only peer" />
                 <div
-                  class="p-3 border border-gray-200 dark:border-slate-600 rounded-lg cursor-pointer peer-checked:border-pink-500 peer-checked:bg-pink-50 dark:peer-checked:bg-pink-900/20 transition-colors">
+                  class="p-3 border border-gray-200 dark:border-slate-600 rounded-lg cursor-pointer peer-checked:border-pink-500 peer-checked:bg-pink-50 dark:peer-checked:bg-pink-900/20 transition-colors"
+                >
                   <div class="flex items-center gap-2">
                     <i class="fas fa-file-csv text-green-500"></i>
                     <div>
@@ -97,7 +96,8 @@
               <label class="relative">
                 <input v-model="exportOptions.format" type="radio" value="xlsx" class="sr-only peer" />
                 <div
-                  class="p-3 border border-gray-200 dark:border-slate-600 rounded-lg cursor-pointer peer-checked:border-pink-500 peer-checked:bg-pink-50 dark:peer-checked:bg-pink-900/20 transition-colors">
+                  class="p-3 border border-gray-200 dark:border-slate-600 rounded-lg cursor-pointer peer-checked:border-pink-500 peer-checked:bg-pink-50 dark:peer-checked:bg-pink-900/20 transition-colors"
+                >
                   <div class="flex items-center gap-2">
                     <i class="fas fa-file-excel text-green-600"></i>
                     <div>
@@ -112,42 +112,53 @@
 
           <!-- Período -->
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
-              Período
-            </label>
+            <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2"> Período </label>
             <div class="grid grid-cols-2 gap-3">
               <div>
-                <label class="block text-xs text-gray-500 dark:text-slate-400 mb-1">Data Inicial</label>
-                <input v-model="exportOptions.dateRange.start" type="date"
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-slate-500 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 dark:bg-slate-700 dark:text-slate-100 transition-colors" />
+                <label class="block text-xs text-gray-500 dark:text-slate-400 mb-1"> Data Inicial </label>
+                <input
+                  v-model="exportOptions.dateRange.start"
+                  type="date"
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-slate-500 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 dark:bg-slate-700 dark:text-slate-100 transition-colors"
+                />
               </div>
               <div>
-                <label class="block text-xs text-gray-500 dark:text-slate-400 mb-1">Data Final</label>
-                <input v-model="exportOptions.dateRange.end" type="date"
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-slate-500 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 dark:bg-slate-700 dark:text-slate-100 transition-colors" />
+                <label class="block text-xs text-gray-500 dark:text-slate-400 mb-1"> Data Final </label>
+                <input
+                  v-model="exportOptions.dateRange.end"
+                  type="date"
+                  class="w-full px-3 py-2 border border-gray-300 dark:border-slate-500 rounded-lg focus:ring-2 focus:ring-pink-500 focus:border-pink-500 dark:bg-slate-700 dark:text-slate-100 transition-colors"
+                />
               </div>
             </div>
           </div>
 
           <!-- Incluir -->
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2">
-              Incluir nos Dados
-            </label>
+            <label class="block text-sm font-medium text-gray-700 dark:text-slate-300 mb-2"> Incluir nos Dados </label>
             <div class="space-y-2">
               <label class="flex items-center gap-2">
-                <input v-model="exportOptions.includeCategories" type="checkbox"
-                  class="rounded border-gray-300 text-pink-600 focus:ring-pink-500" />
+                <input
+                  v-model="exportOptions.includeCategories"
+                  type="checkbox"
+                  class="rounded border-gray-300 text-pink-600 focus:ring-pink-500"
+                />
                 <span class="text-sm text-gray-700 dark:text-slate-300">Categorias</span>
               </label>
               <label class="flex items-center gap-2">
-                <input v-model="exportOptions.includeRecurrence" type="checkbox"
-                  class="rounded border-gray-300 text-pink-600 focus:ring-pink-500" />
-                <span class="text-sm text-gray-700 dark:text-slate-300">Transações Recorrentes</span>
+                <input
+                  v-model="exportOptions.includeRecurrence"
+                  type="checkbox"
+                  class="rounded border-gray-300 text-pink-600 focus:ring-pink-500"
+                />
+                <span class="text-sm text-gray-700 dark:text-slate-300"> Transações Recorrentes </span>
               </label>
               <label class="flex items-center gap-2">
-                <input v-model="exportOptions.includeInvestments" type="checkbox"
-                  class="rounded border-gray-300 text-pink-600 focus:ring-pink-500" />
+                <input
+                  v-model="exportOptions.includeInvestments"
+                  type="checkbox"
+                  class="rounded border-gray-300 text-pink-600 focus:ring-pink-500"
+                />
                 <span class="text-sm text-gray-700 dark:text-slate-300">Investimentos</span>
               </label>
             </div>
@@ -156,8 +167,11 @@
 
         <!-- Botão de Exportar -->
         <div class="mt-6">
-          <button @click="exportData" :disabled="isExporting"
-            class="w-full bg-gradient-to-r from-green-500 to-emerald-500 text-white py-3 px-4 rounded-lg hover:from-green-600 hover:to-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2">
+          <button
+            @click="exportData"
+            :disabled="isExporting"
+            class="w-full bg-gradient-to-r from-green-500 to-emerald-500 text-white py-3 px-4 rounded-lg hover:from-green-600 hover:to-emerald-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2"
+          >
             <i v-if="isExporting" class="fas fa-spinner fa-spin"></i>
             <i v-else class="fas fa-download"></i>
             {{ isExporting ? 'Exportando...' : 'Exportar Dados' }}
@@ -170,8 +184,10 @@
               <span>{{ exportProgress }}%</span>
             </div>
             <div class="w-full bg-gray-200 dark:bg-slate-600 rounded-full h-2">
-              <div class="bg-green-500 h-2 rounded-full transition-all duration-300"
-                :style="{ width: `${exportProgress}%` }"></div>
+              <div
+                class="bg-green-500 h-2 rounded-full transition-all duration-300"
+                :style="{ width: `${exportProgress}%` }"
+              ></div>
             </div>
           </div>
         </div>
@@ -181,12 +197,8 @@
     <!-- Reset de Dados -->
     <div class="bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-red-200 dark:border-red-800">
       <div class="px-6 py-4 border-b border-red-200 dark:border-red-800">
-        <h3 class="text-lg font-semibold text-red-700 dark:text-red-400 flex items-center gap-2">
-          🗑️ Zona de Perigo
-        </h3>
-        <p class="text-sm text-red-600 dark:text-red-400 mt-1">
-          Ações irreversíveis que afetam seus dados
-        </p>
+        <h3 class="text-lg font-semibold text-red-700 dark:text-red-400 flex items-center gap-2">🗑️ Zona de Perigo</h3>
+        <p class="text-sm text-red-600 dark:text-red-400 mt-1">Ações irreversíveis que afetam seus dados</p>
       </div>
 
       <div class="p-6 space-y-4">
@@ -204,8 +216,11 @@
                 💡 Dica: Exporte seus dados antes de resetar para fazer backup
               </p>
             </div>
-            <button @click="confirmReset" :disabled="isResetting"
-              class="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 px-4 py-2 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2 text-sm">
+            <button
+              @click="confirmReset"
+              :disabled="isResetting"
+              class="bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800 px-4 py-2 rounded-lg hover:bg-red-100 dark:hover:bg-red-900/30 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2 text-sm"
+            >
               <i v-if="isResetting" class="fas fa-spinner fa-spin"></i>
               <i v-else class="fas fa-trash"></i>
               {{ isResetting ? 'Resetando...' : 'Resetar' }}
@@ -218,9 +233,7 @@
           <div class="flex items-start gap-3">
             <i class="fas fa-exclamation-triangle text-yellow-600 dark:text-yellow-400 mt-1"></i>
             <div class="text-sm">
-              <p class="font-medium text-yellow-800 dark:text-yellow-200 mb-1">
-                ⚠️ Antes de resetar, considere:
-              </p>
+              <p class="font-medium text-yellow-800 dark:text-yellow-200 mb-1">⚠️ Antes de resetar, considere:</p>
               <ul class="text-yellow-700 dark:text-yellow-300 space-y-1">
                 <li>• Exportar seus dados para backup</li>
                 <li>• Verificar se realmente precisa resetar tudo</li>
@@ -242,18 +255,16 @@
               <i class="fas fa-exclamation-triangle text-red-600 dark:text-red-400 text-xl"></i>
             </div>
             <div>
-              <h3 class="text-lg font-semibold text-gray-900 dark:text-slate-100">
-                Confirmar Reset
-              </h3>
-              <p class="text-sm text-gray-600 dark:text-slate-400">
-                Esta ação é irreversível
-              </p>
+              <h3 class="text-lg font-semibold text-gray-900 dark:text-slate-100">Confirmar Reset</h3>
+              <p class="text-sm text-gray-600 dark:text-slate-400">Esta ação é irreversível</p>
             </div>
           </div>
 
           <div class="mb-6">
             <p class="text-gray-700 dark:text-slate-300 mb-4">
-              Tem certeza que deseja resetar <strong>TODOS</strong> os seus dados? Isso inclui:
+              Tem certeza que deseja resetar
+              <strong>TODOS</strong>
+              os seus dados? Isso inclui:
             </p>
             <ul class="text-sm text-gray-600 dark:text-slate-400 space-y-1 mb-4">
               <li>• Todas as transações</li>
@@ -261,18 +272,20 @@
               <li>• Todas as configurações</li>
               <li>• Todos os dados de investimentos</li>
             </ul>
-            <p class="text-sm text-red-600 dark:text-red-400 font-medium">
-              ⚠️ Esta ação não pode ser desfeita!
-            </p>
+            <p class="text-sm text-red-600 dark:text-red-400 font-medium">⚠️ Esta ação não pode ser desfeita!</p>
           </div>
 
           <div class="flex gap-3">
-            <button @click="showResetModal = false"
-              class="flex-1 bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-slate-300 py-2 px-4 rounded-lg hover:bg-gray-200 dark:hover:bg-slate-600 transition-colors">
+            <button
+              @click="showResetModal = false"
+              class="flex-1 bg-gray-100 dark:bg-slate-700 text-gray-700 dark:text-slate-300 py-2 px-4 rounded-lg hover:bg-gray-200 dark:hover:bg-slate-600 transition-colors"
+            >
               Cancelar
             </button>
-            <button @click="executeReset"
-              class="flex-1 bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 transition-colors">
+            <button
+              @click="executeReset"
+              class="flex-1 bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 transition-colors"
+            >
               Sim, Resetar Tudo
             </button>
           </div>
@@ -283,114 +296,117 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-import { useDataManagement } from '../../../composables/profile/useDataManagement'
+  import { ref, computed, onMounted } from 'vue';
+  import { useDataManagement } from '../../../composables/profile/useDataManagement';
 
-// Hooks
-const {
-  isExporting,
-  isResetting,
-  exportProgress,
-  exportOptions,
-  exportAllData,
-  resetAllData,
-  getDataStatistics,
-  validateDateRange
-} = useDataManagement()
+  // Hooks
+  const {
+    isExporting,
+    isResetting,
+    exportProgress,
+    exportOptions,
+    exportAllData,
+    resetAllData,
+    getDataStatistics,
+    validateDateRange,
+  } = useDataManagement();
 
-// Estado local
-const showResetModal = ref(false)
+  // Estado local
+  const showResetModal = ref(false);
 
-// Dados estatísticos
-const dataStats = ref(getDataStatistics())
+  // Dados estatísticos
+  const dataStats = ref(getDataStatistics());
 
-// Computed
-const formatDateRange = () => {
-  const start = dataStats.value.dateRange.oldest
-  const end = dataStats.value.dateRange.newest
+  // Computed
+  const formatDateRange = () => {
+    const start = dataStats.value.dateRange.oldest;
+    const end = dataStats.value.dateRange.newest;
 
-  if (!start || start === '1900-01-01') return 'Nenhum dado'
+    if (!start || start === '1900-01-01') return 'Nenhum dado';
 
-  try {
-    const startDate = new Date(start)
-    const endDate = new Date(end)
+    try {
+      const startDate = new Date(start);
+      const endDate = new Date(end);
 
-    const formatOptions: Intl.DateTimeFormatOptions = {
-      month: 'short',
-      year: 'numeric'
+      const formatOptions: Intl.DateTimeFormatOptions = {
+        month: 'short',
+        year: 'numeric',
+      };
+
+      const startFormatted = startDate.toLocaleDateString('pt-BR', formatOptions);
+      const endFormatted = endDate.toLocaleDateString('pt-BR', formatOptions);
+
+      return `${startFormatted} - ${endFormatted}`;
+    } catch {
+      return 'Período inválido';
     }
+  };
 
-    const startFormatted = startDate.toLocaleDateString('pt-BR', formatOptions)
-    const endFormatted = endDate.toLocaleDateString('pt-BR', formatOptions)
+  // Métodos
+  const exportData = async () => {
+    if (!validateDateRange()) return;
 
-    return `${startFormatted} - ${endFormatted}`
-  } catch {
-    return 'Período inválido'
-  }
-}
+    const success = await exportAllData();
+    if (success) {
+      // Atualizar estatísticas após export
+      dataStats.value = getDataStatistics();
+    }
+  };
 
-// Métodos
-const exportData = async () => {
-  if (!validateDateRange()) return
+  const confirmReset = () => {
+    showResetModal.value = true;
+  };
 
-  const success = await exportAllData()
-  if (success) {
-    // Atualizar estatísticas após export
-    dataStats.value = getDataStatistics()
-  }
-}
+  const executeReset = async () => {
+    showResetModal.value = false;
 
-const confirmReset = () => {
-  showResetModal.value = true
-}
+    const success = await resetAllData();
+    if (success) {
+      // Atualizar estatísticas após reset
+      dataStats.value = getDataStatistics();
+    }
+  };
 
-const executeReset = async () => {
-  showResetModal.value = false
-
-  const success = await resetAllData()
-  if (success) {
-    // Atualizar estatísticas após reset
-    dataStats.value = getDataStatistics()
-  }
-}
-
-// Lifecycle
-onMounted(() => {
-  // Atualizar estatísticas ao montar o componente
-  dataStats.value = getDataStatistics()
-})
+  // Lifecycle
+  onMounted(() => {
+    // Atualizar estatísticas ao montar o componente
+    dataStats.value = getDataStatistics();
+  });
 </script>
 
 <script lang="ts">
-export default {
-  name: 'DataManagementPanel'
-}
+  export default {
+    name: 'DataManagementPanel',
+  };
 </script>
 
 <style scoped>
-/* Transições suaves */
-.transition-colors {
-  transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
-}
+  /* Transições suaves */
+  .transition-colors {
+    transition:
+      color 0.2s ease,
+      background-color 0.2s ease,
+      border-color 0.2s ease;
+  }
 
-.transition-all {
-  transition: all 0.2s ease;
-}
+  .transition-all {
+    transition: all 0.2s ease;
+  }
 
-/* Focus states */
-input:focus {
-  box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.1);
-}
+  /* Focus states */
+  input:focus {
+    box-shadow: 0 0 0 3px rgba(236, 72, 153, 0.1);
+  }
 
-/* Estilização do checkbox e radio */
-input[type="checkbox"]:checked,
-input[type="radio"]:checked {
-  background-color: #ec4899;
-  border-color: #ec4899;
-}
+  /* Estilização do checkbox e radio */
+  input[type='checkbox']:checked,
+  input[type='radio']:checked {
+    background-color: #ec4899;
+    border-color: #ec4899;
+  }
 
-/* Modal backdrop */
-.fixed.inset-0 {
-  backdrop-filter: blur(4px);
-}
+  /* Modal backdrop */
+  .fixed.inset-0 {
+    backdrop-filter: blur(4px);
+  }
 </style>

@@ -68,7 +68,9 @@
       <div class="relative">
         <!-- Modern iOS-style spinner -->
         <div
-          class="w-10 h-10 border-4 border-gray-200 dark:border-slate-600 rounded-full animate-spin border-t-blue-500">
+          class="w-10 h-10 border-4 border-gray-200 dark:border-slate-600 rounded-full animate-spin border-t-blue-500"
+        >
+          >
         </div>
 
         <!-- Pulse effect -->
@@ -77,18 +79,24 @@
 
       <div v-if="message" class="ml-4">
         <p class="text-gray-600 dark:text-slate-400 font-medium">{{ message }}</p>
-        <p v-if="submessage" class="text-sm text-gray-500 dark:text-slate-500">{{ submessage }}</p>
+        <p v-if="submessage" class="text-sm text-gray-500 dark:text-slate-500">
+          {{ submessage }}
+        </p>
       </div>
     </div>
 
     <!-- Pull to Refresh Indicator -->
-    <div v-else-if="type === 'pull-refresh'" :style="{ transform: `translateY(${pullDistance}px)` }"
-      class="flex items-center justify-center py-4 transition-transform duration-300">
-
+    <div
+      v-else-if="type === 'pull-refresh'"
+      :style="{ transform: `translateY(${pullDistance}px)` }"
+      class="flex items-center justify-center py-4 transition-transform duration-300"
+    >
+      >
       <div v-if="pullDistance < threshold" class="flex items-center space-x-3">
         <div
           class="w-6 h-6 border-2 border-gray-400 dark:border-slate-500 rounded-full border-t-blue-500 transition-transform duration-300"
-          :style="{ transform: `rotate(${pullDistance * 3}deg)` }"></div>
+          :style="{ transform: `rotate(${pullDistance * 3}deg)` }"
+        ></div>
         <span class="text-gray-600 dark:text-slate-400 text-sm">Puxe para atualizar</span>
       </div>
 
@@ -103,13 +111,16 @@
       <div class="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-gray-200 dark:border-slate-600">
         <div class="text-center mb-4">
           <div
-            class="w-16 h-16 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mx-auto mb-3">
+            class="w-16 h-16 bg-blue-100 dark:bg-blue-900 rounded-full flex items-center justify-center mx-auto mb-3"
+          >
             <i class="fas fa-cloud-upload-alt text-2xl text-blue-600 dark:text-blue-400"></i>
           </div>
-          <h3 class="text-lg font-semibold text-gray-900 dark:text-slate-100 mb-1">{{ message || 'Enviando arquivo' }}
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-slate-100 mb-1">
+            {{ message || 'Enviando arquivo' }}
           </h3>
-          <p class="text-sm text-gray-600 dark:text-slate-400">{{ submessage || 'Aguarde enquanto processamos seu
-            arquivo...' }}</p>
+          <p class="text-sm text-gray-600 dark:text-slate-400">
+            {{ submessage || 'Aguarde enquanto processamos seu arquivo...' }}
+          </p>
         </div>
 
         <!-- Progress Bar -->
@@ -121,7 +132,8 @@
           <div class="w-full bg-gray-200 dark:bg-slate-700 rounded-full h-2">
             <div
               class="bg-gradient-to-r from-blue-500 to-purple-600 h-2 rounded-full transition-all duration-300 ease-out"
-              :style="{ width: `${progress}%` }"></div>
+              :style="{ width: `${progress}%` }"
+            ></div>
           </div>
         </div>
 
@@ -129,7 +141,9 @@
         <div v-if="fileName" class="flex items-center space-x-3 p-3 bg-gray-50 dark:bg-slate-700 rounded-lg">
           <i class="fas fa-file-csv text-blue-600 dark:text-blue-400"></i>
           <div class="flex-1 min-w-0">
-            <p class="text-sm font-medium text-gray-900 dark:text-slate-100 truncate">{{ fileName }}</p>
+            <p class="text-sm font-medium text-gray-900 dark:text-slate-100 truncate">
+              {{ fileName }}
+            </p>
             <p class="text-xs text-gray-500 dark:text-slate-400">{{ fileSize }}</p>
           </div>
         </div>
@@ -142,13 +156,20 @@
         <div class="w-16 h-16 bg-red-100 dark:bg-red-900 rounded-full flex items-center justify-center mx-auto mb-4">
           <i class="fas fa-exclamation-triangle text-2xl text-red-600 dark:text-red-400"></i>
         </div>
-        <h3 class="text-lg font-semibold text-gray-900 dark:text-slate-100 mb-2">{{ message || 'Oops! Algo deu errado'
-          }}</h3>
-        <p class="text-sm text-gray-600 dark:text-slate-400 mb-4">{{ submessage || 'Tente novamente em alguns instantes'
-          }}</p>
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-slate-100 mb-2">
+          {{ message || 'Oops! Algo deu errado' }}
+          }}
+        </h3>
+        <p class="text-sm text-gray-600 dark:text-slate-400 mb-4">
+          {{ submessage || 'Tente novamente em alguns instantes' }}
+          }}
+        </p>
 
-        <button v-if="showRetry" @click="$emit('retry')"
-          class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-xl font-medium transition-colors">
+        <button
+          v-if="showRetry"
+          @click="$emit('retry')"
+          class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-xl font-medium transition-colors"
+        >
           <i class="fas fa-redo mr-2"></i>
           Tentar Novamente
         </button>
@@ -161,12 +182,18 @@
         <div class="w-20 h-20 bg-gray-100 dark:bg-slate-800 rounded-full flex items-center justify-center mx-auto mb-4">
           <i :class="emptyIcon || 'fas fa-inbox'" class="text-3xl text-gray-400 dark:text-slate-500"></i>
         </div>
-        <h3 class="text-lg font-semibold text-gray-900 dark:text-slate-100 mb-2">{{ message || 'Nada por aqui' }}</h3>
-        <p class="text-sm text-gray-600 dark:text-slate-400 mb-6">{{ submessage || 'Comece adicionando sua primeira
-          transação' }}</p>
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-slate-100 mb-2">
+          {{ message || 'Nada por aqui' }}
+        </h3>
+        <p class="text-sm text-gray-600 dark:text-slate-400 mb-6">
+          {{ submessage || 'Comece adicionando sua primeira transação' }}
+        </p>
 
-        <button v-if="showAction" @click="$emit('action')"
-          class="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 hover:scale-105">
+        <button
+          v-if="showAction"
+          @click="$emit('action')"
+          class="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-6 py-3 rounded-xl font-medium transition-all duration-200 hover:scale-105"
+        >
           <i class="fas fa-plus mr-2"></i>
           {{ actionText || 'Adicionar Agora' }}
         </button>
@@ -177,11 +204,16 @@
     <div v-else-if="type === 'success'" class="flex items-center justify-center py-12">
       <div class="text-center max-w-sm mx-auto px-4">
         <div
-          class="w-16 h-16 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center mx-auto mb-4 animate-bounce">
+          class="w-16 h-16 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center mx-auto mb-4 animate-bounce"
+        >
           <i class="fas fa-check text-2xl text-green-600 dark:text-green-400"></i>
         </div>
-        <h3 class="text-lg font-semibold text-gray-900 dark:text-slate-100 mb-2">{{ message || 'Sucesso!' }}</h3>
-        <p class="text-sm text-gray-600 dark:text-slate-400">{{ submessage || 'Operação realizada com sucesso' }}</p>
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-slate-100 mb-2">
+          {{ message || 'Sucesso!' }}
+        </h3>
+        <p class="text-sm text-gray-600 dark:text-slate-400">
+          {{ submessage || 'Operação realizada com sucesso' }}
+        </p>
       </div>
     </div>
 
@@ -189,12 +221,14 @@
     <div v-else-if="type === 'offline'" class="flex items-center justify-center py-12">
       <div class="text-center max-w-sm mx-auto px-4">
         <div
-          class="w-16 h-16 bg-orange-100 dark:bg-orange-900 rounded-full flex items-center justify-center mx-auto mb-4">
+          class="w-16 h-16 bg-orange-100 dark:bg-orange-900 rounded-full flex items-center justify-center mx-auto mb-4"
+        >
           <i class="fas fa-wifi text-2xl text-orange-600 dark:text-orange-400 transform rotate-45"></i>
         </div>
         <h3 class="text-lg font-semibold text-gray-900 dark:text-slate-100 mb-2">Sem conexão</h3>
-        <p class="text-sm text-gray-600 dark:text-slate-400 mb-4">Você está offline. Suas alterações serão sincronizadas
-          quando a conexão for restabelecida.</p>
+        <p class="text-sm text-gray-600 dark:text-slate-400 mb-4">
+          Você está offline. Suas alterações serão sincronizadas quando a conexão for restabelecida.
+        </p>
 
         <div class="flex items-center justify-center space-x-2 text-xs text-orange-600 dark:text-orange-400">
           <div class="w-2 h-2 bg-orange-500 rounded-full animate-pulse"></div>
@@ -206,100 +240,99 @@
 </template>
 
 <script setup lang="ts">
-// Props
-interface Props {
-  type: 'records' | 'search' | 'spinner' | 'pull-refresh' | 'upload' | 'error' | 'empty' | 'success' | 'offline'
-  count?: number
-  message?: string
-  submessage?: string
-  pullDistance?: number
-  threshold?: number
-  progress?: number
-  fileName?: string
-  fileSize?: string
-  showRetry?: boolean
-  showAction?: boolean
-  actionText?: string
-  emptyIcon?: string
-}
+  // Props
+  interface Props {
+    type: 'records' | 'search' | 'spinner' | 'pull-refresh' | 'upload' | 'error' | 'empty' | 'success' | 'offline';
+    count?: number;
+    message?: string;
+    submessage?: string;
+    pullDistance?: number;
+    threshold?: number;
+    progress?: number;
+    fileName?: string;
+    fileSize?: string;
+    showRetry?: boolean;
+    showAction?: boolean;
+    actionText?: string;
+    emptyIcon?: string;
+  }
 
-// Emits
-interface Emits {
-  retry: []
-  action: []
-}
+  // Emits
+  interface Emits {
+    retry: [];
+    action: [];
+  }
 
-withDefaults(defineProps<Props>(), {
-  count: 3,
-  pullDistance: 0,
-  threshold: 80,
-  progress: 0,
-  showRetry: true,
-  showAction: true
-})
+  withDefaults(defineProps<Props>(), {
+    count: 3,
+    pullDistance: 0,
+    threshold: 80,
+    progress: 0,
+    showRetry: true,
+    showAction: true,
+  });
 
-defineEmits<Emits>()
+  defineEmits<Emits>();
 </script>
 
 <style scoped>
-/* Enhanced animations */
-@keyframes shimmer {
-  0% {
-    background-position: -200px 0;
+  /* Enhanced animations */
+  @keyframes shimmer {
+    0% {
+      background-position: -200px 0;
+    }
+
+    100% {
+      background-position: calc(200px + 100%) 0;
+    }
   }
 
-  100% {
-    background-position: calc(200px + 100%) 0;
-  }
-}
-
-.animate-pulse {
-  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-}
-
-/* Skeleton shimmer effect */
-.animate-pulse>div {
-  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-  background-size: 200px 100%;
-  animation: shimmer 1.5s infinite;
-}
-
-.dark .animate-pulse>div {
-  background: linear-gradient(90deg, #374151 25%, #4b5563 50%, #374151 75%);
-  background-size: 200px 100%;
-}
-
-/* Smooth transitions for all states */
-.transition-all {
-  transition: all 0.3s ease;
-}
-
-/* Enhanced bounce animation for success */
-@keyframes bounce {
-
-  0%,
-  20%,
-  53%,
-  80%,
-  100% {
-    transform: translate3d(0, 0, 0);
+  .animate-pulse {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   }
 
-  40%,
-  43% {
-    transform: translate3d(0, -20px, 0);
+  /* Skeleton shimmer effect */
+  .animate-pulse > div {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200px 100%;
+    animation: shimmer 1.5s infinite;
   }
 
-  70% {
-    transform: translate3d(0, -10px, 0);
+  .dark .animate-pulse > div {
+    background: linear-gradient(90deg, #374151 25%, #4b5563 50%, #374151 75%);
+    background-size: 200px 100%;
   }
 
-  90% {
-    transform: translate3d(0, -4px, 0);
+  /* Smooth transitions for all states */
+  .transition-all {
+    transition: all 0.3s ease;
   }
-}
 
-.animate-bounce {
-  animation: bounce 1s ease infinite;
-}
+  /* Enhanced bounce animation for success */
+  @keyframes bounce {
+    0%,
+    20%,
+    53%,
+    80%,
+    100% {
+      transform: translate3d(0, 0, 0);
+    }
+
+    40%,
+    43% {
+      transform: translate3d(0, -20px, 0);
+    }
+
+    70% {
+      transform: translate3d(0, -10px, 0);
+    }
+
+    90% {
+      transform: translate3d(0, -4px, 0);
+    }
+  }
+
+  .animate-bounce {
+    animation: bounce 1s ease infinite;
+  }
 </style>

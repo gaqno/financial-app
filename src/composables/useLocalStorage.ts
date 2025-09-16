@@ -4,9 +4,7 @@ import type { Ref } from 'vue';
 export function useLocalStorage<T>(key: string, defaultValue: T) {
   // Try to get the value from localStorage
   const storedValue = localStorage.getItem(key);
-  const data = ref<T>(
-    storedValue ? JSON.parse(storedValue) : defaultValue
-  ) as Ref<T>;
+  const data = ref<T>(storedValue ? JSON.parse(storedValue) : defaultValue) as Ref<T>;
 
   // Watch for changes and update localStorage
   watch(
@@ -24,6 +22,6 @@ export function useLocalStorage<T>(key: string, defaultValue: T) {
 
   return {
     data,
-    clearStorage
+    clearStorage,
   };
-} 
+}

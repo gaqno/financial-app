@@ -11,5 +11,5 @@ export interface INavigationTabsProps {
 }
 
 export interface INavigationTabsEmits {
-  'update:activeTab': [tabId: string];
+  'update:active-tab': [tabId: string];
 }

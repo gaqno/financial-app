@@ -1,60 +1,65 @@
-import { reactive, computed } from 'vue'
+import { reactive, computed } from 'vue';
+import { useDarkMode } from '../useDarkMode';
+import { useToast } from '../useToast';
 
 interface IBusinessDayMode {
-  enabled: boolean
-  dayNumber: number
-  month: number
-  year: number
+  enabled: boolean;
+  dayNumber: number;
+  month: number;
+  year: number;
 }
 
 export function useBusinessDays() {
+  const { isDarkMode, themeClass } = useDarkMode();
+  const toast = useToast();
+
   // Business day mode states for different contexts
   const businessDayMode = reactive<IBusinessDayMode>({
     enabled: false,
     dayNumber: 1,
     month: new Date().getMonth() + 1,
-    year: new Date().getFullYear()
-  })
+    year: new Date().getFullYear(),
+  });
 
   const businessDayModeMultiple = reactive<IBusinessDayMode>({
     enabled: false,
     dayNumber: 1,
     month: new Date().getMonth() + 1,
-    year: new Date().getFullYear()
-  })
+    year: new Date().getFullYear(),
+  });
 
   const businessDayModeEdit = reactive<IBusinessDayMode>({
     enabled: false,
     dayNumber: 1,
     month: new Date().getMonth() + 1,
-    year: new Date().getFullYear()
-  })
+    year: new Date().getFullYear(),
+  });
 
   // Calculate business day for a given month and year
   const calculateBusinessDay = (year: number, month: number, dayNumber: number): string => {
-    const date = new Date(year, month - 1, 1)
-    let businessDaysCount = 0
+    const date = new Date(year, month - 1, 1);
+    let businessDaysCount = 0;
 
     while (businessDaysCount < dayNumber) {
-      const dayOfWeek = date.getDay()
+      const dayOfWeek = date.getDay();
 
       // Skip weekends (0 = Sunday, 6 = Saturday)
       if (dayOfWeek !== 0 && dayOfWeek !== 6) {
-        businessDaysCount++
+        businessDaysCount++;
       }
 
       if (businessDaysCount < dayNumber) {
-        date.setDate(date.getDate() + 1)
+        date.setDate(date.getDate() + 1);
 
         // If we've moved to the next month, stop
         if (date.getMonth() !== month - 1) {
-          break
+          break;
         }
       }
     }
 
-    return date.toISOString().split('T')[0]
-  }
+    return date.toISOString().split('T')[0];
+  };
 
   // Update date from business day for main form
   const updateDateFromBusinessDay = (): string => {
@@ -63,11 +68,11 @@ export function useBusinessDays() {
         businessDayMode.year,
         businessDayMode.month,
         businessDayMode.dayNumber
-      )
-      return calculatedDate
+      );
+      return calculatedDate;
     }
-    return ''
-  }
+    return '';
+  };
 
   // Update date from business day for multiple records
   const updateDateFromBusinessDayMultiple = (): string => {
@@ -76,11 +81,11 @@ export function useBusinessDays() {
         businessDayModeMultiple.year,
         businessDayModeMultiple.month,
         businessDayModeMultiple.dayNumber
-      )
-      return calculatedDate
+      );
+      return calculatedDate;
     }
-    return ''
-  }
+    return '';
+  };
 
   // Update date from business day for edit form
   const updateDateFromBusinessDayEdit = (): string => {
@@ -89,116 +94,147 @@ export function useBusinessDays() {
         businessDayModeEdit.year,
         businessDayModeEdit.month,
         businessDayModeEdit.dayNumber
-      )
-      return calculatedDate
+      );
+      return calculatedDate;
     }
-    return ''
-  }
+    return '';
+  };
 
   // Get business day description
   const getBusinessDayDescription = (mode: IBusinessDayMode): string => {
-    if (!mode.enabled) return ''
+    if (!mode.enabled) return '';
 
     const monthNames = [
-      'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
-      'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
-    ]
+      'Janeiro',
+      'Fevereiro',
+      'Março',
+      'Abril',
+      'Maio',
+      'Junho',
+      'Julho',
+      'Agosto',
+      'Setembro',
+      'Outubro',
+      'Novembro',
+      'Dezembro',
+    ];
 
-    const monthName = monthNames[mode.month - 1]
-    const ordinal = getOrdinalNumber(mode.dayNumber)
+    const monthName = monthNames[mode.month - 1];
+    const ordinal = getOrdinalNumber(mode.dayNumber);
 
-    return `${ordinal} dia útil de ${monthName}/${mode.year}`
-  }
+    return `${ordinal} dia útil de ${monthName}/${mode.year}`;
+  };
 
   // Get ordinal number (1º, 2º, 3º, etc.)
   const getOrdinalNumber = (num: number): string => {
-    return `${num}º`
-  }
+    return `${num}º`;
+  };
 
   // Month helpers
   const getMonthName = (monthNumber: number): string => {
     const months = [
-      'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
-      'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
-    ]
-    return months[monthNumber - 1] || ''
-  }
+      'Janeiro',
+      'Fevereiro',
+      'Março',
+      'Abril',
+      'Maio',
+      'Junho',
+      'Julho',
+      'Agosto',
+      'Setembro',
+      'Outubro',
+      'Novembro',
+      'Dezembro',
+    ];
+    return months[monthNumber - 1] || '';
+  };
 
   const getYearOptions = (): number[] => {
-    const currentYear = new Date().getFullYear()
-    const years = []
+    const currentYear = new Date().getFullYear();
+    const years = [];
     for (let year = currentYear - 2; year <= currentYear + 5; year++) {
-      years.push(year)
+      years.push(year);
     }
-    return years
-  }
+    return years;
+  };
 
   // Initialize business day mode with current date values
   const initBusinessDayMode = (currentDate?: string) => {
-    const date = new Date(currentDate || new Date())
-    businessDayMode.month = date.getMonth() + 1
-    businessDayMode.year = date.getFullYear()
-  }
+    const date = new Date(currentDate || new Date());
+    businessDayMode.month = date.getMonth() + 1;
+    businessDayMode.year = date.getFullYear();
+  };
 
   const initBusinessDayModeMultiple = (currentDate?: string) => {
-    const date = new Date(currentDate || new Date())
-    businessDayModeMultiple.month = date.getMonth() + 1
-    businessDayModeMultiple.year = date.getFullYear()
-  }
+    const date = new Date(currentDate || new Date());
+    businessDayModeMultiple.month = date.getMonth() + 1;
+    businessDayModeMultiple.year = date.getFullYear();
+  };
 
   const initBusinessDayModeEdit = (currentDate?: string) => {
-    const date = new Date(currentDate || new Date())
-    businessDayModeEdit.month = date.getMonth() + 1
-    businessDayModeEdit.year = date.getFullYear()
-  }
+    const date = new Date(currentDate || new Date());
+    businessDayModeEdit.month = date.getMonth() + 1;
+    businessDayModeEdit.year = date.getFullYear();
+  };
 
   // Reset to normal date input mode
   const resetToDateInput = () => {
-    businessDayMode.enabled = false
-  }
+    businessDayMode.enabled = false;
+  };
 
   const resetToDateInputMultiple = () => {
-    businessDayModeMultiple.enabled = false
-  }
+    businessDayModeMultiple.enabled = false;
+  };
 
   const resetToDateInputEdit = () => {
-    businessDayModeEdit.enabled = false
-  }
+    businessDayModeEdit.enabled = false;
+  };
 
   // Computed descriptions for each mode
-  const businessDayDescription = computed(() =>
-    getBusinessDayDescription(businessDayMode)
-  )
+  const businessDayDescription = computed(() => getBusinessDayDescription(businessDayMode));
 
-  const businessDayDescriptionMultiple = computed(() =>
-    getBusinessDayDescription(businessDayModeMultiple)
-  )
+  const businessDayDescriptionMultiple = computed(() => getBusinessDayDescription(businessDayModeMultiple));
 
-  const businessDayDescriptionEdit = computed(() =>
-    getBusinessDayDescription(businessDayModeEdit)
-  )
+  const businessDayDescriptionEdit = computed(() => getBusinessDayDescription(businessDayModeEdit));
 
-  // Toggle business day mode
+  // Enhanced toggle business day mode with UX feedback
   const toggleBusinessDayMode = () => {
-    businessDayMode.enabled = !businessDayMode.enabled
+    businessDayMode.enabled = !businessDayMode.enabled;
     if (businessDayMode.enabled) {
-      initBusinessDayMode()
+      initBusinessDayMode();
+      toast.info('Modo dia útil ativado', {
+        title: '📅 Dia Útil',
+        duration: 2000,
+      });
+    } else {
+      toast.info('Modo data normal ativado', {
+        title: '📅 Data Normal',
+        duration: 2000,
+      });
     }
-  }
+  };
 
   const toggleBusinessDayModeMultiple = () => {
-    businessDayModeMultiple.enabled = !businessDayModeMultiple.enabled
+    businessDayModeMultiple.enabled = !businessDayModeMultiple.enabled;
     if (businessDayModeMultiple.enabled) {
-      initBusinessDayModeMultiple()
+      initBusinessDayModeMultiple();
+      toast.info('Modo dia útil ativado para registros múltiplos', {
+        title: '📅 Dia Útil Múltiplo',
+        duration: 2000,
+      });
     }
-  }
+  };
 
   const toggleBusinessDayModeEdit = () => {
-    businessDayModeEdit.enabled = !businessDayModeEdit.enabled
+    businessDayModeEdit.enabled = !businessDayModeEdit.enabled;
     if (businessDayModeEdit.enabled) {
-      initBusinessDayModeEdit()
+      initBusinessDayModeEdit();
+      toast.info('Modo dia útil ativado para edição', {
+        title: '📅 Dia Útil - Edição',
+        duration: 2000,
+      });
     }
-  }
+  };
 
   return {
     // State
@@ -228,7 +264,7 @@ export function useBusinessDays() {
     resetToDateInputMultiple,
     resetToDateInputEdit,
 
-    // Toggle functions
+    // Enhanced toggle functions with UX feedback
     toggleBusinessDayMode,
     toggleBusinessDayModeMultiple,
     toggleBusinessDayModeEdit,
@@ -236,6 +272,13 @@ export function useBusinessDays() {
     // Helpers
     getMonthName,
     getYearOptions,
-    getOrdinalNumber
-  }
-} 
+    getOrdinalNumber,
+
+    // Dark mode and styling
+    isDarkMode,
+    themeClass,
+
+    // Enhanced toast system
+    toast,
+  };
+}

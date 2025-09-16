@@ -1,15 +1,20 @@
 import { ref, computed, watch } from 'vue';
-import type { IInvestment, IInvestmentTransaction, InvestmentTypeKey, IPortfolioAllocation, IProjection } from '../types/investments';
+import type {
+  IInvestment,
+  IInvestmentTransaction,
+  InvestmentTypeKey,
+  IPortfolioAllocation,
+  IProjection,
+} from '../types/investments';
 import { INVESTMENT_TYPES } from '../types/investments';
 import {
-  calculateCurrentValue,
   calculateReturnPercentage,
   calculateAnnualizedReturn,
   calculateBenchmarkComparison,
   calculateProjections,
   calculateInvestmentProjections,
   calculatePortfolioProjections,
-  PROJECTION_INTERVALS
+  PROJECTION_INTERVALS,
 } from '../utils/investmentCalculators';
 import { useSupabaseInvestments } from './useSupabaseInvestments';
 
@@ -28,26 +33,38 @@ export function useInvestments() {
     addInvestment: addSupabaseInvestment,
     updateInvestment: updateSupabaseInvestment,
     deleteInvestment: deleteSupabaseInvestment,
-    addTransaction: addSupabaseTransaction
-  } = useSupabaseInvestments()
+    addTransaction: addSupabaseTransaction,
+  } = useSupabaseInvestments();
 
   // Create reactive refs that sync with Supabase
-  const investments = ref<IInvestment[]>([])
-  const selectedInvestment = ref<IInvestment | null>(null)
-  const filter = ref<'all' | 'RENDA_FIXA' | 'RENDA_VARIAVEL' | 'FUNDOS'>('all')
+  const investments = ref<IInvestment[]>([]);
+  const selectedInvestment = ref<IInvestment | null>(null);
+  const filter = ref<'all' | 'RENDA_FIXA' | 'RENDA_VARIAVEL' | 'FUNDOS'>('all');
 
   // Sync with Supabase data
-  watch(supabaseInvestments, (newInvestments) => {
-    investments.value = [...newInvestments]
-  }, { immediate: true })
+  watch(
+    supabaseInvestments,
+    (newInvestments) => {
+      investments.value = [...newInvestments];
+    },
+    { immediate: true }
+  );
 
-  watch(supabaseSelectedInvestment, (newSelected) => {
-    selectedInvestment.value = newSelected
-  }, { immediate: true })
+  watch(
+    supabaseSelectedInvestment,
+    (newSelected) => {
+      selectedInvestment.value = newSelected;
+    },
+    { immediate: true }
+  );
 
-  watch(supabaseFilter, (newFilter) => {
-    filter.value = newFilter
-  }, { immediate: true })
+  watch(
+    supabaseFilter,
+    (newFilter) => {
+      filter.value = newFilter;
+    },
+    { immediate: true }
+  );
 
   // Gerar ID único (legacy function, now handled by Supabase)
   function generateId(): string {
@@ -60,37 +77,40 @@ export function useInvestments() {
   }
 
   // CRUD Operations - Updated to use Supabase
-  const addInvestment = async (investmentData: Omit<IInvestment, 'id' | 'createdAt' | 'updatedAt' | 'transactions'>): Promise<IInvestment> => {
-    return await addSupabaseInvestment(investmentData)
-  }
+  const addInvestment = async (
+    investmentData: Omit<IInvestment, 'id' | 'createdAt' | 'updatedAt' | 'transactions'>
+  ): Promise<IInvestment> => {
+    return await addSupabaseInvestment(investmentData);
+  };
 
   const updateInvestment = async (investmentId: string, updates: Partial<IInvestment>): Promise<void> => {
-    await updateSupabaseInvestment(investmentId, updates)
-  }
+    await updateSupabaseInvestment(investmentId, updates);
+  };
 
   const deleteInvestment = async (investmentId: string): Promise<void> => {
-    await deleteSupabaseInvestment(investmentId)
-  }
+    await deleteSupabaseInvestment(investmentId);
+  };
 
-  const addTransaction = async (investmentId: string, transaction: Omit<IInvestmentTransaction, 'id' | 'investmentId'>): Promise<IInvestmentTransaction> => {
-    return await addSupabaseTransaction(investmentId, transaction)
-  }
+  const addTransaction = async (
+    investmentId: string,
+    transaction: Omit<IInvestmentTransaction, 'id' | 'investmentId'>
+  ): Promise<IInvestmentTransaction> => {
+    return await addSupabaseTransaction(investmentId, transaction);
+  };
 
   // Calculated properties using Supabase data
-  const totalPortfolioValue = computed(() => supabaseTotalPortfolioValue.value)
-  const totalInvested = computed(() => supabaseTotalInvested.value)
-  const totalReturn = computed(() => supabaseTotalReturn.value)
-  const returnPercentage = computed(() => supabaseReturnPercentage.value)
+  const totalPortfolioValue = computed(() => supabaseTotalPortfolioValue.value);
+  const totalInvested = computed(() => supabaseTotalInvested.value);
+  const totalReturn = computed(() => supabaseTotalReturn.value);
+  const returnPercentage = computed(() => supabaseReturnPercentage.value);
 
   // Filtered investments
-  const filteredInvestments = computed(() => supabaseFilteredInvestments.value)
+  const filteredInvestments = computed(() => supabaseFilteredInvestments.value);
 
   // Performance metrics for individual investment
   function getInvestmentMetrics(investment: IInvestment) {
     const returnValue = investment.currentAmount - investment.appliedAmount;
-    const returnPercentage = investment.appliedAmount > 0
-      ? (returnValue / investment.appliedAmount) * 100
-      : 0;
+    const returnPercentage = investment.appliedAmount > 0 ? (returnValue / investment.appliedAmount) * 100 : 0;
 
     const annualizedReturn = calculateAnnualizedReturn(
       investment.appliedAmount,
@@ -107,23 +127,33 @@ export function useInvestments() {
       totalReturn: returnValue,
       percentReturn: returnPercentage,
       annualizedReturn,
-      benchmarkComparison
+      benchmarkComparison,
     };
   }
 
   // Portfolio allocation by category
   const portfolioAllocation = computed((): IPortfolioAllocation[] => {
-    const categoryTotals = investments.value.reduce((acc, investment) => {
-      const type = INVESTMENT_TYPES[investment.type];
-      const category = type.category;
+    const categoryTotals = investments.value.reduce(
+      (acc, investment) => {
+        const type = INVESTMENT_TYPES[investment.type];
 
-      if (!acc[category]) {
-        acc[category] = 0;
-      }
-      acc[category] += investment.currentAmount;
+        // ✅ DEFENSIVE PROGRAMMING: Handle undefined investment types
+        if (!type) {
+          console.warn(`🚨 [INVESTMENTS] Unknown investment type: ${investment.type}`, investment);
+          return acc; // Skip this investment if type is not found
+        }
 
-      return acc;
-    }, {} as Record<string, number>);
+        const category = type.category;
+
+        if (!acc[category]) {
+          acc[category] = 0;
+        }
+        acc[category] += investment.currentAmount;
+
+        return acc;
+      },
+      {} as Record<string, number>
+    );
 
     const total = Object.values(categoryTotals).reduce((sum, value) => sum + value, 0);
 
@@ -133,7 +163,7 @@ export function useInvestments() {
         category,
         amount,
         percentage: total > 0 ? (amount / total) * 100 : 0,
-        color: colors[index % colors.length]
+        color: colors[index % colors.length],
       };
     });
   });
@@ -149,11 +179,7 @@ export function useInvestments() {
   }
 
   // 🚀 NOVA FUNCIONALIDADE: Simular novo investimento (sem persistir)
-  function simulateInvestment(
-    amount: number,
-    yieldType: string,
-    yieldRate: number
-  ): IProjection[] {
+  function simulateInvestment(amount: number, yieldType: string, yieldRate: number): IProjection[] {
     return calculateProjections(amount, yieldType, yieldRate);
   }
 
@@ -216,6 +242,6 @@ export function useInvestments() {
 
     // Constants
     INVESTMENT_TYPES,
-    PROJECTION_INTERVALS
+    PROJECTION_INTERVALS,
   };
 }

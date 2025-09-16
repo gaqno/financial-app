@@ -1,75 +1,75 @@
-import { computed } from 'vue'
-import { useFinanceStore } from '../../stores/financeStore'
-import { useCategoryDetection } from '../useCategoryDetection'
-import { formatDateForDisplay, getCurrentDateISO } from '../../utils/dateUtils'
-import type { IFinanceRecord } from '../../types/finance'
+import { computed } from 'vue';
+import { useFinanceStore } from '../../stores/financeStore';
+import { useCategoryDetection } from '../useCategoryDetection';
+import { useDarkMode } from '../useDarkMode';
+import { useToast } from '../useToast';
+import { formatDateForDisplay, getCurrentDateISO } from '../../utils/dateUtils';
+import type { IFinanceRecord } from '../../types/finance';
 
 export function useFinanceTable() {
   // FIXED: Use store instead of composable to respect smart projection
-  const store = useFinanceStore()
+  const store = useFinanceStore();
+  const { isDarkMode, themeClass } = useDarkMode();
+  const toast = useToast();
 
-  const { detectCategory, getAllCategories, getCategoryIcon } = useCategoryDetection()
+  const { detectCategory, getAllCategories, getCategoryIcon } = useCategoryDetection();
 
   // Computed properties for table display - FIXED: Use store data that respects projection
-  const totalRecords = computed(() => store.records.length)
+  const totalRecords = computed(() => store.records.length);
 
   const recordsByCategory = computed(() => {
-    const categories: Record<string, IFinanceRecord[]> = {}
-    store.records.forEach(record => {
-      const category = record.Categoria || 'Sem categoria'
+    const categories: Record<string, IFinanceRecord[]> = {};
+    store.records.forEach((record) => {
+      const category = record.Categoria || 'Sem categoria';
       if (!categories[category]) {
-        categories[category] = []
+        categories[category] = [];
       }
-      categories[category].push(record)
-    })
-    return categories
-  })
+      categories[category].push(record);
+    });
+    return categories;
+  });
 
   const monthlyTotals = computed(() => {
-    const totals: Record<string, { receitas: number; despesas: number; saldo: number }> = {}
+    const totals: Record<string, { receitas: number; despesas: number; saldo: number }> = {};
 
     Object.entries(store.groupedByMonth).forEach(([monthKey, records]) => {
-      const receitas = records
-        .filter(r => r.Tipo === 'Receita')
-        .reduce((sum, r) => sum + r.Valor, 0)
+      const receitas = records.filter((r) => r.Tipo === 'Receita').reduce((sum, r) => sum + r.Valor, 0);
 
-      const despesas = records
-        .filter(r => r.Tipo === 'Despesa')
-        .reduce((sum, r) => sum + Math.abs(r.Valor), 0)
+      const despesas = records.filter((r) => r.Tipo === 'Despesa').reduce((sum, r) => sum + Math.abs(r.Valor), 0);
 
       totals[monthKey] = {
         receitas,
         despesas,
-        saldo: receitas - despesas
-      }
-    })
+        saldo: receitas - despesas,
+      };
+    });
 
-    return totals
-  })
+    return totals;
+  });
 
   // Helper functions
   const isRecurringRecord = (record: IFinanceRecord): boolean => {
-    return !!(record.recurrence && record.recurrence.isActive)
-  }
+    return !!(record.recurrence && record.recurrence.isActive);
+  };
 
   const formatDate = (dateStr: string): string => {
-    return formatDateForDisplay(dateStr)
-  }
+    return formatDateForDisplay(dateStr);
+  };
 
   const formatCurrency = (value: number): string => {
     return value.toLocaleString('pt-BR', {
       style: 'currency',
-      currency: 'BRL'
-    })
-  }
+      currency: 'BRL',
+    });
+  };
 
   const getValueColor = (value: number): string => {
-    return value < 0 ? 'text-red-600' : 'text-green-600'
-  }
+    return value < 0 ? 'text-red-600' : 'text-green-600';
+  };
 
   const getCurrentDate = (): string => {
-    return getCurrentDateISO()
-  }
+    return getCurrentDateISO();
+  };
 
   return {
     // State
@@ -97,6 +97,13 @@ export function useFinanceTable() {
     getCategoryIcon,
 
     // Recurrence
-    recurrence: store.recurrence // Expose store recurrence directly
-  }
-} 
+    recurrence: store.recurrence, // Expose store recurrence directly
+
+    // Dark mode and styling
+    isDarkMode,
+    themeClass,
+
+    // Enhanced toast system
+    toast,
+  };
+}

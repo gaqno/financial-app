@@ -83,6 +83,42 @@
   .dark ::-webkit-scrollbar-thumb:hover {
     background: rgb(var(--color-text-tertiary));
   }
+
+  /* Dark mode toast notifications */
+  .dark .toast-notification {
+    background-color: rgb(var(--color-bg-secondary));
+    border-color: rgb(var(--color-border));
+    color: rgb(var(--color-text-primary));
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3),
+      0 4px 6px -2px rgba(0, 0, 0, 0.1);
+  }
+
+  /* Z-index hierarchy for dark mode components */
+  .dark .dark-mode-toggle {
+    z-index: 60;
+  }
+
+  .dark .user-header {
+    z-index: 50;
+  }
+
+  .dark .toast-container {
+    z-index: 9999;
+  }
+
+  /* Enhanced focus states for accessibility */
+  .dark *:focus {
+    outline: 2px solid rgb(59 130 246);
+    outline-offset: 2px;
+  }
+
+  .dark button:focus,
+  .dark input:focus,
+  .dark select:focus,
+  .dark textarea:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+  }
 }
 
 /* Custom utility classes for dark mode */

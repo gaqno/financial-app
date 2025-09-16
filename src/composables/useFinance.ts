@@ -1,39 +1,35 @@
-import { ref, computed, watch } from 'vue';
+import { ref, computed } from 'vue';
 import { financeRecordSchema, financeFormSchema } from '../types/finance';
-import type { IFinanceRecord, IFinanceFormData, IFilter, IFinanceRecordWithMonth } from '../types/finance';
+import type { IFinanceRecord, IFinanceFormData } from '../types/finance';
 import { useFinanceStore } from '../stores/financeStore';
 import { useRecurrence } from './useRecurrence';
 
-const STORAGE_KEY = 'financeData';
-
-type SortField = 'Data' | 'Descrição' | 'Valor' | 'Tipo' | 'Categoria' | 'Status';
-type SortDirection = 'asc' | 'desc';
 
 export function useFinance() {
   // Use store instead of direct Supabase access to avoid multiple instances
-  const store = useFinanceStore()
+  const store = useFinanceStore();
 
   // Use store data directly instead of creating duplicates (with safety checks)
-  const storedData = computed(() => store.records || [])
-  const hiddenMonths = computed(() => store.hiddenMonths || new Set())
-  const filter = computed(() => store.filter || 'all')
-  const categoryFilter = computed(() => store.categoryFilter || '')
-  const sortField = computed(() => store.sortField || 'Data')
-  const sortDirection = computed(() => store.sortDirection || 'desc')
+  const storedData = computed(() => store.records || []);
+  const hiddenMonths = computed(() => store.hiddenMonths || new Set());
+  const filter = computed(() => store.filter || 'all');
+  const categoryFilter = computed(() => store.categoryFilter || '');
+  const sortField = computed(() => store.sortField || 'Data');
+  const sortDirection = computed(() => store.sortDirection || 'desc');
 
   // Legacy clearStorage methods for backward compatibility
   const clearStorage = () => {
     // Now uses store methods
-    store.clearAllData()
-  }
+    store.clearAllData();
+  };
   const clearHiddenMonthsStorage = () => {
-    store.showAllMonths()
-  }
+    store.showAllMonths();
+  };
   const clearFiltersStorage = () => {
-    store.setFilter('all')
-    store.clearCategoryFilter()
-    store.setSorting('Data', 'desc')
-  }
+    store.setFilter('all');
+    store.clearCategoryFilter();
+    store.setSorting('Data', 'desc');
+  };
 
   const editingItems = ref<Set<number>>(new Set());
   const formErrors = ref<Record<string, string>>({});
@@ -42,10 +38,10 @@ export function useFinance() {
   // These watchers are maintained for component compatibility
 
   // Initialize recurrence functionality
-  const recurrence = useRecurrence({ addRecord: store.addRecord });
+  const recurrence = useRecurrence();
 
   // Main computed property - use store sortedData
-  const sortedData = computed(() => store.sortedData)
+  const sortedData = computed(() => store.sortedData);
 
   // Form validation functions
   const validateFinanceRecord = (record: IFinanceRecord) => {
@@ -73,7 +69,7 @@ export function useFinance() {
     formErrors,
     isLoading: store.isLoading,
 
-    // Storage operations  
+    // Storage operations
     clearStorage,
     clearHiddenMonthsStorage,
     clearFiltersStorage,

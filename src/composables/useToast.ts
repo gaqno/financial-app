@@ -1,25 +1,25 @@
-import { ref, computed } from 'vue'
-import type { IToast, IToastOptions } from '../types/toast'
+import { ref, computed } from 'vue';
+import type { IToast, IToastOptions } from '../types/toast';
 
 // Estado global do toast
-const toasts = ref<IToast[]>([])
+const toasts = ref<IToast[]>([]);
 
-let toastCounter = 0
+let toastCounter = 0;
 
 /**
  * Composable para gerenciar sistema de toast/notificações
- * 
+ *
  * Permite exibir mensagens temporárias na tela para feedback do usuário
  */
 export function useToast() {
   // Computed
-  const visibleToasts = computed(() => toasts.value)
-  const hasToasts = computed(() => toasts.value.length > 0)
+  const visibleToasts = computed(() => toasts.value);
+  const hasToasts = computed(() => toasts.value.length > 0);
 
   // Métodos privados
   const generateId = (): string => {
-    return `toast-${++toastCounter}-${Date.now()}`
-  }
+    return `toast-${++toastCounter}-${Date.now()}`;
+  };
 
   const createToast = (message: string, options: IToastOptions = {}): IToast => {
     return {
@@ -29,55 +29,55 @@ export function useToast() {
       message,
       duration: options.duration || (options.type === 'error' ? 5000 : 3000),
       persistent: options.persistent || false,
-      createdAt: new Date()
-    }
-  }
+      createdAt: new Date(),
+    };
+  };
 
   const removeToast = (id: string) => {
-    const index = toasts.value.findIndex(toast => toast.id === id)
+    const index = toasts.value.findIndex((toast) => toast.id === id);
     if (index > -1) {
-      toasts.value.splice(index, 1)
+      toasts.value.splice(index, 1);
     }
-  }
+  };
 
   // Métodos públicos
   const addToast = (message: string, options: IToastOptions = {}): string => {
-    const toast = createToast(message, options)
-    toasts.value.push(toast)
+    const toast = createToast(message, options);
+    toasts.value.push(toast);
 
     // Auto-remove toast se não for persistente
     if (!toast.persistent && toast.duration && toast.duration > 0) {
       setTimeout(() => {
-        removeToast(toast.id)
-      }, toast.duration)
+        removeToast(toast.id);
+      }, toast.duration);
     }
 
-    return toast.id
-  }
+    return toast.id;
+  };
 
   const success = (message: string, options: Omit<IToastOptions, 'type'> = {}): string => {
-    return addToast(message, { ...options, type: 'success' })
-  }
+    return addToast(message, { ...options, type: 'success' });
+  };
 
   const error = (message: string, options: Omit<IToastOptions, 'type'> = {}): string => {
-    return addToast(message, { ...options, type: 'error' })
-  }
+    return addToast(message, { ...options, type: 'error' });
+  };
 
   const warning = (message: string, options: Omit<IToastOptions, 'type'> = {}): string => {
-    return addToast(message, { ...options, type: 'warning' })
-  }
+    return addToast(message, { ...options, type: 'warning' });
+  };
 
   const info = (message: string, options: Omit<IToastOptions, 'type'> = {}): string => {
-    return addToast(message, { ...options, type: 'info' })
-  }
+    return addToast(message, { ...options, type: 'info' });
+  };
 
   const dismiss = (id: string) => {
-    removeToast(id)
-  }
+    removeToast(id);
+  };
 
   const dismissAll = () => {
-    toasts.value = []
-  }
+    toasts.value = [];
+  };
 
   return {
     // Estado
@@ -93,6 +93,6 @@ export function useToast() {
 
     // Métodos para remover toasts
     dismiss,
-    dismissAll
-  }
+    dismissAll,
+  };
 }

@@ -4,15 +4,15 @@ import type { IProjection } from '../types/investments';
 export const REFERENCE_RATES = {
   CDI: 11.75, // % ao ano
   SELIC: 11.25, // % ao ano
-  IPCA: 4.50 // % ao ano
+  IPCA: 4.5, // % ao ano
 };
 
 // Tabela de IR regressiva para renda fixa
 export const IR_RATES = {
-  0: 0.225,    // até 180 dias: 22,5%
-  180: 0.20,   // de 181 a 360 dias: 20%
-  360: 0.175,  // de 361 a 720 dias: 17,5%
-  720: 0.15    // acima de 720 dias: 15%
+  0: 0.225, // até 180 dias: 22,5%
+  180: 0.2, // de 181 a 360 dias: 20%
+  360: 0.175, // de 361 a 720 dias: 17,5%
+  720: 0.15, // acima de 720 dias: 15%
 };
 
 // Intervalos de tempo para projeções
@@ -23,7 +23,7 @@ export const PROJECTION_INTERVALS = [
   { key: '1a', label: '1 Ano', days: 365 },
   { key: '2a', label: '2 Anos', days: 730 },
   { key: '3a', label: '3 Anos', days: 1095 },
-  { key: '5a', label: '5 Anos', days: 1825 }
+  { key: '5a', label: '5 Anos', days: 1825 },
 ];
 
 // Calcular número de dias entre duas datas
@@ -80,47 +80,36 @@ export function calculateIPCAYield(
 // Calcular Imposto de Renda
 export function calculateIncomeTax(yieldAmount: number, days: number): number {
   let rate = IR_RATES[0]; // 22.5% default
-  
+
   if (days > 720) rate = IR_RATES[720];
   else if (days > 360) rate = IR_RATES[360];
   else if (days > 180) rate = IR_RATES[180];
-  
+
   return yieldAmount * rate;
 }
 
 // Calcular IOF (apenas primeiros 30 dias)
 export function calculateIOF(yieldAmount: number, days: number): number {
   if (days > 30) return 0;
-  
-  const iofRate = (30 - days) / 30 * 0.01; // 1% regressivo
+
+  const iofRate = ((30 - days) / 30) * 0.01; // 1% regressivo
   return yieldAmount * iofRate;
 }
 
 // Calcular valor líquido (bruto - IR - IOF)
-export function calculateNetValue(
-  grossValue: number,
-  yieldAmount: number,
-  days: number
-): number {
+export function calculateNetValue(grossValue: number, yieldAmount: number, days: number): number {
   const ir = calculateIncomeTax(yieldAmount, days);
   const iof = calculateIOF(yieldAmount, days);
   return grossValue - ir - iof;
 }
 
 // Calcular rentabilidade percentual
-export function calculateReturnPercentage(
-  initialAmount: number,
-  currentAmount: number
-): number {
+export function calculateReturnPercentage(initialAmount: number, currentAmount: number): number {
   return ((currentAmount - initialAmount) / initialAmount) * 100;
 }
 
 // Calcular rentabilidade anualizada
-export function calculateAnnualizedReturn(
-  initialAmount: number,
-  currentAmount: number,
-  days: number
-): number {
+export function calculateAnnualizedReturn(initialAmount: number, currentAmount: number, days: number): number {
   const totalReturn = currentAmount / initialAmount;
   const years = days / 365;
   return (Math.pow(totalReturn, 1 / years) - 1) * 100;
@@ -132,7 +121,7 @@ export function calculateBenchmarkComparison(
   days: number,
   benchmarkRate: number = REFERENCE_RATES.CDI
 ): number {
-  const benchmarkReturn = calculateSelicYield(10000, days, benchmarkRate) / 10000 * 100;
+  const benchmarkReturn = (calculateSelicYield(10000, days, benchmarkRate) / 10000) * 100;
   return investmentReturn - benchmarkReturn;
 }
 
@@ -167,7 +156,7 @@ export function calculateCurrentValue(
   return {
     currentAmount: initialAmount + yieldAmount,
     yieldAmount,
-    days
+    days,
   };
 }
 
@@ -180,7 +169,7 @@ export function calculateProjections(
 ): IProjection[] {
   const projections: IProjection[] = [];
 
-  intervals.forEach(interval => {
+  intervals.forEach((interval) => {
     let yieldAmount = 0;
 
     // Calcular rendimento bruto baseado no tipo
@@ -219,7 +208,7 @@ export function calculateProjections(
       netValue,
       netYield,
       yieldPercentage,
-      annualizedReturn
+      annualizedReturn,
     });
   });
 
@@ -231,12 +220,7 @@ export function calculateInvestmentProjections(
   investment: any,
   intervals: typeof PROJECTION_INTERVALS = PROJECTION_INTERVALS
 ): IProjection[] {
-  return calculateProjections(
-    investment.currentAmount,
-    investment.yieldType,
-    investment.yieldRate,
-    intervals
-  );
+  return calculateProjections(investment.currentAmount, investment.yieldType, investment.yieldRate, intervals);
 }
 
 // 📊 Calcular projeção da carteira total
@@ -246,7 +230,7 @@ export function calculatePortfolioProjections(
 ): IProjection[] {
   const portfolioProjections: IProjection[] = [];
 
-  intervals.forEach(interval => {
+  intervals.forEach((interval) => {
     let totalGrossValue = 0;
     let totalYieldAmount = 0;
     let totalIrAmount = 0;
@@ -254,13 +238,10 @@ export function calculatePortfolioProjections(
     let totalCurrentAmount = 0;
 
     // Somar projeções de todos os investimentos
-    investments.forEach(investment => {
-      const projection = calculateProjections(
-        investment.currentAmount,
-        investment.yieldType,
-        investment.yieldRate,
-        [interval]
-      )[0];
+    investments.forEach((investment) => {
+      const projection = calculateProjections(investment.currentAmount, investment.yieldType, investment.yieldRate, [
+        interval,
+      ])[0];
 
       totalCurrentAmount += investment.currentAmount;
       totalGrossValue += projection.grossValue;
@@ -284,7 +265,7 @@ export function calculatePortfolioProjections(
       netValue,
       netYield,
       yieldPercentage,
-      annualizedReturn
+      annualizedReturn,
     });
   });
 
@@ -292,10 +273,7 @@ export function calculatePortfolioProjections(
 }
 
 // Gerar dados históricos simulados para gráficos
-export function generateHistoricalData(
-  investment: any,
-  months: number = 12
-): { date: string; value: number }[] {
+export function generateHistoricalData(investment: any, months: number = 12): { date: string; value: number }[] {
   const data = [];
   const startDate = new Date(investment.startDate);
   const initialAmount = investment.initialAmount;
@@ -303,7 +281,7 @@ export function generateHistoricalData(
   for (let i = 0; i <= months; i++) {
     const currentDate = new Date(startDate);
     currentDate.setMonth(currentDate.getMonth() + i);
-    
+
     const dateStr = currentDate.toISOString().split('T')[0];
     const { currentAmount } = calculateCurrentValue(
       initialAmount,
@@ -315,9 +293,9 @@ export function generateHistoricalData(
 
     data.push({
       date: dateStr,
-      value: currentAmount
+      value: currentAmount,
     });
   }
 
   return data;
-} 
+}

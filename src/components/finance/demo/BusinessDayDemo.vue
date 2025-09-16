@@ -9,8 +9,13 @@
       <div class="space-y-6">
         <!-- Business Day Selector -->
         <div>
-          <BusinessDaySelector v-model="selectedDate" label="Teste o Seletor de Dias Úteis" :default-business-day="1"
-            :show-calendar-preview="true" @business-day-change="handleBusinessDayChange" />
+          <BusinessDaySelector
+            v-model="selectedDate"
+            label="Teste o Seletor de Dias Úteis"
+            :default-business-day="1"
+            :show-calendar-preview="true"
+            @business-day-change="handleBusinessDayChange"
+          />
         </div>
 
         <!-- Results Display -->
@@ -22,13 +27,21 @@
               Data Selecionada
             </h3>
             <div class="space-y-2 text-sm">
-              <div><strong>Data:</strong> {{ formatSelectedDate }}</div>
-              <div><strong>Dia da Semana:</strong> {{ dayOfWeek }}</div>
+              <div>
+                <strong>Data:</strong>
+                {{ formatSelectedDate }}
+              </div>
+              <div>
+                <strong>Dia da Semana:</strong>
+                {{ dayOfWeek }}
+              </div>
               <div v-if="businessDayInfo.isBusinessDayMode" class="text-blue-700">
-                <strong>Modo:</strong> Dia Útil
+                <strong>Modo:</strong>
+                Dia Útil
               </div>
               <div v-else class="text-gray-700">
-                <strong>Modo:</strong> Data Normal
+                <strong>Modo:</strong>
+                Data Normal
               </div>
             </div>
           </div>
@@ -40,11 +53,21 @@
               Informações do Dia Útil
             </h3>
             <div class="space-y-2 text-sm">
-              <div><strong>Número:</strong> {{ businessDayInfo.dayNumber }}º dia útil</div>
-              <div><strong>Mês:</strong> {{ getMonthName(businessDayInfo.month) }}</div>
-              <div><strong>Ano:</strong> {{ businessDayInfo.year }}</div>
+              <div>
+                <strong>Número:</strong>
+                {{ businessDayInfo.dayNumber }}º dia útil
+              </div>
+              <div>
+                <strong>Mês:</strong>
+                {{ getMonthName(businessDayInfo.month) }}
+              </div>
+              <div>
+                <strong>Ano:</strong>
+                {{ businessDayInfo.year }}
+              </div>
               <div v-if="businessDayInfo.calculatedDate" class="text-green-700">
-                <strong>Calculado:</strong> {{ formatDate(businessDayInfo.calculatedDate) }}
+                <strong>Calculado:</strong>
+                {{ formatDate(businessDayInfo.calculatedDate) }}
               </div>
             </div>
           </div>
@@ -63,8 +86,9 @@
             </div>
             <div>
               <strong>businessDayInfo:</strong>
-              <pre
-                class="bg-gray-200 p-2 rounded mt-1 overflow-x-auto">{{ JSON.stringify(businessDayInfo, null, 2) }}</pre>
+              <pre class="bg-gray-200 p-2 rounded mt-1 overflow-x-auto">{{
+                JSON.stringify(businessDayInfo, null, 2)
+              }}</pre>
             </div>
             <div>
               <strong>Timestamp:</strong>
@@ -80,20 +104,28 @@
             Testes Rápidos
           </h3>
           <div class="flex flex-wrap gap-2">
-            <button @click="testToday"
-              class="px-3 py-1 bg-blue-100 text-blue-700 rounded-md text-xs hover:bg-blue-200 transition-colors">
+            <button
+              @click="testToday"
+              class="px-3 py-1 bg-blue-100 text-blue-700 rounded-md text-xs hover:bg-blue-200 transition-colors"
+            >
               Hoje
             </button>
-            <button @click="testFirstBusinessDay"
-              class="px-3 py-1 bg-green-100 text-green-700 rounded-md text-xs hover:bg-green-200 transition-colors">
+            <button
+              @click="testFirstBusinessDay"
+              class="px-3 py-1 bg-green-100 text-green-700 rounded-md text-xs hover:bg-green-200 transition-colors"
+            >
               1º Dia Útil
             </button>
-            <button @click="testFifthBusinessDay"
-              class="px-3 py-1 bg-orange-100 text-orange-700 rounded-md text-xs hover:bg-orange-200 transition-colors">
+            <button
+              @click="testFifthBusinessDay"
+              class="px-3 py-1 bg-orange-100 text-orange-700 rounded-md text-xs hover:bg-orange-200 transition-colors"
+            >
               5º Dia Útil
             </button>
-            <button @click="testNextMonth"
-              class="px-3 py-1 bg-purple-100 text-purple-700 rounded-md text-xs hover:bg-purple-200 transition-colors">
+            <button
+              @click="testNextMonth"
+              class="px-3 py-1 bg-purple-100 text-purple-700 rounded-md text-xs hover:bg-purple-200 transition-colors"
+            >
               Próximo Mês
             </button>
           </div>
@@ -104,127 +136,134 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import BusinessDaySelector from '../forms/BusinessDaySelector.vue'
+  import { ref, computed } from 'vue';
+  import BusinessDaySelector from '../forms/BusinessDaySelector.vue';
 
-// State
-const selectedDate = ref(new Date().toISOString().split('T')[0])
+  // State
+  const selectedDate = ref(new Date().toISOString().split('T')[0]);
 
-const businessDayInfo = ref<{
-  isBusinessDayMode: boolean
-  dayNumber?: number
-  month?: number
-  year?: number
-  calculatedDate?: string
-}>({
-  isBusinessDayMode: false,
-  dayNumber: undefined,
-  month: undefined,
-  year: undefined,
-  calculatedDate: undefined
-})
+  const businessDayInfo = ref<{
+    isBusinessDayMode: boolean;
+    dayNumber?: number;
+    month?: number;
+    year?: number;
+    calculatedDate?: string;
+  }>({
+    isBusinessDayMode: false,
+    dayNumber: undefined,
+    month: undefined,
+    year: undefined,
+    calculatedDate: undefined,
+  });
 
-// Computed
-const formatSelectedDate = computed(() => {
-  if (!selectedDate.value) return 'Não selecionada'
+  // Computed
+  const formatSelectedDate = computed(() => {
+    if (!selectedDate.value) return 'Não selecionada';
 
-  try {
-    const date = new Date(selectedDate.value)
-    return date.toLocaleDateString('pt-BR', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    })
-  } catch {
-    return 'Data inválida'
-  }
-})
-
-const dayOfWeek = computed(() => {
-  if (!selectedDate.value) return ''
-
-  try {
-    const date = new Date(selectedDate.value)
-    const days = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado']
-    const dayIndex = date.getDay()
-    const dayName = days[dayIndex]
-
-    if (dayIndex === 0 || dayIndex === 6) {
-      return `${dayName} (fim de semana)`
-    } else {
-      return `${dayName} (dia útil)`
+    try {
+      const date = new Date(selectedDate.value);
+      return date.toLocaleDateString('pt-BR', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      });
+    } catch {
+      return 'Data inválida';
     }
-  } catch {
-    return 'Inválido'
-  }
-})
+  });
 
-// Methods
-const handleBusinessDayChange = (info: typeof businessDayInfo.value) => {
-  businessDayInfo.value = info
-    ('📅 [BUSINESS_DAY_DEMO] Business day info updated:', info)
-}
+  const dayOfWeek = computed(() => {
+    if (!selectedDate.value) return '';
 
-const formatDate = (dateStr: string): string => {
-  try {
-    const date = new Date(dateStr)
-    return date.toLocaleDateString('pt-BR')
-  } catch {
-    return 'Data inválida'
-  }
-}
+    try {
+      const date = new Date(selectedDate.value);
+      const days = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
+      const dayIndex = date.getDay();
+      const dayName = days[dayIndex];
 
-const getMonthName = (monthNumber?: number): string => {
-  if (!monthNumber) return ''
-  const months = [
-    'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
-    'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
-  ]
-  return months[monthNumber - 1] || ''
-}
+      if (dayIndex === 0 || dayIndex === 6) {
+        return `${dayName} (fim de semana)`;
+      } else {
+        return `${dayName} (dia útil)`;
+      }
+    } catch {
+      return 'Inválido';
+    }
+  });
 
-// Test methods
-const testToday = () => {
-  selectedDate.value = new Date().toISOString().split('T')[0]
-    ('🧪 [TEST] Set to today:', selectedDate.value)
-}
+  // Methods
+  const handleBusinessDayChange = (info: typeof businessDayInfo.value) => {
+    businessDayInfo.value = info('📅 [BUSINESS_DAY_DEMO] Business day info updated:', info);
+  };
 
-const testFirstBusinessDay = () => {
-  // This would trigger business day mode with 1st business day
-  ('🧪 [TEST] Testing 1st business day - use the toggle in the component')
-}
+  const formatDate = (dateStr: string): string => {
+    try {
+      const date = new Date(dateStr);
+      return date.toLocaleDateString('pt-BR');
+    } catch {
+      return 'Data inválida';
+    }
+  };
 
-const testFifthBusinessDay = () => {
-  ('🧪 [TEST] Testing 5th business day - use the toggle in the component')
-}
+  const getMonthName = (monthNumber?: number): string => {
+    if (!monthNumber) return '';
+    const months = [
+      'Janeiro',
+      'Fevereiro',
+      'Março',
+      'Abril',
+      'Maio',
+      'Junho',
+      'Julho',
+      'Agosto',
+      'Setembro',
+      'Outubro',
+      'Novembro',
+      'Dezembro',
+    ];
+    return months[monthNumber - 1] || '';
+  };
 
-const testNextMonth = () => {
-  const nextMonth = new Date()
-  nextMonth.setMonth(nextMonth.getMonth() + 1)
-  nextMonth.setDate(1)
-  selectedDate.value = nextMonth.toISOString().split('T')[0]
-    ('🧪 [TEST] Set to next month:', selectedDate.value)
-}
+  // Test methods
+  const testToday = () => {
+    selectedDate.value = new Date().toISOString().split('T')[0]('🧪 [TEST] Set to today:', selectedDate.value);
+  };
+
+  const testFirstBusinessDay = () => {
+    // This would trigger business day mode with 1st business day
+    ('🧪 [TEST] Testing 1st business day - use the toggle in the component');
+  };
+
+  const testFifthBusinessDay = () => {
+    ('🧪 [TEST] Testing 5th business day - use the toggle in the component');
+  };
+
+  const testNextMonth = () => {
+    const nextMonth = new Date();
+    nextMonth.setMonth(nextMonth.getMonth() + 1);
+    nextMonth.setDate(1);
+    selectedDate.value = nextMonth.toISOString().split('T')[0]('🧪 [TEST] Set to next month:', selectedDate.value);
+  };
 </script>
 
 <style scoped>
-/* Custom scrollbar for code blocks */
-pre {
-  scrollbar-width: thin;
-  scrollbar-color: #cbd5e0 #f7fafc;
-}
+  /* Custom scrollbar for code blocks */
+  pre {
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e0 #f7fafc;
+  }
 
-pre::-webkit-scrollbar {
-  height: 4px;
-}
+  pre::-webkit-scrollbar {
+    height: 4px;
+  }
 
-pre::-webkit-scrollbar-track {
-  background: #f7fafc;
-}
+  pre::-webkit-scrollbar-track {
+    background: #f7fafc;
+  }
 
-pre::-webkit-scrollbar-thumb {
-  background-color: #cbd5e0;
-  border-radius: 2px;
-}
+  pre::-webkit-scrollbar-thumb {
+    background-color: #cbd5e0;
+    border-radius: 2px;
+  }
 </style>
