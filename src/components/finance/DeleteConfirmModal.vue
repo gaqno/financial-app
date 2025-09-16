@@ -69,7 +69,7 @@
               <i class="fas fa-sync mr-1"></i>
               Este é um registro recorrente. O que deseja fazer?
             </p>
-            
+
             <div class="flex flex-col gap-2">
               <button
                 @click="handleRecurringDelete('current')"
@@ -78,7 +78,7 @@
                 <i class="fas fa-trash mr-1"></i>
                 Excluir apenas este registro
               </button>
-              
+
               <button
                 @click="handleRecurringDelete('future')"
                 class="w-full px-4 py-3 bg-red-500 text-white rounded-xl font-medium hover:bg-red-600 transition-colors text-sm"
@@ -86,7 +86,7 @@
                 <i class="fas fa-trash-alt mr-1"></i>
                 Excluir este e próximos registros
               </button>
-              
+
               <button
                 @click="handleRecurringDelete('all')"
                 class="w-full px-4 py-3 bg-red-700 text-white rounded-xl font-medium hover:bg-red-800 transition-colors text-sm"
@@ -94,7 +94,7 @@
                 <i class="fas fa-exclamation-triangle mr-1"></i>
                 Excluir TODA a série recorrente
               </button>
-              
+
               <button
                 @click="financeStore.cancelDelete"
                 class="w-full px-4 py-3 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition-colors text-sm"
@@ -178,12 +178,12 @@
         const messages = {
           current: `Registro individual excluído: ${record.Descrição}`,
           future: `${result.deletedCount} registros futuros excluídos: ${record.Descrição}`,
-          all: `${result.deletedCount} registros da série completa excluídos: ${record.Descrição}`
+          all: `${result.deletedCount} registros da série completa excluídos: ${record.Descrição}`,
         };
 
         // Use the toast system (assuming it's available globally)
         console.log('✅ [RECURRING_DELETE]', messages[deleteOption]);
-        
+
         // Trigger a reactive update
         if (typeof window !== 'undefined') {
           import('vue').then(({ nextTick }) => {

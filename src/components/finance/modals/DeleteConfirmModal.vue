@@ -11,9 +11,7 @@
       >
         <div class="text-center">
           <!-- Icon -->
-          <div class="w-12 h-12 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center">
-            <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
-          </div>
+          <Avatar size="xl" icon="fas fa-exclamation-triangle" variant="danger" class="mx-auto mb-4" />
 
           <!-- Title -->
           <h3 class="text-lg font-semibold text-gray-900 mb-2">
@@ -26,51 +24,51 @@
           </p>
 
           <!-- Record details -->
-          <div v-if="itemToDelete" class="bg-gray-50 rounded-lg p-3 mb-4 text-left">
-            <div class="text-sm text-gray-800 font-medium flex items-center gap-2">
-              {{ itemToDelete.record.Descrição }}
-              <RecurringIcon :record="itemToDelete.record" size="xs" />
-            </div>
-            <div class="text-sm text-gray-600">
-              {{ formatDate(itemToDelete.record.Data) }}
-            </div>
-            <div :class="getValueColor(itemToDelete.record.Valor)" class="text-sm font-semibold">
-              {{ formatCurrency(itemToDelete.record.Valor) }}
-            </div>
+          <Card v-if="itemToDelete" variant="filled" size="sm" class="text-left mb-4">
+            <div class="space-y-2">
+              <div class="text-sm font-medium text-gray-900 dark:text-gray-100 flex items-center gap-2">
+                {{ itemToDelete.record.Descrição }}
+                <RecurringIcon :record="itemToDelete.record" size="xs" />
+              </div>
+              <div class="text-sm text-gray-600 dark:text-gray-400">
+                {{ formatDate(itemToDelete.record.Data) }}
+              </div>
+              <div :class="getValueColor(itemToDelete.record.Valor)" class="text-sm font-semibold">
+                {{ formatCurrency(itemToDelete.record.Valor) }}
+              </div>
 
-            <!-- Additional record info -->
-            <div class="mt-2 flex items-center gap-2 text-xs text-gray-500">
-              <span class="flex items-center gap-1">
-                {{ itemToDelete.record.Tipo === 'Receita' ? '💰' : '💸' }}
-                {{ itemToDelete.record.Tipo }}
-              </span>
-              <span>•</span>
-              <span>{{ itemToDelete.record.Status }}</span>
-              <span v-if="itemToDelete.record.Categoria">
-                •
-                {{ getCategoryIcon(itemToDelete.record.Categoria) }}
-                {{ itemToDelete.record.Categoria }}
-              </span>
+              <!-- Additional record info -->
+              <div class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                <Badge :variant="itemToDelete.record.Tipo === 'Receita' ? 'success' : 'danger'" size="sm">
+                  {{ itemToDelete.record.Tipo === 'Receita' ? '💰' : '💸' }}
+                  {{ itemToDelete.record.Tipo }}
+                </Badge>
+                <Badge variant="secondary" size="sm">
+                  {{ itemToDelete.record.Status }}
+                </Badge>
+                <Badge v-if="itemToDelete.record.Categoria" variant="secondary" size="sm">
+                  {{ getCategoryIcon(itemToDelete.record.Categoria) }}
+                  {{ itemToDelete.record.Categoria }}
+                </Badge>
+              </div>
             </div>
-          </div>
+          </Card>
 
           <!-- Actions -->
           <div class="flex gap-3">
-            <button
-              @click="cancelDelete"
-              class="flex-1 px-4 py-3 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition-colors"
-            >
+            <Button variant="secondary" size="lg" :full-width="true" @click="cancelDelete">
               {{ cancelText }}
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="danger"
+              size="lg"
+              :full-width="true"
+              :loading="isDeleting"
+              left-icon="fas fa-trash"
               @click="executeDelete"
-              class="flex-1 px-4 py-3 bg-red-500 text-white rounded-xl font-medium hover:bg-red-600 transition-colors"
-              :disabled="isDeleting"
             >
-              <i v-if="isDeleting" class="fas fa-spinner fa-spin mr-1"></i>
-              <i v-else class="fas fa-trash mr-1"></i>
               {{ confirmText }}
-            </button>
+            </Button>
           </div>
         </div>
       </div>
@@ -84,6 +82,10 @@
   import { useFinanceTable } from '../../../composables/finance/useFinanceTable';
   import { useCategoryDetection } from '../../../composables/useCategoryDetection';
   import RecurringIcon from '../utils/RecurringIcon.vue';
+  import { Card } from '@/components/ui/card/Card.vue';
+  import { Button } from '@/components/ui/button/Button.vue';
+  import { Avatar } from '@/components/ui/avatar/Avatar.vue';
+  import { Badge } from '@/components/ui/badge/Badge.vue';
 
   interface Props {
     title?: string;

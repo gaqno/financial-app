@@ -1,51 +1,47 @@
 <template>
-  <div
-    class="lg:hidden bg-white dark:bg-gray-800 rounded-xl shadow-sm p-6 border border-gray-100 dark:border-gray-600 theme-transition"
-  >
-    <div class="text-center">
-      <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">
-        {{ title }}
-      </h2>
+  <Card variant="default" size="lg" class="lg:hidden text-center" :hoverable="true">
+    <template #header>
+      <h2 class="text-lg font-semibold">{{ title }}</h2>
+    </template>
+
+    <div class="space-y-4">
       <p :class="balanceColorClass" class="text-3xl font-bold">
         {{ formattedBalance }}
       </p>
-      <p class="text-sm text-gray-600 dark:text-gray-300 mt-2">
+
+      <p class="text-sm text-gray-600 dark:text-gray-300">
         {{ recordCountText }}
       </p>
 
-      <!-- Hidden months indicator -->
-      <div v-if="hiddenMonthsCount > 0" class="mt-2">
-        <span
-          class="text-xs bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-300 px-2 py-1 rounded-full"
-        >
-          <i class="fas fa-eye-slash mr-1"></i>
-          {{ hiddenMonthsText }}
-        </span>
-      </div>
+      <Badge v-if="hiddenMonthsCount > 0" variant="warning" size="sm" class="mt-2">
+        <i class="fas fa-eye-slash mr-1"></i>
+        {{ hiddenMonthsText }}
+      </Badge>
 
-      <!-- Quick stats -->
-      <div v-if="showQuickStats" class="mt-4 grid grid-cols-2 gap-4">
+      <div v-if="showQuickStats" class="grid grid-cols-2 gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
         <div class="text-center">
           <div class="text-xs text-gray-500 dark:text-gray-400">Receitas</div>
-          <div class="text-green-600 font-semibold">
+          <div class="text-green-600 dark:text-green-400 font-semibold">
             {{ formatCurrency(totalReceitas) }}
           </div>
         </div>
         <div class="text-center">
           <div class="text-xs text-gray-500 dark:text-gray-400">Despesas</div>
-          <div class="text-red-600 font-semibold">
+          <div class="text-red-600 dark:text-red-400 font-semibold">
             {{ formatCurrency(Math.abs(totalDespesas)) }}
           </div>
         </div>
       </div>
     </div>
-  </div>
+  </Card>
 </template>
 
 <script setup lang="ts">
   import { computed } from 'vue';
   import { useFinanceTable } from '../../../composables/finance/useFinanceTable';
   import { useFinanceStore } from '../../../stores/financeStore';
+  import { Card } from '@/components/ui/card/Card.vue';
+  import { Badge } from '@/components/ui/badge/Badge.vue';
 
   interface Props {
     title?: string;

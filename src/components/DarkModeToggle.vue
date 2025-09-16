@@ -12,7 +12,6 @@
 
     <!-- Desktop: Toggle switch with labels -->
     <div class="hidden lg:flex items-center gap-3 relative z-[61] pointer-events-auto">
-
       <!-- Toggle Switch -->
       <label class="relative inline-block w-12 h-6 cursor-pointer group">
         <input
@@ -36,7 +35,6 @@
           />
         </span>
       </label>
-
     </div>
 
     <!-- Optional: Status text (development only) -->

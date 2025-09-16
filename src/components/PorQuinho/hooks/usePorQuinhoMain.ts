@@ -13,6 +13,12 @@ export function usePorQuinhoMain() {
   const { isDarkMode, themeClass } = useDarkMode();
   const toast = useToast();
 
+  // Defensive reset of potentially stuck modal states on init
+  // Reset any stuck edit sheet state on component initialization
+  if (showEditSheet.value) {
+    store.closeEditSheet();
+  }
+
   // Main state with enhanced debugging
   const activeTab = ref('transactions');
   const totalPortfolioValue = ref(0);

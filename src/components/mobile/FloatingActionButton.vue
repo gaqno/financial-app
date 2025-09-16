@@ -3,7 +3,7 @@
     <!-- Main FAB -->
     <Transition name="fab">
       <button
-        v-show="showFab"
+        v-show="showFabWithFallback"
         @click="toggleActions"
         :class="[
           'fixed bottom-20 right-6 z-[99999]',
@@ -102,7 +102,7 @@
 </template>
 
 <script setup lang="ts">
-  import { withDefaults } from 'vue';
+  import { withDefaults, computed } from 'vue';
   import {
     useFloatingActionButton,
     type FloatingActionButtonProps,
@@ -139,6 +139,21 @@
     voiceInput: () => emit('voice-input'),
     scanReceipt: () => emit('scan-receipt'),
     toggleFilters: () => emit('toggle-filters'),
+  });
+
+  // Mobile detection fallback - ensure FAB shows on actual mobile devices
+  const isMobileDevice = computed(() => {
+    if (typeof window === 'undefined') return false;
+    return window.innerWidth < 768 || 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+  });
+
+  // Fallback logic for FAB visibility
+  const showFabWithFallback = computed(() => {
+    // Always show on mobile devices if no explicit modal is blocking
+    if (isMobileDevice.value && !props.isModalOpen) {
+      return true;
+    }
+    return showFab.value;
   });
 </script>
 

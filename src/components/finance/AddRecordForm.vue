@@ -29,17 +29,13 @@
       <!-- Single Record Form (Desktop) -->
       <div v-if="!isMultipleMode" class="hidden lg:block">
         <form @submit.prevent="handleSubmit" class="grid grid-cols-7 gap-3 items-center">
-          <input
-            v-model="newRecord.Data"
-            type="date"
-            class="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            required
-          />
-          <input
+          <Input v-model="newRecord.Data" type="date" size="md" required />
+          <Input
             v-model="newRecord.Descrição"
             type="text"
             placeholder="Descrição"
-            class="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            size="md"
+            :clearable="true"
             required
           />
           <CurrencyInput
@@ -49,40 +45,19 @@
             input-class="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             required
           />
-          <select
-            v-model="newRecord.Tipo"
-            class="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            required
-          >
-            <option value="Receita">Receita</option>
-            <option value="Despesa">Despesa</option>
-          </select>
-          <select
-            v-model="newRecord.Categoria"
-            class="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-          >
-            <option value="">🤖 Auto-detectar</option>
-            <option v-for="category in getAllCategories()" :key="category" :value="category">
-              {{ getCategoryIcon(category) }} {{ category }}
-            </option>
-          </select>
-          <select
-            v-model="newRecord.Status"
-            class="border border-gray-300 p-2 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            required
-          >
-            <option value="❌">❌</option>
-            <option value="✔️">✔️</option>
-          </select>
-          <button
+          <Select v-model="newRecord.Tipo" :options="tipoOptions" size="md" required />
+          <Select v-model="newRecord.Categoria" :options="categoriaOptions" placeholder="🤖 Auto-detectar" size="md" />
+          <Select v-model="newRecord.Status" :options="statusOptions" size="md" required />
+          <Button
             type="submit"
+            variant="primary"
+            size="md"
             :disabled="isAdding"
-            class="bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white rounded-lg px-4 py-2 font-medium transition-colors"
+            :loading="isAdding"
+            left-icon="fas fa-plus"
           >
-            <i v-if="!isAdding" class="fa fa-plus mr-1"></i>
-            <i v-else class="fas fa-spinner fa-spin mr-1"></i>
             {{ isAdding ? 'Adicionando...' : 'Adicionar' }}
-          </button>
+          </Button>
         </form>
       </div>
 
@@ -91,16 +66,11 @@
         <form @submit.prevent="handleSubmit" class="space-y-4">
           <div class="grid grid-cols-2 gap-3">
             <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-100 mb-1"> Data </label>
-              <input
-                v-model="newRecord.Data"
-                type="date"
-                class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                required
-              />
+              <Label for="mobile-data" :required="true">Data</Label>
+              <Input id="mobile-data" v-model="newRecord.Data" type="date" size="lg" required />
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-100 mb-1"> Valor </label>
+              <Label for="mobile-valor" :required="true">Valor</Label>
               <CurrencyInput
                 v-model="newRecord.Valor"
                 :tipo="newRecord.Tipo"
@@ -112,65 +82,58 @@
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-100 mb-1"> Descrição </label>
-            <input
+            <Label for="mobile-descricao" :required="true">Descrição</Label>
+            <Input
+              id="mobile-descricao"
               v-model="newRecord.Descrição"
               type="text"
               placeholder="Ex: Supermercado, Salário..."
-              class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              size="lg"
+              :clearable="true"
               required
             />
           </div>
 
           <div class="grid grid-cols-2 gap-3">
             <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-100 mb-1"> Tipo </label>
-              <select
-                v-model="newRecord.Tipo"
-                class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
-                required
-              >
-                <option value="Receita">💰 Receita</option>
-                <option value="Despesa">💸 Despesa</option>
-              </select>
+              <Label for="mobile-tipo-2" :required="true">Tipo</Label>
+              <Select id="mobile-tipo-2" v-model="newRecord.Tipo" :options="tipoOptionsExtended" size="lg" required />
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-100 mb-1"> Status </label>
-              <select
+              <Label for="mobile-status-2" :required="true">Status</Label>
+              <Select
+                id="mobile-status-2"
                 v-model="newRecord.Status"
-                class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
+                :options="statusOptionsExtended"
+                size="lg"
                 required
-              >
-                <option value="❌">❌ Pendente</option>
-                <option value="✔️">✔️ Confirmado</option>
-              </select>
+              />
             </div>
           </div>
 
           <div>
-            <label class="block text-sm font-medium text-gray-700 dark:text-gray-100 mb-1"> Categoria </label>
-            <select
+            <Label for="mobile-categoria-2">Categoria</Label>
+            <Select
+              id="mobile-categoria-2"
               v-model="newRecord.Categoria"
-              class="w-full border border-gray-300 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
-            >
-              <option value="">🤖 Auto-detectar categoria</option>
-              <optgroup label="📂 Categorias Disponíveis">
-                <option v-for="category in getAllCategories()" :key="category" :value="category">
-                  {{ getCategoryIcon(category) }} {{ category }}
-                </option>
-              </optgroup>
-            </select>
+              :options="categoriaOptions"
+              placeholder="🤖 Auto-detectar categoria"
+              size="lg"
+            />
           </div>
 
-          <button
+          <Button
             type="submit"
+            variant="primary"
+            size="xl"
             :disabled="isAdding"
-            class="w-full bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white rounded-xl p-4 font-semibold text-lg transition-colors shadow-lg"
+            :loading="isAdding"
+            left-icon="fas fa-plus"
+            :full-width="true"
+            class="shadow-lg"
           >
-            <i v-if="!isAdding" class="fa fa-plus mr-2"></i>
-            <i v-else class="fas fa-spinner fa-spin mr-2"></i>
             {{ isAdding ? 'Adicionando...' : 'Adicionar Registro' }}
-          </button>
+          </Button>
         </form>
       </div>
 
@@ -309,10 +272,47 @@
 </template>
 
 <script setup lang="ts">
+  import { computed } from 'vue';
   import { useFinanceForms } from '../../composables/finance/useFinanceForms';
   import { useCategoryDetection } from '../../composables/useCategoryDetection';
   import { formatDateForDisplay } from '../../utils/dateUtils';
   import CurrencyInput from '../CurrencyInput.vue';
+  import { Input } from '@/components/ui/input/Input.vue';
+  import { Select } from '@/components/ui/select/Select.vue';
+  import { Button } from '@/components/ui/button/Button.vue';
+  import { Label } from '@/components/ui/label/Label.vue';
+
+  // Computed options for Select components
+  const tipoOptions = computed(() => [
+    { label: 'Receita', value: 'Receita' },
+    { label: 'Despesa', value: 'Despesa' },
+  ]);
+
+  const tipoOptionsExtended = computed(() => [
+    { label: '💰 Receita', value: 'Receita' },
+    { label: '💸 Despesa', value: 'Despesa' },
+  ]);
+
+  const statusOptions = computed(() => [
+    { label: '❌', value: '❌' },
+    { label: '✔️', value: '✔️' },
+  ]);
+
+  const statusOptionsExtended = computed(() => [
+    { label: '❌ Pendente', value: '❌' },
+    { label: '✔️ Confirmado', value: '✔️' },
+  ]);
+
+  const categoriaOptions = computed(() => {
+    const categories = getAllCategories();
+    return [
+      { label: '🤖 Auto-detectar', value: '' },
+      ...categories.map((category) => ({
+        label: `${getCategoryIcon(category)} ${category}`,
+        value: category,
+      })),
+    ];
+  });
 
   const {
     newRecord,
