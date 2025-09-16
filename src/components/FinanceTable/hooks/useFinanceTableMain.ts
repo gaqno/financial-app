@@ -222,7 +222,7 @@ export function useFinanceTableMain(callbacks: FinanceTableCallbacks) {
 
       // ✅ FIX: Attach recurrence metadata to record
       if (editRecurrence.value.isActive) {
-        console.log('🔄 [CREATE] Processing recurrence:', editRecurrence.value);
+        console.log('🔄 [CREATE_SHEET] Processing recurrence:', editRecurrence.value);
 
         // Create recurrence settings
         const recurrenceSettings = {
@@ -303,32 +303,18 @@ export function useFinanceTableMain(callbacks: FinanceTableCallbacks) {
       let transactionData = await transactionForm.submit();
       console.log('✅ [CREATE] Transaction form submitted successfully:', transactionData);
 
-      // ✅ FIX: Attach recurrence metadata to transaction data
-      if (recurrenceForm.fields.recurrenceActive.value && transactionData) {
-        console.log('🔄 [CREATE] Processing recurrence with data:', recurrenceForm.values);
+      // ✅ DEBUG: Log current recurrence state from UI
+      console.log('🔍 [CREATE] Current editRecurrence state from UI:', editRecurrence.value);
 
-        // Map form frequency values to valid IRecurrenceFrequency values
-        const mapFrequency = (freq: string | undefined): 'mensal' | 'semanal' | 'quinzenal' | 'trimestral' => {
-          switch (freq) {
-            case 'semestral':
-              return 'trimestral'; // 6 months -> 3 months (closest valid)
-            case 'anual':
-              return 'trimestral'; // 12 months -> 3 months (closest valid)
-            case 'semanal':
-              return 'semanal';
-            case 'quinzenal':
-              return 'quinzenal';
-            case 'trimestral':
-              return 'trimestral';
-            default:
-              return 'mensal';
-          }
-        };
+      // ✅ CRITICAL FIX: Use the CORRECT recurrence state that the UI actually sets
+      if (editRecurrence.value.isActive && transactionData) {
+        console.log('🔄 [CREATE] Processing recurrence with data:', editRecurrence.value);
 
         const recurrenceData = {
           isActive: true,
-          frequency: mapFrequency(recurrenceForm.fields.recurrenceFrequency.value),
-          endDate: recurrenceForm.fields.recurrenceEndDate.value || '',
+          frequency: editRecurrence.value.frequency,
+          endDate: editRecurrence.value.endDate || 
+            new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString().split('T')[0],
         };
 
         // ✅ ATTACH recurrence metadata to the original transaction
@@ -352,6 +338,12 @@ export function useFinanceTableMain(callbacks: FinanceTableCallbacks) {
       // Reset forms and close sheet
       transactionForm.reset();
       recurrenceForm.reset();
+      // ✅ CRITICAL FIX: Also reset editRecurrence state after creation
+      editRecurrence.value = {
+        isActive: false,
+        frequency: 'mensal',
+        endDate: '',
+      };
       validation.showValidationErrors.value = false;
       showCreateSheet.value = false;
       callbacks.onSheetClosed();

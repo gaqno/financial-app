@@ -83,17 +83,23 @@ export function useRecurrenceHelpers() {
         return false;
       }
 
-      // Find all records with the same recurrenceId, but only past/current records
-      // Business Rule: When toggling status, only affect past records, not future ones
+      // Find all records with the same recurrenceId
+      // 🔥 CRITICAL FIX: Include ALL linked records (past AND future) for proper editingclear
       const currentRecordDate = new Date(originalRecord.Data);
       const linkedRecords = recordsArray.filter((record) => {
         if (record.recurrence?.recurrenceId !== recurrenceId) {
           return false;
         }
 
-        // Only include records that are on or before the current record's date
-        const recordDate = new Date(record.Data);
-        return recordDate <= currentRecordDate;
+        // 🔥 FIX: For status-only changes, only affect past/current records
+        // For all other edits, affect ALL records (including future ones)
+        if (options.isStatusOnlyChange) {
+          const recordDate = new Date(record.Data);
+          return recordDate <= currentRecordDate;
+        }
+        
+        // For non-status changes (description, amount, etc.), affect ALL linked records
+        return true;
       });
 
       if (linkedRecords.length === 0) {
@@ -614,9 +620,156 @@ export function useRecurrenceHelpers() {
     return 0;
   };
 
+  /**
+   * Deletes recurring records with user choice options
+   * @param recordToDelete - The record being deleted
+   * @param deleteOption - 'current' | 'future' | 'all' 
+   * @param records - Array of all records (reactive)
+   * @param saveToStorage - Function to save changes
+   * @returns Promise<{ success: boolean; deletedCount: number }>
+   */
+  const deleteRecurringRecord = async (
+    recordToDelete: IFinanceRecord,
+    deleteOption: 'current' | 'future' | 'all',
+    records: { value: IFinanceRecord[] } | { records: IFinanceRecord[] } | { records: { value: IFinanceRecord[] } } | any,
+    saveToStorage: () => void
+  ): Promise<{ success: boolean; deletedCount: number }> => {
+    try {
+      if (!recordToDelete.recurrence?.recurrenceId) {
+        // Not a recurring record, delete normally
+        return { success: false, deletedCount: 0 };
+      }
+
+      const recurrenceId = recordToDelete.recurrence.recurrenceId;
+      const recordDate = new Date(recordToDelete.Data);
+
+      // Get records array in consistent format
+      let recordsArray: IFinanceRecord[] | null = null;
+      if ('value' in records) {
+        recordsArray = records.value;
+      } else if ('records' in records && Array.isArray(records.records)) {
+        recordsArray = records.records;
+      } else if (Array.isArray(records)) {
+        recordsArray = records;
+      } else {
+        recordsArray = records?.records?.value || records?.records || null;
+      }
+
+      if (!recordsArray || !Array.isArray(recordsArray)) {
+        console.error('❌ [DELETE_RECURRING] Invalid records array');
+        return { success: false, deletedCount: 0 };
+      }
+
+      // Find records to delete based on option
+      let recordsToDelete: IFinanceRecord[] = [];
+      
+      switch (deleteOption) {
+        case 'current':
+          // Delete only the current record
+          recordsToDelete = recordsArray.filter((record) => 
+            record.recurrence?.recurrenceId === recurrenceId &&
+            record.Data === recordToDelete.Data &&
+            record.recurrence?.instanceNumber === recordToDelete.recurrence?.instanceNumber
+          );
+          break;
+          
+        case 'future':
+          // Delete current and all future records
+          recordsToDelete = recordsArray.filter((record) => {
+            if (record.recurrence?.recurrenceId !== recurrenceId) return false;
+            const thisRecordDate = new Date(record.Data);
+            return thisRecordDate >= recordDate;
+          });
+          break;
+          
+        case 'all':
+          // Delete all records in the recurrence series
+          recordsToDelete = recordsArray.filter((record) => 
+            record.recurrence?.recurrenceId === recurrenceId
+          );
+          break;
+      }
+
+      if (recordsToDelete.length === 0) {
+        return { success: false, deletedCount: 0 };
+      }
+
+      console.log(`🗑️ [DELETE_RECURRING] Deleting ${recordsToDelete.length} records (${deleteOption})`);
+
+      // Delete from Supabase
+      if (!user.value?.id) {
+        throw new Error('User not authenticated');
+      }
+
+      // Build deletion promises for each record
+      const deletePromises = recordsToDelete.map(async (record) => {
+        try {
+          let deleteQuery = supabase
+            .from('finance_records')
+            .delete()
+            .eq('user_id', user.value!.id)
+            .eq('data', record.Data)
+            .eq('descricao', record.Descrição)
+            .eq('valor', record.Valor)
+            .eq('status', record.Status)
+            .eq('tipo', record.Tipo);
+
+          if (record.recurrence?.recurrenceId) {
+            deleteQuery = deleteQuery
+              .eq('recurrence->>recurrenceId', record.recurrence.recurrenceId)
+              .eq('recurrence->>instanceNumber', record.recurrence.instanceNumber);
+          }
+
+          const { error } = await deleteQuery;
+          if (error) {
+            console.error('❌ [DELETE_RECURRING] Failed to delete record:', error);
+            return false;
+          }
+          return true;
+        } catch (error) {
+          console.error('❌ [DELETE_RECURRING] Error deleting record:', error);
+          return false;
+        }
+      });
+
+      // Execute all deletions
+      const results = await Promise.all(deletePromises);
+      const successCount = results.filter(Boolean).length;
+
+      // Update local records array
+      const idsToDelete = new Set(
+        recordsToDelete.map(r => `${r.Data}-${r.Descrição}-${r.recurrence?.instanceNumber}`)
+      );
+      
+      const newRecords = recordsArray.filter((record) => {
+        const recordId = `${record.Data}-${record.Descrição}-${record.recurrence?.instanceNumber}`;
+        return !idsToDelete.has(recordId);
+      });
+
+      // Update records using the same logic as updateAllLinkedRecurringRecords
+      if ('value' in records) {
+        records.value = newRecords;
+      } else if ('records' in records && Array.isArray(records.records)) {
+        records.records = newRecords;
+      } else if (records?.records?.value) {
+        records.records.value = newRecords;
+      } else if (records?.records) {
+        records.records = newRecords;
+      }
+
+      saveToStorage();
+
+      return { success: successCount > 0, deletedCount: successCount };
+    } catch (error) {
+      console.error('❌ [DELETE_RECURRING] Error in deleteRecurringRecord:', error);
+      return { success: false, deletedCount: 0 };
+    }
+  };
+
   return {
     updateAllLinkedRecurringRecords,
     generateRecurringRecordsForEdit,
     generateMissingFutureRecords,
+    deleteRecurringRecord,
   };
 }

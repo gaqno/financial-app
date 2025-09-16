@@ -228,8 +228,9 @@ export function useFinanceForms() {
       };
 
       if (recurrence.isRecurring.value && recurrence.recurrenceSettings.value.isActive) {
-        // Generate recurring records
-        const recordsToAdd = recurrence.generateRecurringRecords(recordToAdd);
+        // 🔥 CRITICAL FIX: Use consistent recurrence generation across all components
+        const { generateRecurringRecordsForEdit } = financeStore.recurrenceHelpers;
+        const recordsToAdd = generateRecurringRecordsForEdit(recordToAdd, recurrence.recurrenceSettings.value);
 
         toast.info(`Gerando ${recordsToAdd.length} registros recorrentes...`, {
           title: '🔄 Processando Recorrência',

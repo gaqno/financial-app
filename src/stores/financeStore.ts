@@ -66,7 +66,7 @@ export const useFinanceStore = defineStore('finance', () => {
   // Import composables for extracted functionality
   const { correctFutureRecordsAfterEdit, removeRecurringRecordsBeyondDate, validateAndCorrectRecurringRecords } =
     useAutoCorrection();
-  const { updateAllLinkedRecurringRecords, generateRecurringRecordsForEdit, generateMissingFutureRecords } =
+  const { updateAllLinkedRecurringRecords, generateRecurringRecordsForEdit, generateMissingFutureRecords, deleteRecurringRecord } =
     useRecurrenceHelpers();
 
   // Debug watchers (development only)
@@ -1134,6 +1134,7 @@ export const useFinanceStore = defineStore('finance', () => {
     recurrenceHelpers: {
       updateAllLinkedRecurringRecords,
       generateRecurringRecordsForEdit,
+      deleteRecurringRecord,
     },
   };
 });
