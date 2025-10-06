@@ -222,7 +222,9 @@
             >
               Desabilitado
             </span>
-            <button class="bg-pink-500 hover:bg-pink-600 text-white px-4 py-2 rounded-lg transition-colors text-sm">
+            <button
+              class="bg-pink-500 dark:bg-pink-600 hover:bg-pink-600 dark:hover:bg-pink-700 text-white px-4 py-2 rounded-lg transition-colors text-sm"
+            >
               Configurar
             </button>
           </div>

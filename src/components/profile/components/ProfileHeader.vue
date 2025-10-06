@@ -1,11 +1,11 @@
 <template>
-  <header class="bg-gradient-to-r from-pink-500 to-rose-500 text-white">
+  <header class="bg-gradient-to-r from-pink-500 to-rose-500 dark:from-pink-600 dark:to-rose-600 text-white">
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div class="flex flex-col sm:flex-row items-center sm:items-start gap-6">
         <!-- Avatar -->
         <div class="relative group">
           <div
-            class="w-24 h-24 sm:w-32 sm:h-32 rounded-full overflow-hidden bg-white/20 flex items-center justify-center"
+            class="w-24 h-24 sm:w-32 sm:h-32 rounded-full overflow-hidden bg-white/20 dark:bg-white/30 flex items-center justify-center"
           >
             <img
               v-if="profile.avatarUrl"
@@ -65,7 +65,7 @@
           <button
             v-if="!isEditing"
             @click="$emit('edit')"
-            class="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2"
+            class="bg-white/20 dark:bg-white/25 hover:bg-white/30 dark:hover:bg-white/35 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2"
           >
             <i class="fas fa-edit"></i>
             <span class="hidden sm:inline">Editar</span>
@@ -74,14 +74,14 @@
           <template v-else>
             <button
               @click="$emit('cancel')"
-              class="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2"
+              class="bg-white/20 dark:bg-white/25 hover:bg-white/30 dark:hover:bg-white/35 text-white px-4 py-2 rounded-lg transition-colors flex items-center gap-2"
             >
               <i class="fas fa-times"></i>
               <span class="hidden sm:inline">Cancelar</span>
             </button>
             <button
               @click="$emit('save')"
-              class="bg-white text-pink-600 hover:bg-pink-50 px-4 py-2 rounded-lg transition-colors flex items-center gap-2 font-medium"
+              class="bg-white dark:bg-gray-100 text-pink-600 dark:text-pink-700 hover:bg-pink-50 dark:hover:bg-gray-50 px-4 py-2 rounded-lg transition-colors flex items-center gap-2 font-medium"
             >
               <i class="fas fa-check"></i>
               <span class="hidden sm:inline">Salvar</span>
@@ -92,11 +92,19 @@
 
       <!-- Status badges -->
       <div class="flex flex-wrap justify-center sm:justify-start gap-2 mt-6">
-        <span class="bg-white/20 text-white px-3 py-1 rounded-full text-xs font-medium"> 🐷 Usuário por.quinho </span>
-        <span v-if="isProfileComplete" class="bg-green-500/80 text-white px-3 py-1 rounded-full text-xs font-medium">
+        <span class="bg-white/20 dark:bg-white/30 text-white px-3 py-1 rounded-full text-xs font-medium">
+          🐷 Usuário por.quinho
+        </span>
+        <span
+          v-if="isProfileComplete"
+          class="bg-green-500/80 dark:bg-green-600/90 text-white px-3 py-1 rounded-full text-xs font-medium"
+        >
           ✅ Perfil Completo
         </span>
-        <span v-else class="bg-yellow-500/80 text-white px-3 py-1 rounded-full text-xs font-medium">
+        <span
+          v-else
+          class="bg-yellow-500/80 dark:bg-yellow-600/90 text-white px-3 py-1 rounded-full text-xs font-medium"
+        >
           ⚠️ Perfil Incompleto
         </span>
       </div>

@@ -46,7 +46,7 @@ export const useModal = (props: UseModalProps, emit: UseModalEmits) => {
   const backdropClasses = computed(() => {
     const backdrops = {
       dark: 'bg-black/50',
-      light: 'bg-white/50',
+      light: 'bg-white/50 dark:bg-black/30',
       blur: 'bg-black/30 backdrop-blur-sm',
     };
     return backdrops[props.backdrop || 'blur'];

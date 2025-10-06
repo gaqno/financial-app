@@ -1,8 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref, computed, reactive, watch } from 'vue';
-import { useLocalStorage } from '../composables/useLocalStorage';
 import { useRecurrence } from '../composables/useRecurrence';
-import { useBusinessDays } from '../composables/finance/useBusinessDays';
 import { useAutoCorrection } from '../composables/finance/useAutoCorrection';
 import { useRecurrenceHelpers } from '../composables/finance/useRecurrenceHelpers';
 import { useSupabaseFinance } from '../composables/useSupabaseFinance';
@@ -11,30 +9,6 @@ import { financeRecordSchema } from '../types/finance';
 
 type SortField = 'Data' | 'Descrição' | 'Valor' | 'Tipo' | 'Categoria' | 'Status';
 type SortDirection = 'asc' | 'desc';
-
-interface IFinanceState {
-  records: IFinanceRecord[];
-  hiddenMonths: Set<string>;
-  filters: {
-    filter: IFilter;
-    categoryFilter: string;
-    sortField: SortField;
-    sortDirection: SortDirection;
-  };
-  editingItems: Set<number>;
-  formErrors: Record<string, string>;
-}
-
-interface IStorageState {
-  records: IFinanceRecord[];
-  hiddenMonths: string[];
-  filters: {
-    filter: IFilter;
-    categoryFilter: string;
-    sortField: SortField;
-    sortDirection: SortDirection;
-  };
-}
 
 export const useFinanceStore = defineStore('finance', () => {
   // ===========================================
@@ -296,7 +270,7 @@ export const useFinanceStore = defineStore('finance', () => {
 
   // Smart month projection settings (SIMPLIFIED)
   const projectionSettings = ref({
-    includePastMonths: 2, // Por padrão: inclui 24 meses passados para mostrar todos os dados históricos
+    includePastMonths: 6, // Por padrão: inclui 6 meses passados para mostrar dados históricos recentes
     includeFutureMonths: 3, // Próximos 3 meses por padrão
     maxFutureMonths: 12, // Máximo 12 meses no futuro
   });
@@ -339,7 +313,7 @@ export const useFinanceStore = defineStore('finance', () => {
 
   // SIMPLIFIED projection updates
   const updateProjectionSettings = (settings: { includePastMonths: number; includeFutureMonths: number }): void => {
-    projectionSettings.value.includePastMonths = Math.max(0, Math.min(6, settings.includePastMonths));
+    projectionSettings.value.includePastMonths = Math.max(0, Math.min(24, settings.includePastMonths));
     projectionSettings.value.includeFutureMonths = Math.max(1, Math.min(12, settings.includeFutureMonths));
     saveToStorage();
   };

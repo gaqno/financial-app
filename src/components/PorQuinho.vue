@@ -60,23 +60,19 @@
         <InvestmentDashboard ref="investmentDashboardRef" @portfolio-updated="handlePortfolioUpdate" />
       </div>
 
-      <!-- Relatórios Tab (Placeholder) -->
-      <div v-show="activeTab === 'reports'" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <div class="bg-white rounded-xl shadow-sm p-12 text-center">
-          <div class="w-24 h-24 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
-            <i class="fas fa-chart-bar text-gray-400 text-3xl" />
-          </div>
-          <h3 class="text-xl font-semibold text-gray-900 mb-2">Relatórios em Desenvolvimento</h3>
-          <p class="text-gray-600 mb-4">
-            Em breve você terá acesso a relatórios detalhados sobre suas finanças e investimentos.
-          </p>
-          <div class="flex justify-center space-x-4 text-sm text-gray-500">
-            <span>📊 Análise de gastos</span>
-            <span>📈 Performance de investimentos</span>
-            <span>📋 Relatório mensal</span>
-          </div>
-        </div>
+      <!-- Freelancers Tab -->
+      <div v-show="activeTab === 'freelancers'">
+        <FreelancerManagement />
       </div>
+
+      <!-- Relatórios Tab (Placeholder) -->
+      <ComingSoonPlaceholder
+        v-show="activeTab === 'reports'"
+        icon="chart-bar"
+        title="Relatórios em Desenvolvimento"
+        description="Em breve você terá acesso a relatórios detalhados sobre suas finanças e investimentos."
+        :features="['📊 Análise de gastos', '📈 Performance de investimentos', '📋 Relatório mensal']"
+      />
     </main>
 
     <!-- Mobile FAB - Only show on transactions tab and when no modal is open -->
@@ -97,9 +93,11 @@
 <script setup lang="ts">
   import FinanceTable from './FinanceTable/FinanceTable.vue';
   import InvestmentDashboard from './investments/InvestmentDashboard.vue';
+  import FreelancerManagement from './freelancer/FreelancerManagement.vue';
   import NavigationTabs from './navigation/NavigationTabs/index.vue';
   import FloatingActionButton from './mobile/FloatingActionButton.vue';
   import ToastContainer from './ToastContainer.vue';
+  import ComingSoonPlaceholder from './common/ComingSoonPlaceholder.vue';
   import { usePorQuinhoMain } from './PorQuinho/hooks/usePorQuinhoMain';
 
   // All logic extracted to composable

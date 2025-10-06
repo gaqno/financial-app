@@ -76,7 +76,7 @@
       <div class="flex items-center gap-1">
         <button
           @click="duplicateRecord"
-          class="text-gray-500 hover:text-gray-700 transition-colors p-2 rounded hover:bg-gray-100"
+          class="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 transition-colors p-2 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
           title="Duplicar registro"
         >
           <i class="fas fa-copy text-xs"></i>

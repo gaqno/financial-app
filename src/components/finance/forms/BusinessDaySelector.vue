@@ -11,8 +11,8 @@
         class="text-xs px-2 py-1 rounded-md transition-colors"
         :class="
           isBusinessDayMode
-            ? 'bg-blue-100 text-blue-700 dark:text-blue-400'
-            : 'bg-gray-100 text-gray-600 dark:text-gray-400'
+            ? 'bg-blue-100 dark:bg-blue-800 text-blue-700 dark:text-blue-400'
+            : 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400'
         "
         :title="isBusinessDayMode ? 'Voltar para data normal' : 'Usar dia útil'"
       >
@@ -35,7 +35,7 @@
     <!-- Business Day Mode -->
     <div v-else class="space-y-3">
       <!-- Business Day Configuration -->
-      <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
+      <div class="bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700 rounded-lg p-3">
         <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
           <!-- Business Day Number -->
           <div>
@@ -79,7 +79,7 @@
         </div>
 
         <!-- Calculated Date Preview -->
-        <div class="mt-3 p-2 bg-white border border-blue-200 rounded-md">
+        <div class="mt-3 p-2 bg-white dark:bg-gray-800 border border-blue-200 dark:border-blue-700 rounded-md">
           <div class="flex items-center justify-between text-sm">
             <span class="text-gray-600 dark:text-gray-400">Data calculada:</span>
             <span class="font-semibold text-blue-700">
@@ -102,7 +102,10 @@
             {{ showCalendar ? 'Ocultar' : 'Ver' }} calendário
           </button>
 
-          <div v-if="showCalendar" class="mt-2 bg-white border border-gray-200 rounded-md p-3">
+          <div
+            v-if="showCalendar"
+            class="mt-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-600 rounded-md p-3"
+          >
             <BusinessDayCalendar
               :year="selectedYear"
               :month="selectedMonth"

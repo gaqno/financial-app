@@ -18,7 +18,7 @@
     <!-- Estados -->
     <div v-if="projections.length === 0" class="text-center py-8">
       <div
-        class="w-16 h-16 mx-auto mb-4 bg-gray-100 dark:bg-dark-700 rounded-full flex items-center justify-center transition-colors"
+        class="w-16 h-16 mx-auto mb-4 bg-gray-100 dark:bg-gray-700 rounded-full flex items-center justify-center transition-colors"
       >
         <i class="fas fa-chart-line text-gray-400 dark:text-gray-500 text-xl"></i>
       </div>
@@ -88,7 +88,7 @@
     <!-- Detalhes da Projeção Selecionada -->
     <div
       v-if="selectedProjection"
-      class="mt-6 p-4 bg-gray-50 dark:bg-dark-800 rounded-lg border border-gray-200 dark:border-dark-700 transition-colors"
+      class="mt-6 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 transition-colors"
     >
       <h4 class="font-semibold text-gray-900 dark:text-gray-100 mb-3">Detalhes - {{ selectedProjection.period }}</h4>
 

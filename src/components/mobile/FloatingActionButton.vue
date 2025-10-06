@@ -8,7 +8,7 @@
         :class="[
           'fixed bottom-20 right-6 z-[99999]',
           'w-14 h-14 rounded-full shadow-2xl',
-          'bg-gradient-to-r from-blue-500 to-purple-600',
+          'bg-gradient-to-r from-blue-500 to-purple-600 dark:from-blue-600 dark:to-purple-700',
           'text-white font-medium',
           'transition-all duration-300 ease-in-out',
           'hover:shadow-3xl hover:scale-110',
@@ -26,12 +26,12 @@
       <div v-show="isOpen" class="fixed bottom-40 right-6 z-[99998]">
         <!-- Quick Add Income -->
         <div class="mb-4 flex items-center justify-end">
-          <span class="mr-3 px-3 py-2 bg-black bg-opacity-75 text-white text-sm rounded-lg whitespace-nowrap">
+          <span class="mr-3 px-3 py-2 bg-black/75 dark:bg-gray-800/90 text-white text-sm rounded-lg whitespace-nowrap">
             Adicionar Receita
           </span>
           <button
             @click="quickAddIncome"
-            class="w-12 h-12 rounded-full bg-green-500 text-white shadow-lg hover:bg-green-600 transition-colors flex items-center justify-center"
+            class="w-12 h-12 rounded-full bg-green-500 dark:bg-green-600 text-white shadow-lg hover:bg-green-600 dark:hover:bg-green-700 transition-colors flex items-center justify-center"
           >
             <i class="fas fa-arrow-up text-lg"></i>
           </button>
@@ -39,12 +39,12 @@
 
         <!-- Quick Add Expense -->
         <div class="mb-4 flex items-center justify-end">
-          <span class="mr-3 px-3 py-2 bg-black bg-opacity-75 text-white text-sm rounded-lg whitespace-nowrap">
+          <span class="mr-3 px-3 py-2 bg-black/75 dark:bg-gray-800/90 text-white text-sm rounded-lg whitespace-nowrap">
             Adicionar Despesa
           </span>
           <button
             @click="quickAddExpense"
-            class="w-12 h-12 rounded-full bg-red-500 text-white shadow-lg hover:bg-red-600 transition-colors flex items-center justify-center"
+            class="w-12 h-12 rounded-full bg-red-500 dark:bg-red-600 text-white shadow-lg hover:bg-red-600 dark:hover:bg-red-700 transition-colors flex items-center justify-center"
           >
             <i class="fas fa-arrow-down text-lg"></i>
           </button>
@@ -52,14 +52,16 @@
 
         <!-- Voice Input -->
         <div class="mb-4 flex items-center justify-end">
-          <span class="mr-3 px-3 py-2 bg-black bg-opacity-75 text-white text-sm rounded-lg whitespace-nowrap">
+          <span class="mr-3 px-3 py-2 bg-black/75 dark:bg-gray-800/90 text-white text-sm rounded-lg whitespace-nowrap">
             Comando de Voz
           </span>
           <button
             @click="startVoiceInput"
             :class="[
               'w-12 h-12 rounded-full shadow-lg transition-colors flex items-center justify-center',
-              isListening ? 'bg-red-500 text-white animate-pulse' : 'bg-purple-500 text-white hover:bg-purple-600',
+              isListening
+                ? 'bg-red-500 dark:bg-red-600 text-white animate-pulse'
+                : 'bg-purple-500 dark:bg-purple-600 text-white hover:bg-purple-600 dark:hover:bg-purple-700',
             ]"
           >
             <i :class="isListening ? 'fas fa-stop' : 'fas fa-microphone'"></i>
@@ -68,27 +70,14 @@
 
         <!-- Camera/Receipt Scan -->
         <div class="mb-4 flex items-center justify-end">
-          <span class="mr-3 px-3 py-2 bg-black bg-opacity-75 text-white text-sm rounded-lg whitespace-nowrap">
+          <span class="mr-3 px-3 py-2 bg-black/75 dark:bg-gray-800/90 text-white text-sm rounded-lg whitespace-nowrap">
             Escanear Recibo
           </span>
           <button
             @click="scanReceipt"
-            class="w-12 h-12 rounded-full bg-orange-500 text-white shadow-lg hover:bg-orange-600 transition-colors flex items-center justify-center"
+            class="w-12 h-12 rounded-full bg-orange-500 dark:bg-orange-600 text-white shadow-lg hover:bg-orange-600 dark:hover:bg-orange-700 transition-colors flex items-center justify-center"
           >
             <i class="fas fa-camera"></i>
-          </button>
-        </div>
-
-        <!-- Quick Filter Toggle -->
-        <div class="mb-4 flex items-center justify-end">
-          <span class="mr-3 px-3 py-2 bg-black bg-opacity-75 text-white text-sm rounded-lg whitespace-nowrap">
-            Filtros Rápidos
-          </span>
-          <button
-            @click="toggleQuickFilters"
-            class="w-12 h-12 rounded-full bg-blue-500 text-white shadow-lg hover:bg-blue-600 transition-colors flex items-center justify-center"
-          >
-            <i class="fas fa-filter"></i>
           </button>
         </div>
       </div>
@@ -96,7 +85,7 @@
 
     <!-- Backdrop -->
     <Transition name="backdrop">
-      <div v-show="isOpen" @click="closeActions" class="fixed inset-0 bg-black bg-opacity-50 z-[99997]"></div>
+      <div v-show="isOpen" @click="closeActions" class="fixed inset-0 bg-black/50 dark:bg-black/60 z-[99997]"></div>
     </Transition>
   </div>
 </template>

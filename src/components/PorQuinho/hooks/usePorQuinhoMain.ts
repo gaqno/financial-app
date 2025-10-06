@@ -60,6 +60,12 @@ export function usePorQuinhoMain() {
       badge: investmentCount.value || null,
     },
     {
+      id: 'freelancers',
+      label: 'Freelancers',
+      icon: '💼',
+      badge: null,
+    },
+    {
       id: 'reports',
       label: 'Relatórios',
       icon: '📊',
@@ -75,13 +81,15 @@ export function usePorQuinhoMain() {
         return store.saldoFinal;
       case 'investments':
         return totalPortfolioValue.value;
+      case 'freelancers':
+        return 0;
       default:
         return 0;
     }
   });
 
   const shouldShowBalance = computed(() => {
-    return activeTab.value === 'transactions' || activeTab.value === 'investments';
+    return activeTab.value === 'transactions' || activeTab.value === 'investments' || activeTab.value === 'freelancers' || activeTab.value === 'reports';
   });
 
   // Detect when any modal is open (either create or edit)

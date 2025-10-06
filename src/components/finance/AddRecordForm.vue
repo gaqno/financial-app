@@ -15,7 +15,7 @@
           <label class="relative inline-flex items-center cursor-pointer">
             <input v-model="isMultipleMode" type="checkbox" class="sr-only peer" />
             <div
-              class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"
+              class="w-11 h-6 bg-gray-200 dark:bg-gray-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white dark:after:bg-gray-300 after:border-gray-300 dark:after:border-gray-600 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600 dark:peer-checked:bg-blue-600"
             >
               >
             </div>
@@ -141,14 +141,14 @@
       <div v-if="isMultipleMode" class="space-y-4">
         <!-- Header -->
         <div class="flex items-center justify-between">
-          <span class="text-sm text-gray-600">
+          <span class="text-sm text-gray-600 dark:text-gray-400">
             {{ multipleRecords.length }} registro{{ multipleRecords.length !== 1 ? 's' : '' }} na lista
           </span>
           <div class="flex gap-2">
             <button
               @click="addToMultipleList"
               type="button"
-              class="bg-green-500 hover:bg-green-600 text-white rounded-lg px-3 py-2 text-sm font-medium transition-colors"
+              class="bg-green-500 dark:bg-green-600 hover:bg-green-600 dark:hover:bg-green-700 text-white rounded-lg px-3 py-2 text-sm font-medium transition-colors"
             >
               <i class="fas fa-plus mr-1"></i>
               Adicionar à Lista
@@ -158,7 +158,7 @@
               type="button"
               v-if="multipleRecords.length > 0"
               :disabled="isSavingMultiple"
-              class="bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 disabled:cursor-not-allowed text-white rounded-lg px-3 py-2 text-sm font-medium transition-colors"
+              class="bg-blue-500 dark:bg-blue-600 hover:bg-blue-600 dark:hover:bg-blue-700 disabled:bg-gray-400 dark:disabled:bg-gray-600 disabled:cursor-not-allowed text-white rounded-lg px-3 py-2 text-sm font-medium transition-colors"
             >
               <i v-if="!isSavingMultiple" class="fas fa-save mr-1"></i>
               <i v-else class="fas fa-spinner fa-spin mr-1"></i>
@@ -168,7 +168,7 @@
               @click="clearMultiple"
               type="button"
               v-if="multipleRecords.length > 0"
-              class="bg-red-500 hover:bg-red-600 text-white rounded-lg px-3 py-2 text-sm font-medium transition-colors"
+              class="bg-red-500 dark:bg-red-600 hover:bg-red-600 dark:hover:bg-red-700 text-white rounded-lg px-3 py-2 text-sm font-medium transition-colors"
             >
               <i class="fas fa-trash mr-1"></i>
               Limpar
@@ -177,7 +177,7 @@
         </div>
 
         <!-- Add Form -->
-        <div class="grid grid-cols-7 gap-3 items-center p-3 bg-gray-50 rounded-lg">
+        <div class="grid grid-cols-7 gap-3 items-center p-3 bg-gray-50 dark:bg-gray-700 rounded-lg">
           <input
             v-model="newRecord.Data"
             type="date"
@@ -221,7 +221,7 @@
           <button
             @click="addToMultipleList"
             type="button"
-            class="bg-green-500 hover:bg-green-600 text-white rounded-lg px-4 py-2 font-medium transition-colors"
+            class="bg-green-500 dark:bg-green-600 hover:bg-green-600 dark:hover:bg-green-700 text-white rounded-lg px-4 py-2 font-medium transition-colors"
           >
             <i class="fa fa-plus mr-1"></i>
             +
@@ -230,12 +230,12 @@
 
         <!-- Multiple Records List -->
         <div v-if="multipleRecords.length > 0" class="space-y-2">
-          <h4 class="text-sm font-semibold text-gray-700">Registros a serem salvos:</h4>
+          <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300">Registros a serem salvos:</h4>
           <div class="max-h-64 overflow-y-auto space-y-2">
             <div
               v-for="(record, index) in multipleRecords"
               :key="index"
-              class="flex items-center justify-between p-3 bg-white border border-gray-200 rounded-lg"
+              class="flex items-center justify-between p-3 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg"
             >
               <div class="flex-1 grid grid-cols-6 gap-2 text-sm">
                 <span>{{ formatDate(record.Data) }}</span>
@@ -245,21 +245,29 @@
                 </span>
                 <span
                   class="text-xs px-2 py-1 rounded-full"
-                  :class="record.Tipo === 'Receita' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'"
+                  :class="
+                    record.Tipo === 'Receita'
+                      ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
+                      : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'
+                  "
                 >
                   {{ record.Tipo === 'Receita' ? '💰' : '💸' }} {{ record.Tipo }}
                 </span>
                 <span class="text-xs">{{ record.Categoria || 'Sem categoria' }}</span>
                 <span
                   class="text-xs px-2 py-1 rounded-full"
-                  :class="record.Status === '✔️' ? 'bg-green-100 text-green-700' : 'bg-orange-100 text-orange-700'"
+                  :class="
+                    record.Status === '✔️'
+                      ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
+                      : 'bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400'
+                  "
                 >
                   {{ record.Status }}
                 </span>
               </div>
               <button
                 @click="removeFromMultiple(index)"
-                class="ml-2 text-red-600 hover:text-red-800 p-1 rounded hover:bg-red-50"
+                class="ml-2 text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 p-1 rounded hover:bg-red-50 dark:hover:bg-red-900/30"
               >
                 <i class="fas fa-times text-sm"></i>
               </button>

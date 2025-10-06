@@ -49,7 +49,7 @@
             </button>
             <button
               @click="handleLogout"
-              class="flex-1 bg-gray-100 text-gray-700 py-3 px-4 rounded-lg font-medium hover:bg-gray-200 transition-colors"
+              class="flex-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 py-3 px-4 rounded-lg font-medium hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
             >
               <i class="fas fa-sign-out-alt mr-2"></i>
               Sair

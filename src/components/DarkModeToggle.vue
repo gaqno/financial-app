@@ -22,11 +22,11 @@
           :aria-label="isDarkMode ? 'Mudar para modo claro' : 'Mudar para modo escuro'"
         />
         <span
-          class="absolute inset-0 bg-gray-300 rounded-full transition-colors duration-300 pointer-events-none dark:bg-gray-600 group-hover:shadow-md group-focus-within:ring-2 group-focus-within:ring-blue-500"
-          :class="isDarkMode ? 'bg-blue-600' : 'bg-gray-300'"
+          class="absolute inset-0 rounded-full transition-colors duration-300 pointer-events-none group-hover:shadow-md group-focus-within:ring-2 group-focus-within:ring-blue-500"
+          :class="isDarkMode ? 'bg-blue-600 dark:bg-blue-500' : 'bg-gray-300 dark:bg-gray-600'"
         />
         <span
-          class="absolute left-1 top-1 w-4 h-4 bg-white rounded-full transition-transform duration-300 shadow-sm flex items-center justify-center pointer-events-none"
+          class="absolute left-1 top-1 w-4 h-4 bg-white dark:bg-gray-200 rounded-full transition-transform duration-300 shadow-sm flex items-center justify-center pointer-events-none"
           :class="isDarkMode ? 'transform translate-x-6' : ''"
         >
           <i

@@ -145,7 +145,7 @@
 
   .toast-dismiss {
     @apply flex-shrink-0 text-gray-400 hover:text-gray-600 transition-colors;
-    @apply rounded-full p-1 hover:bg-gray-100;
+    @apply rounded-full p-1 hover:bg-gray-100 dark:hover:bg-gray-700;
   }
 
   /* Animações */

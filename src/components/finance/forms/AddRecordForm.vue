@@ -128,7 +128,10 @@
       </form>
 
       <!-- Form Preview -->
-      <div v-if="showPreview" class="mt-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+      <div
+        v-if="showPreview"
+        class="mt-6 p-4 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg"
+      >
         <h3 class="text-sm font-semibold text-gray-800 dark:text-gray-100 mb-2">Preview do Registro:</h3>
         <div class="text-sm space-y-1">
           <div>

@@ -22,7 +22,7 @@
     <div
       :class="[
         'absolute inset-y-0 left-0 flex items-center justify-center transition-all duration-200',
-        record.Status === '✔️' ? 'bg-orange-500' : 'bg-green-500',
+        record.Status === '✔️' ? 'bg-orange-500 dark:bg-orange-600' : 'bg-green-500 dark:bg-green-600',
         translateX > 50 ? 'w-full' : 'w-20',
       ]"
     >
@@ -37,7 +37,7 @@
     <!-- Right Action (Delete) -->
     <div
       :class="[
-        'absolute inset-y-0 right-0 flex items-center justify-center bg-red-500 transition-all duration-200',
+        'absolute inset-y-0 right-0 flex items-center justify-center bg-red-500 dark:bg-red-600 transition-all duration-200',
         translateX < -50 ? 'w-full' : 'w-20',
       ]"
     >

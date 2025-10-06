@@ -79,7 +79,7 @@
         <div
           v-for="(month, monthKey) in paginatedAvailableMonths"
           :key="monthKey"
-          class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+          class="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-700 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors"
         >
           <div class="flex items-center space-x-3">
             <div class="w-3 h-3 rounded-full" :class="month.isHidden ? 'bg-red-500' : 'bg-green-500'" />
@@ -109,8 +109,10 @@
       </div>
 
       <!-- Footer with summary and actions -->
-      <div class="flex items-center justify-between p-4 bg-gray-50 border-t border-gray-200">
-        <div class="text-sm text-gray-600">
+      <div
+        class="flex items-center justify-between p-4 bg-gray-50 dark:bg-slate-700 border-t border-gray-200 dark:border-slate-600"
+      >
+        <div class="text-sm text-gray-600 dark:text-slate-400">
           <span class="font-medium">{{ visibleMonthsCount }}</span> de de
           <span class="font-medium">{{ totalAvailableMonths }}</span>
           meses incluídos no saldo

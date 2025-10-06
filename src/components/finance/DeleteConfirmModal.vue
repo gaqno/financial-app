@@ -3,24 +3,26 @@
     <div
       v-if="financeStore.showDeleteConfirm"
       data-modal="delete-confirm"
-      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+      class="fixed inset-0 bg-black/50 dark:bg-black/60 flex items-center justify-center z-50 p-4"
       @click="financeStore.cancelDelete"
     >
       <div
-        class="bg-white rounded-2xl shadow-xl max-w-sm w-full p-6 transform transition-all modal-content"
+        class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl max-w-sm w-full p-6 transform transition-all modal-content"
         @click.stop
       >
         <div class="text-center">
-          <div class="w-12 h-12 mx-auto mb-4 bg-red-100 rounded-full flex items-center justify-center">
+          <div
+            class="w-12 h-12 mx-auto mb-4 bg-red-100 dark:bg-red-900/50 rounded-full flex items-center justify-center"
+          >
             <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
           </div>
 
-          <h3 class="text-lg font-semibold text-gray-900 mb-2">Confirmar Exclusão</h3>
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">Confirmar Exclusão</h3>
 
-          <p class="text-gray-600 mb-2">Tem certeza que deseja excluir este registro?</p>
+          <p class="text-gray-600 dark:text-gray-300 mb-2">Tem certeza que deseja excluir este registro?</p>
 
-          <div v-if="financeStore.itemToDelete" class="bg-gray-50 rounded-lg p-3 mb-4 text-left">
-            <div class="text-sm text-gray-800 font-medium flex items-center gap-1">
+          <div v-if="financeStore.itemToDelete" class="bg-gray-50 dark:bg-gray-700 rounded-lg p-3 mb-4 text-left">
+            <div class="text-sm text-gray-800 dark:text-gray-200 font-medium flex items-center gap-1">
               {{ financeStore.itemToDelete.record.Descrição }}
               <span
                 v-if="isRecurringRecord(financeStore.itemToDelete.record)"
@@ -30,7 +32,7 @@
                 <i class="fas fa-sync"></i>
               </span>
             </div>
-            <div class="text-sm text-gray-600">
+            <div class="text-sm text-gray-600 dark:text-gray-400">
               {{ formatDate(financeStore.itemToDelete.record.Data) }}
             </div>
             <div
@@ -50,13 +52,13 @@
           <div v-if="!isRecurringRecord(financeStore.itemToDelete?.record)" class="flex gap-3">
             <button
               @click="financeStore.cancelDelete"
-              class="flex-1 px-4 py-3 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition-colors"
+              class="flex-1 px-4 py-3 bg-gray-100 dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-xl font-medium hover:bg-gray-200 dark:hover:bg-gray-500 transition-colors"
             >
               Cancelar
             </button>
             <button
               @click="handleExecuteDelete"
-              class="flex-1 px-4 py-3 bg-red-500 text-white rounded-xl font-medium hover:bg-red-600 transition-colors"
+              class="flex-1 px-4 py-3 bg-red-500 dark:bg-red-600 text-white rounded-xl font-medium hover:bg-red-600 dark:hover:bg-red-700 transition-colors"
             >
               <i class="fas fa-trash mr-1"></i>
               Excluir
@@ -65,7 +67,7 @@
 
           <!-- 🔥 NEW: Recurring record deletion options -->
           <div v-else class="space-y-3">
-            <p class="text-sm text-orange-600 font-medium">
+            <p class="text-sm text-orange-600 dark:text-orange-400 font-medium">
               <i class="fas fa-sync mr-1"></i>
               Este é um registro recorrente. O que deseja fazer?
             </p>
@@ -73,7 +75,7 @@
             <div class="flex flex-col gap-2">
               <button
                 @click="handleRecurringDelete('current')"
-                class="w-full px-4 py-3 bg-orange-500 text-white rounded-xl font-medium hover:bg-orange-600 transition-colors text-sm"
+                class="w-full px-4 py-3 bg-orange-500 dark:bg-orange-600 text-white rounded-xl font-medium hover:bg-orange-600 dark:hover:bg-orange-700 transition-colors text-sm"
               >
                 <i class="fas fa-trash mr-1"></i>
                 Excluir apenas este registro
@@ -81,7 +83,7 @@
 
               <button
                 @click="handleRecurringDelete('future')"
-                class="w-full px-4 py-3 bg-red-500 text-white rounded-xl font-medium hover:bg-red-600 transition-colors text-sm"
+                class="w-full px-4 py-3 bg-red-500 dark:bg-red-600 text-white rounded-xl font-medium hover:bg-red-600 dark:hover:bg-red-700 transition-colors text-sm"
               >
                 <i class="fas fa-trash-alt mr-1"></i>
                 Excluir este e próximos registros
@@ -89,7 +91,7 @@
 
               <button
                 @click="handleRecurringDelete('all')"
-                class="w-full px-4 py-3 bg-red-700 text-white rounded-xl font-medium hover:bg-red-800 transition-colors text-sm"
+                class="w-full px-4 py-3 bg-red-700 dark:bg-red-800 text-white rounded-xl font-medium hover:bg-red-800 dark:hover:bg-red-900 transition-colors text-sm"
               >
                 <i class="fas fa-exclamation-triangle mr-1"></i>
                 Excluir TODA a série recorrente
@@ -97,7 +99,7 @@
 
               <button
                 @click="financeStore.cancelDelete"
-                class="w-full px-4 py-3 bg-gray-100 text-gray-700 rounded-xl font-medium hover:bg-gray-200 transition-colors text-sm"
+                class="w-full px-4 py-3 bg-gray-100 dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-xl font-medium hover:bg-gray-200 dark:hover:bg-gray-500 transition-colors text-sm"
               >
                 Cancelar
               </button>

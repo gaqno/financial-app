@@ -58,47 +58,51 @@
 
         <!-- Estado Resumido -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
-            <div class="text-sm font-medium text-blue-800">Dados Financeiros</div>
-            <div class="text-lg font-bold text-blue-900">
+          <div class="bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-700 rounded-lg p-3">
+            <div class="text-sm font-medium text-blue-800 dark:text-blue-200">Dados Financeiros</div>
+            <div class="text-lg font-bold text-blue-900 dark:text-blue-100">
               {{ stateSnapshot.dataCount || 0 }}
             </div>
-            <div class="text-xs text-blue-600">registros salvos</div>
+            <div class="text-xs text-blue-600 dark:text-blue-300">registros salvos</div>
           </div>
 
-          <div class="bg-orange-50 border border-orange-200 rounded-lg p-3">
-            <div class="text-sm font-medium text-orange-800">Meses Ocultos</div>
-            <div class="text-lg font-bold text-orange-900">
+          <div
+            class="bg-orange-50 dark:bg-orange-900/30 border border-orange-200 dark:border-orange-700 rounded-lg p-3"
+          >
+            <div class="text-sm font-medium text-orange-800 dark:text-orange-200">Meses Ocultos</div>
+            <div class="text-lg font-bold text-orange-900 dark:text-orange-100">
               {{ stateSnapshot.hiddenMonthsCount || 0 }}
             </div>
-            <div class="text-xs text-orange-600">
+            <div class="text-xs text-orange-600 dark:text-orange-300">
               {{ (stateSnapshot.hiddenMonths || []).join(', ') || 'nenhum' }}
             </div>
           </div>
 
-          <div class="bg-green-50 border border-green-200 rounded-lg p-3">
-            <div class="text-sm font-medium text-green-800">Filtros Ativos</div>
-            <div class="text-sm font-bold text-green-900">
+          <div class="bg-green-50 dark:bg-green-900/30 border border-green-200 dark:border-green-700 rounded-lg p-3">
+            <div class="text-sm font-medium text-green-800 dark:text-green-200">Filtros Ativos</div>
+            <div class="text-sm font-bold text-green-900 dark:text-green-100">
               {{ stateSnapshot.currentFilter || 'all' }}
             </div>
-            <div class="text-xs text-green-600">
+            <div class="text-xs text-green-600 dark:text-green-300">
               {{ stateSnapshot.categoryFilter || 'todas categorias' }}
             </div>
           </div>
 
-          <div class="bg-purple-50 border border-purple-200 rounded-lg p-3">
-            <div class="text-sm font-medium text-purple-800">Recorrência</div>
-            <div class="text-sm font-bold text-purple-900">
+          <div
+            class="bg-purple-50 dark:bg-purple-900/30 border border-purple-200 dark:border-purple-700 rounded-lg p-3"
+          >
+            <div class="text-sm font-medium text-purple-800 dark:text-purple-200">Recorrência</div>
+            <div class="text-sm font-bold text-purple-900 dark:text-purple-100">
               {{ stateSnapshot.isRecurring ? 'Ativo' : 'Inativo' }}
             </div>
-            <div class="text-xs text-purple-600">
+            <div class="text-xs text-purple-600 dark:text-purple-300">
               {{ stateSnapshot.recurrenceSettings?.frequency || 'mensal' }}
             </div>
           </div>
         </div>
 
         <!-- Estado Detalhado do LocalStorage -->
-        <div class="bg-gray-50 rounded-lg p-4">
+        <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
           <h3 class="text-sm font-semibold text-gray-800 mb-3">
             <i class="fas fa-database mr-1" />
             Estado Completo do LocalStorage
@@ -107,7 +111,7 @@
             <div
               v-for="(value, key) in localStorageState"
               :key="key"
-              class="flex items-start gap-3 p-2 bg-white rounded border"
+              class="flex items-start gap-3 p-2 bg-white dark:bg-gray-800 rounded border dark:border-gray-600"
             >
               <div class="min-w-0 flex-1">
                 <div class="text-sm font-medium text-gray-900">
@@ -129,14 +133,14 @@
         </div>
 
         <!-- JSON Export/Import -->
-        <div class="bg-gray-50 rounded-lg p-4">
+        <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
           <h3 class="text-sm font-semibold text-gray-800 mb-3">
             <i class="fas fa-code mr-1" />
             Estado em JSON
           </h3>
           <textarea
             v-model="jsonState"
-            class="w-full h-32 text-xs font-mono bg-white border border-gray-300 rounded p-2 resize-none"
+            class="w-full h-32 text-xs font-mono bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded p-2 resize-none dark:text-gray-200"
             readonly
             placeholder="Estado em formato JSON..."
           />

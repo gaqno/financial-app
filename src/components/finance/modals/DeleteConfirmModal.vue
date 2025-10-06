@@ -2,11 +2,11 @@
   <Transition name="modal">
     <div
       v-if="showDeleteConfirm"
-      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+      class="fixed inset-0 bg-black/50 dark:bg-black/60 flex items-center justify-center z-50 p-4"
       @click="cancelDelete"
     >
       <div
-        class="bg-white rounded-2xl shadow-xl max-w-sm w-full p-6 transform transition-all modal-content"
+        class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl max-w-sm w-full p-6 transform transition-all modal-content"
         @click.stop
       >
         <div class="text-center">

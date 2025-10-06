@@ -133,7 +133,7 @@
           variant="primary"
           size="lg"
           left-icon="fas fa-plus"
-          class="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
+          class="bg-gradient-to-r from-blue-500 to-purple-600 dark:from-blue-600 dark:to-purple-700 hover:from-blue-600 hover:to-purple-700 dark:hover:from-blue-700 dark:hover:to-purple-800"
           @click="$emit('action')"
         >
           {{ actionText || 'Adicionar Agora' }}
@@ -163,7 +163,7 @@
       >
         <template #footer>
           <div class="flex items-center justify-center space-x-2 text-xs text-orange-600 dark:text-orange-400">
-            <div class="w-2 h-2 bg-orange-500 rounded-full animate-pulse"></div>
+            <div class="w-2 h-2 bg-orange-500 dark:bg-orange-400 rounded-full animate-pulse"></div>
             <span>Modo offline ativo</span>
           </div>
         </template>
