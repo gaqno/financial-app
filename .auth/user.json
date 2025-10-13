@@ -1,0 +1,18 @@
+{
+  "cookies": [],
+  "origins": [
+    {
+      "origin": "http://localhost:5173",
+      "localStorage": [
+        {
+          "name": "sb-fjvuhozcxydgtoamahwy-auth-token",
+          "value": "{\"access_token\":\"eyJhbGciOiJIUzI1NiIsImtpZCI6ImdqZVo2eG1WWXpZeGlHaTgiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL2ZqdnVob3pjeHlkZ3RvYW1haHd5LnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJzdWIiOiI1ODU5MzU4Yy04ZGE4LTQ2NmEtODRhNS0zOTZhMjNmZjBhZjYiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzU5ODkxNzk5LCJpYXQiOjE3NTk4ODgxOTksImVtYWlsIjoiZGVtb0BmaW5hbmNlYXBwLmNvbSIsInBob25lIjoiIiwiYXBwX21ldGFkYXRhIjp7InByb3ZpZGVyIjoiZW1haWwiLCJwcm92aWRlcnMiOlsiZW1haWwiXX0sInVzZXJfbWV0YWRhdGEiOnsiZnVsbF9uYW1lIjoiRGVtbyBVc2VyIn0sInJvbGUiOiJhdXRoZW50aWNhdGVkIiwiYWFsIjoiYWFsMSIsImFtciI6W3sibWV0aG9kIjoicGFzc3dvcmQiLCJ0aW1lc3RhbXAiOjE3NTk4ODgxOTl9XSwic2Vzc2lvbl9pZCI6IjljZTMwZjUwLTNmNGItNDQzMC04NGI2LTk2NGM2YTBjY2M2ZSIsImlzX2Fub255bW91cyI6ZmFsc2V9.XZtB0xZYEqKKEaVxv0forRcEkaLSJG6JXMrTTlty7ic\",\"token_type\":\"bearer\",\"expires_in\":3600,\"expires_at\":1759891799,\"refresh_token\":\"onjwyl2c63oy\",\"user\":{\"id\":\"5859358c-8da8-466a-84a5-396a23ff0af6\",\"aud\":\"authenticated\",\"role\":\"authenticated\",\"email\":\"demo@financeapp.com\",\"email_confirmed_at\":\"2025-09-10T14:42:30.568903Z\",\"phone\":\"\",\"confirmed_at\":\"2025-09-10T14:42:30.568903Z\",\"last_sign_in_at\":\"2025-10-08T01:49:59.592143791Z\",\"app_metadata\":{\"provider\":\"email\",\"providers\":[\"email\"]},\"user_metadata\":{\"full_name\":\"Demo User\"},\"identities\":[{\"identity_id\":\"72755b9d-96aa-48c9-9a8d-d44dbc83b2ef\",\"id\":\"demo@financeapp.com\",\"user_id\":\"5859358c-8da8-466a-84a5-396a23ff0af6\",\"identity_data\":{\"email\":\"demo@financeapp.com\",\"email_verified\":true,\"phone_verified\":false,\"sub\":\"5859358c-8da8-466a-84a5-396a23ff0af6\"},\"provider\":\"email\",\"last_sign_in_at\":\"2025-09-10T14:42:30.568903Z\",\"created_at\":\"2025-09-10T14:42:30.568903Z\",\"updated_at\":\"2025-09-10T14:42:30.568903Z\",\"email\":\"demo@financeapp.com\"}],\"created_at\":\"2025-09-10T14:42:30.568903Z\",\"updated_at\":\"2025-10-08T01:49:59.598983Z\",\"is_anonymous\":false},\"weak_password\":null}"
+        },
+        {
+          "name": "darkMode",
+          "value": "false"
+        }
+      ]
+    }
+  ]
+}

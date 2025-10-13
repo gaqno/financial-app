@@ -220,16 +220,12 @@ export const useFinanceStore = defineStore('finance', () => {
     const currentMonthKey = getCurrentMonthKey();
     const visibleMonthKeys = Array.from(getSmartVisibleMonths.value);
 
-    // Sort visible month keys chronologically from current month forward
+    // Sort visible month keys chronologically - CHRONOLOGICAL ORDER (ascending)
     const sortedKeys = visibleMonthKeys.sort((a, b) => {
       const dateA = new Date(a + '-01');
       const dateB = new Date(b + '-01');
-      const currentDate = new Date(currentMonthKey + '-01');
 
-      // Current month first, then ascending chronological order
-      if (a === currentMonthKey) return -1;
-      if (b === currentMonthKey) return 1;
-
+      // Sort in ascending order (chronological order)
       return dateA.getTime() - dateB.getTime();
     });
 

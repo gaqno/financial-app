@@ -32,6 +32,55 @@ export function useFreelancerManagement() {
     }, 0);
   });
 
+  // Calcula o total já pago
+  const totalPaid = computed(() => {
+    return clients.value.reduce((clientTotal, client) => {
+      return clientTotal + client.projects.reduce((projectTotal, project) => {
+        return projectTotal + project.subtasks.reduce((subtaskTotal, subtask) => {
+          return subtaskTotal + subtask.payments.reduce((paymentTotal, payment) => {
+            return paymentTotal + payment.amount;
+          }, 0);
+        }, 0);
+      }, 0);
+    }, 0);
+  });
+
+  // Calcula o total pendente (não pago ainda)
+  const totalPending = computed(() => {
+    return totalRevenue.value - totalPaid.value;
+  });
+
+  // Calcula o total pendente por cliente
+  const calculateClientPending = (client: IClient) => {
+    const clientTotal = calculateClientTotal(client);
+    const clientPaid = client.projects.reduce((total, project) => {
+      return total + project.subtasks.reduce((subtaskTotal, subtask) => {
+        return subtaskTotal + subtask.payments.reduce((paymentTotal, payment) => {
+          return paymentTotal + payment.amount;
+        }, 0);
+      }, 0);
+    }, 0);
+    return clientTotal - clientPaid;
+  };
+
+  // Calcula o total pendente por projeto
+  const calculateProjectPending = (project: IProject) => {
+    const projectTotal = calculateProjectTotal(project);
+    const projectPaid = project.subtasks.reduce((total, subtask) => {
+      return total + subtask.payments.reduce((paymentTotal, payment) => {
+        return paymentTotal + payment.amount;
+      }, 0);
+    }, 0);
+    return projectTotal - projectPaid;
+  };
+
+  // Calcula o total pendente por subtask
+  const calculateSubtaskPending = (subtask: ISubtask) => {
+    const subtaskTotal = calculateSubtaskTotal(subtask);
+    const subtaskPaid = calculateSubtaskPaid(subtask);
+    return subtaskTotal - subtaskPaid;
+  };
+
   // Load data from Supabase
   const loadData = async () => {
     loading.value = true;
@@ -256,7 +305,10 @@ export function useFreelancerManagement() {
     loading.value = true;
     error.value = null;
     try {
-      const paymentId = await paymentsService.create(subtaskId, amount, note);
+      console.log('[Payment] Criando pagamento:', { clientId, projectId, subtaskId, amount, note });
+      const paymentData = await paymentsService.create(subtaskId, amount, note);
+      console.log('[Payment] Pagamento criado no banco:', paymentData);
+      
       const client = clients.value.find(c => c.id === clientId);
       if (client) {
         const project = client.projects.find(p => p.id === projectId);
@@ -264,19 +316,31 @@ export function useFreelancerManagement() {
           const subtask = project.subtasks.find(s => s.id === subtaskId);
           if (subtask) {
             const newPayment: IPayment = {
-              id: paymentId,
-              amount,
-              date: new Date().toISOString(),
-              note,
+              id: paymentData.id,
+              amount: Number(paymentData.amount),
+              date: paymentData.payment_date,
+              note: paymentData.note || undefined,
             };
+            console.log('[Payment] Adicionando pagamento ao array:', newPayment);
+            console.log('[Payment] Payments ANTES:', subtask.payments.length);
+            
             // Add to beginning of array (most recent first)
             subtask.payments.unshift(newPayment);
+            
+            console.log('[Payment] Payments DEPOIS:', subtask.payments.length);
+            console.log('[Payment] Total pago:', subtask.payments.reduce((t, p) => t + p.amount, 0));
+          } else {
+            console.error('[Payment] Subtask não encontrada!');
           }
+        } else {
+          console.error('[Payment] Project não encontrado!');
         }
+      } else {
+        console.error('[Payment] Client não encontrado!');
       }
     } catch (err) {
       error.value = 'Erro ao registrar pagamento';
-      console.error(err);
+      console.error('[Payment] Erro:', err);
       throw err;
     } finally {
       loading.value = false;
@@ -381,6 +445,8 @@ export function useFreelancerManagement() {
     totalClients,
     totalProjects,
     totalRevenue,
+    totalPaid,
+    totalPending,
 
     // Methods
     loadData,
@@ -402,5 +468,8 @@ export function useFreelancerManagement() {
     calculateProjectTotal,
     calculateClientTotal,
     getClientServicesCount,
+    calculateClientPending,
+    calculateProjectPending,
+    calculateSubtaskPending,
   };
 }

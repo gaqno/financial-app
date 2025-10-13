@@ -297,17 +297,46 @@ export function useSupabaseFinance() {
     }
 
     try {
-      const { error: deleteError } = await supabase
+      console.log('🗑️ [SUPABASE_DELETE] Deleting record:', {
+        index,
+        data: recordToDelete.Data,
+        descricao: recordToDelete.Descrição,
+        valor: recordToDelete.Valor,
+        status: recordToDelete.Status,
+        tipo: recordToDelete.Tipo,
+        hasRecurrence: !!recordToDelete.recurrence,
+      });
+
+      // Build complete DELETE query with all conditions to prevent accidental bulk deletion
+      let deleteQuery = supabase
         .from('finance_records')
         .delete()
         .eq('user_id', user.value.id)
         .eq('data', recordToDelete.Data)
         .eq('descricao', recordToDelete.Descrição)
-        .eq('valor', recordToDelete.Valor);
+        .eq('valor', recordToDelete.Valor)
+        .eq('status', recordToDelete.Status) // CRITICAL: Add status to make query more specific
+        .eq('tipo', recordToDelete.Tipo); // CRITICAL: Add type to make query more specific
+
+      // Add recurrence criteria if present to distinguish recurring records
+      if (recordToDelete.recurrence?.recurrenceId) {
+        // For recurring records, also match the instance number to target the exact record
+        deleteQuery = deleteQuery
+          .eq('recurrence->>recurrenceId', recordToDelete.recurrence.recurrenceId)
+          .eq('recurrence->>instanceNumber', recordToDelete.recurrence.instanceNumber);
+      } else {
+        // For non-recurring records, ensure recurrence is null
+        deleteQuery = deleteQuery.is('recurrence', null);
+      }
+
+      const { error: deleteError } = await deleteQuery;
 
       if (deleteError) {
+        console.error('❌ [SUPABASE_DELETE] Delete query failed:', deleteError);
         throw deleteError;
       }
+
+      console.log('✅ [SUPABASE_DELETE] Record deleted successfully');
 
       // Remove from local state (reactive update)
       records.value = records.value.filter((_, i) => i !== index);

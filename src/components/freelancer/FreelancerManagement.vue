@@ -14,21 +14,23 @@
         </div>
       </div>
 
-      <div class="flex justify-between items-center mb-8">
-        <h1 class="text-3xl font-bold text-gray-900 dark:text-gray-100">Gestão de Freelancers</h1>
-        <div class="flex items-center gap-4">
+      <div class="flex flex-col lg:flex-row lg:justify-between lg:items-center mb-8 gap-4">
+        <h1 class="text-2xl lg:text-3xl font-bold text-gray-900 dark:text-gray-100">Gestão de Freelancers</h1>
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
           <!-- Hourly Rate Display -->
           <div
             class="bg-white dark:bg-gray-800 rounded-lg p-4 shadow-sm border border-gray-200 dark:border-gray-700 theme-transition"
           >
-            <div class="flex items-center gap-3">
-              <span class="text-sm text-gray-600 dark:text-gray-400">Valor/hora:</span>
-              <span class="text-xl font-bold text-gray-900 dark:text-gray-100">
-                {{ formatCurrency(settings.hourlyRate) }}
-              </span>
+            <div class="flex items-center justify-between sm:justify-start sm:gap-3">
+              <div class="flex flex-col sm:flex-row sm:items-center sm:gap-3">
+                <span class="text-sm text-gray-600 dark:text-gray-400">Valor/hora:</span>
+                <span class="text-lg lg:text-xl font-bold text-gray-900 dark:text-gray-100">
+                  {{ formatCurrency(settings.hourlyRate) }}
+                </span>
+              </div>
               <button
                 @click="openModal('hourlyRate')"
-                class="bg-indigo-500 hover:bg-indigo-600 dark:bg-indigo-600 dark:hover:bg-indigo-700 text-white px-4 py-2 rounded transition-colors"
+                class="bg-indigo-500 hover:bg-indigo-600 dark:bg-indigo-600 dark:hover:bg-indigo-700 text-white px-3 py-2 lg:px-4 lg:py-2 rounded transition-colors text-sm"
               >
                 Editar
               </button>
@@ -37,11 +39,54 @@
           <!-- Add Client Button -->
           <button
             @click="openModal('client')"
-            class="bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold shadow-md transition-colors flex items-center gap-2"
+            class="bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold shadow-md transition-colors flex items-center justify-center gap-2"
           >
             <i class="fas fa-plus-circle"></i>
-            Adicionar Cliente
+            <span class="hidden sm:inline">Adicionar Cliente</span>
+            <span class="sm:hidden">Novo Cliente</span>
           </button>
+        </div>
+      </div>
+
+      <!-- Resumo Financeiro -->
+      <div v-if="clients.length > 0" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+        <!-- Total Revenue -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700 theme-transition">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Projetado</p>
+              <p class="text-2xl font-bold text-gray-900 dark:text-gray-100">{{ formatCurrency(totalRevenue) }}</p>
+            </div>
+            <div class="bg-blue-100 dark:bg-blue-900/30 p-3 rounded-full">
+              <i class="fas fa-chart-line text-blue-600 dark:text-blue-400 text-xl"></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- Total Paid -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700 theme-transition">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Pago</p>
+              <p class="text-2xl font-bold text-green-600 dark:text-green-400">{{ formatCurrency(totalPaid) }}</p>
+            </div>
+            <div class="bg-green-100 dark:bg-green-900/30 p-3 rounded-full">
+              <i class="fas fa-check-circle text-green-600 dark:text-green-400 text-xl"></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- Total Pending -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm border border-gray-200 dark:border-gray-700 theme-transition">
+          <div class="flex items-center justify-between">
+            <div>
+              <p class="text-sm font-medium text-gray-600 dark:text-gray-400">Total Pendente</p>
+              <p class="text-2xl font-bold text-orange-600 dark:text-orange-400">{{ formatCurrency(totalPending) }}</p>
+            </div>
+            <div class="bg-orange-100 dark:bg-orange-900/30 p-3 rounded-full">
+              <i class="fas fa-clock text-orange-600 dark:text-orange-400 text-xl"></i>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -89,8 +134,8 @@
         class="fixed inset-0 bg-black bg-opacity-50 dark:bg-opacity-70 flex items-center justify-center z-50 p-4"
         @click.self="closeModal"
       >
-        <div class="bg-white dark:bg-gray-800 rounded-xl p-6 w-full max-w-md shadow-xl theme-transition">
-          <h2 class="text-2xl font-bold mb-4 text-gray-900 dark:text-gray-100">Adicionar Cliente</h2>
+        <div class="bg-white dark:bg-gray-800 rounded-xl p-6 w-full max-w-md mx-4 shadow-xl theme-transition max-h-[90vh] overflow-y-auto">
+          <h2 class="text-xl lg:text-2xl font-bold mb-4 text-gray-900 dark:text-gray-100">Adicionar Cliente</h2>
           <form @submit.prevent="handleSubmitClient">
             <div class="mb-4">
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"> Nome do Cliente </label>
@@ -98,7 +143,7 @@
                 v-model="clientForm.clientName"
                 type="text"
                 required
-                class="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent theme-transition"
+                class="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent theme-transition text-base"
               />
             </div>
             <div class="mb-6">
@@ -110,20 +155,20 @@
                 type="text"
                 required
                 minlength="10"
-                class="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent theme-transition"
+                class="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent theme-transition text-base"
               />
             </div>
-            <div class="flex gap-3 justify-end">
+            <div class="flex flex-col sm:flex-row gap-3 justify-end">
               <button
                 type="button"
                 @click="closeModal"
-                class="bg-gray-500 hover:bg-gray-600 dark:bg-gray-600 dark:hover:bg-gray-700 text-white px-6 py-2 rounded-lg transition-colors"
+                class="order-2 sm:order-1 bg-gray-500 hover:bg-gray-600 dark:bg-gray-600 dark:hover:bg-gray-700 text-white px-6 py-3 rounded-lg transition-colors"
               >
                 Cancelar
               </button>
               <button
                 type="submit"
-                class="bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white px-6 py-2 rounded-lg transition-colors"
+                class="order-1 sm:order-2 bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 text-white px-6 py-3 rounded-lg transition-colors"
               >
                 Adicionar
               </button>
@@ -272,16 +317,24 @@
           <form @submit.prevent="handleSubmitPayment">
             <div class="mb-4">
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Valor Recebido (R$)
+                Horas Pagas
               </label>
               <input
-                v-model.number="paymentForm.amount"
+                v-model.number="paymentForm.hours"
                 type="number"
-                step="0.01"
-                min="0.01"
+                step="0.1"
+                min="0.1"
                 required
+                placeholder="Ex: 2.5"
                 class="w-full border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent theme-transition"
               />
+              <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                Valor calculado: 
+                <span class="font-bold text-green-600 dark:text-green-400">
+                  {{ formatCurrency((paymentForm.hours || 0) * settings.hourlyRate) }}
+                </span>
+                ({{ paymentForm.hours || 0 }}h × {{ formatCurrency(settings.hourlyRate) }}/h)
+              </p>
             </div>
             <div class="mb-6">
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -327,6 +380,9 @@
     modalState,
     loading,
     error,
+    totalRevenue,
+    totalPaid,
+    totalPending,
     openModal,
     closeModal,
     addClient,
@@ -346,7 +402,7 @@
   const projectForm = ref({ projectName: '' });
   const subtaskForm = ref({ taskName: '', projectedHours: 0 });
   const hourlyRateForm = ref({ rate: settings.value.hourlyRate });
-  const paymentForm = ref({ amount: 0, note: '' });
+  const paymentForm = ref({ hours: 0, note: '' });
 
   const formatCurrency = (value: number): string => {
     return value.toLocaleString('pt-BR', {
@@ -411,23 +467,34 @@
     openModal('payment', clientId, projectId, subtaskId);
   };
 
-  const handleSubmitPayment = () => {
+  const handleSubmitPayment = async () => {
     if (modalState.value.clientId && modalState.value.projectId && modalState.value.subtaskId) {
-      addPayment(
-        modalState.value.clientId,
-        modalState.value.projectId,
-        modalState.value.subtaskId,
-        paymentForm.value.amount,
-        paymentForm.value.note || undefined
-      );
-      paymentForm.value = { amount: 0, note: '' };
-      closeModal();
+      try {
+        // Calculate amount based on hours and hourly rate
+        const amount = paymentForm.value.hours * settings.value.hourlyRate;
+        
+        await addPayment(
+          modalState.value.clientId,
+          modalState.value.projectId,
+          modalState.value.subtaskId,
+          amount,
+          paymentForm.value.note || undefined
+        );
+        paymentForm.value = { hours: 0, note: '' };
+        closeModal();
+      } catch (err) {
+        console.error('Erro ao adicionar pagamento:', err);
+      }
     }
   };
 
-  const handleDeletePayment = (clientId: string, projectId: string, subtaskId: string, paymentId: string) => {
+  const handleDeletePayment = async (clientId: string, projectId: string, subtaskId: string, paymentId: string) => {
     if (confirm('Deseja realmente remover este pagamento?')) {
-      deletePayment(clientId, projectId, subtaskId, paymentId);
+      try {
+        await deletePayment(clientId, projectId, subtaskId, paymentId);
+      } catch (err) {
+        console.error('Erro ao remover pagamento:', err);
+      }
     }
   };
 </script>

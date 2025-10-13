@@ -307,13 +307,14 @@ export const subtasksService = {
 
 // Payments Service
 export const paymentsService = {
-  async create(subtaskId: string, amount: number, note?: string): Promise<string> {
+  async create(subtaskId: string, amount: number, note?: string): Promise<DBPayment> {
     const { data, error } = await supabase
       .from('freelancer_payments')
       .insert({
         subtask_id: subtaskId,
         amount,
-        note,
+        note: note || null,
+        payment_date: new Date().toISOString(),
       })
       .select()
       .single();
@@ -323,7 +324,7 @@ export const paymentsService = {
       throw error;
     }
 
-    return data.id;
+    return data as DBPayment;
   },
 
   async delete(paymentId: string): Promise<void> {

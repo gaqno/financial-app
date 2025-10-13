@@ -6,8 +6,8 @@
       'bg-yellow-50 dark:bg-yellow-900/20': paymentStatus === 'partial',
     }"
   >
-    <!-- Main Row -->
-    <div class="grid grid-cols-[2fr_1fr_1fr_140px_80px_100px_60px] gap-4 p-3 items-center">
+    <!-- Desktop Layout -->
+    <div class="hidden lg:grid grid-cols-[2fr_1fr_1fr_140px_80px_100px_60px] gap-4 p-3 items-center">
       <div
         class="text-gray-900 dark:text-gray-100"
         :class="{ 'line-through text-gray-500 dark:text-gray-400': subtask.completed }"
@@ -45,6 +45,63 @@
       >
         <i class="fas fa-times"></i>
       </button>
+    </div>
+
+    <!-- Mobile Layout -->
+    <div class="lg:hidden p-4 space-y-3">
+      <!-- Task Name & Completion -->
+      <div class="flex items-start justify-between gap-3">
+        <div
+          class="flex-1 text-gray-900 dark:text-gray-100 font-medium"
+          :class="{ 'line-through text-gray-500 dark:text-gray-400': subtask.completed }"
+        >
+          {{ subtask.taskName }}
+        </div>
+        <input
+          type="checkbox"
+          :checked="subtask.completed"
+          @change="handleToggle"
+          class="w-6 h-6 cursor-pointer accent-blue-600 dark:accent-blue-500 mt-1"
+        />
+      </div>
+
+      <!-- Details Row -->
+      <div class="grid grid-cols-2 gap-4 text-sm">
+        <div>
+          <span class="text-gray-500 dark:text-gray-400">Horas:</span>
+          <span class="ml-2 font-semibold text-gray-900 dark:text-gray-100">{{ subtask.projectedHours }}h</span>
+        </div>
+        <div>
+          <span class="text-gray-500 dark:text-gray-400">Valor:</span>
+          <span class="ml-2 font-semibold text-gray-900 dark:text-gray-100">{{ formatCurrency(totalValue) }}</span>
+        </div>
+      </div>
+
+      <!-- Date -->
+      <div class="text-xs text-gray-600 dark:text-gray-400">
+        <span class="text-gray-500 dark:text-gray-400">Criado em:</span>
+        <span class="ml-2">{{ formatDate(subtask.createdAt) }}</span>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex gap-2 pt-2">
+        <button
+          @click="handleAddPayment"
+          class="flex-1 text-white px-4 py-3 rounded-lg transition-colors text-sm font-semibold flex items-center justify-center gap-2"
+          :class="paymentButtonClass"
+          :title="paymentButtonTitle"
+        >
+          <i :class="paymentIcon"></i>
+          {{ paymentButtonText }}
+        </button>
+        <button
+          @click="handleDelete"
+          class="bg-red-500 hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700 text-white px-4 py-3 rounded-lg transition-colors"
+          title="Excluir tarefa"
+        >
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
     </div>
 
     <!-- Payment Progress Bar -->
