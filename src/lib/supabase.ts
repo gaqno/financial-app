@@ -56,7 +56,7 @@ export interface Database {
           valor: number;
           tipo: 'Receita' | 'Despesa';
           categoria: string | null;
-          status: '❌' | '✔️';
+          status: '❌' | '✔️' | '⏰';
           recurrence: any | null;
           created_at: string;
           updated_at: string;
@@ -69,7 +69,7 @@ export interface Database {
           valor: number;
           tipo: 'Receita' | 'Despesa';
           categoria?: string | null;
-          status: '❌' | '✔️';
+          status: '❌' | '✔️' | '⏰';
           recurrence?: any | null;
           created_at?: string;
           updated_at?: string;
@@ -80,7 +80,7 @@ export interface Database {
           valor?: number;
           tipo?: 'Receita' | 'Despesa';
           categoria?: string | null;
-          status?: '❌' | '✔️';
+          status: '❌' | '✔️' | '⏰';
           recurrence?: any | null;
           updated_at?: string;
         };

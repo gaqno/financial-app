@@ -10,6 +10,9 @@ export const INVESTMENT_TYPES = {
     description: 'Tesouro Nacional Prefixado',
   },
   TESOURO_IPCA: { name: 'Tesouro IPCA+', category: 'RENDA_FIXA', icon: '🛡️', description: 'Tesouro Nacional IPCA+' },
+  // Novos tipos encontrados no banco de dados
+  'Tesouro Direto': { name: 'Tesouro Direto', category: 'RENDA_FIXA', icon: '🏛️', description: 'Tesouro Direto (genérico)' },
+  'Poupança': { name: 'Poupança', category: 'RENDA_FIXA', icon: '💰', description: 'Caderneta de Poupança' },
   LCI_LCA: {
     name: 'LCI/LCA',
     category: 'RENDA_FIXA',

@@ -194,7 +194,12 @@ export function useInvestments() {
 
   // Helper functions for investment display
   function getInvestmentTypeIcon(type: InvestmentTypeKey): string {
-    return INVESTMENT_TYPES[type].icon;
+    const investmentType = INVESTMENT_TYPES[type];
+    if (!investmentType) {
+      console.warn(`🚨 [INVESTMENTS] Unknown investment type: ${type}`);
+      return '❓'; // Ícone padrão para tipos desconhecidos
+    }
+    return investmentType.icon;
   }
 
   function getInvestmentYieldAmount(investment: IInvestment): number {

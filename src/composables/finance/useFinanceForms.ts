@@ -202,19 +202,29 @@ export function useFinanceForms() {
 
   // Enhanced form submission with validation and UX feedback
   const handleAdd = async () => {
-    if (isAdding.value) return;
+    console.log('🔄 [FORM] Iniciando handleAdd...');
+    
+    if (isAdding.value) {
+      console.warn('⚠️ [FORM] Já está adicionando, ignorando...');
+      return;
+    }
 
     // Clear previous errors and validate
     formErrors.value = {};
     showValidationErrors.value = true;
 
+    console.log('🔄 [FORM] Validando registro:', newRecord.value);
+
     if (!validateNewRecord()) {
+      console.warn('❌ [FORM] Validação falhou');
       toast.warning('Por favor, corrija os erros no formulário', {
         title: '⚠️ Formulário Inválido',
         duration: 3000,
       });
       return;
     }
+
+    console.log('✅ [FORM] Validação passou');
 
     isAdding.value = true;
     isValidatingForm.value = true;
@@ -226,11 +236,17 @@ export function useFinanceForms() {
         ...newRecord.value,
         Categoria: categoria,
       };
+      
+      console.log('🔄 [FORM] Registro a ser adicionado:', recordToAdd);
+      console.log('🔄 [FORM] Recorrência ativa?', recurrence.isRecurring.value && recurrence.recurrenceSettings.value.isActive);
 
       if (recurrence.isRecurring.value && recurrence.recurrenceSettings.value.isActive) {
+        console.log('🔄 [FORM] Processando recorrência...');
         // 🔥 CRITICAL FIX: Use consistent recurrence generation across all components
         const { generateRecurringRecordsForEdit } = financeStore.recurrenceHelpers;
         const recordsToAdd = generateRecurringRecordsForEdit(recordToAdd, recurrence.recurrenceSettings.value);
+
+        console.log('🔄 [FORM] Registros recorrentes gerados:', recordsToAdd.length);
 
         toast.info(`Gerando ${recordsToAdd.length} registros recorrentes...`, {
           title: '🔄 Processando Recorrência',
@@ -254,6 +270,7 @@ export function useFinanceForms() {
           }
         );
       } else {
+        console.log('🔄 [FORM] Adicionando registro único...');
         // Add single record
         await financeStore.addRecord(recordToAdd);
 
@@ -268,6 +285,8 @@ export function useFinanceForms() {
           duration: 3000,
         });
       }
+
+      console.log('✅ [FORM] Registro(s) adicionado(s) com sucesso');
 
       resetNewRecord();
       formErrors.value = {};
@@ -284,6 +303,7 @@ export function useFinanceForms() {
     } finally {
       isAdding.value = false;
       isValidatingForm.value = false;
+      console.log('🔄 [FORM] handleAdd finalizado');
     }
   };
 

@@ -110,27 +110,41 @@ export function useSupabaseFinance() {
 
   // Save record to Supabase
   const addRecord = async (record: IFinanceRecord) => {
+    console.log('🔄 [SUPABASE_FINANCE] Iniciando addRecord:', record);
+    
     if (!user.value?.id) {
+      console.error('❌ [SUPABASE_FINANCE] Usuário não autenticado');
       throw new Error('Usuário não autenticado');
     }
 
+    console.log('🔄 [SUPABASE_FINANCE] Usuário autenticado:', user.value.id);
+
     try {
+      console.log('🔄 [SUPABASE_FINANCE] Preparando insert para Supabase...');
+      
+      const insertData = {
+        user_id: user.value.id,
+        data: record.Data,
+        descricao: record.Descrição,
+        valor: record.Valor,
+        tipo: record.Tipo,
+        categoria: record.Categoria || null,
+        status: record.Status,
+        recurrence: record.recurrence || null,
+      };
+      
+      console.log('🔄 [SUPABASE_FINANCE] Dados para insert:', insertData);
+
       const { data, error: insertError } = await supabase
         .from('finance_records')
-        .insert({
-          user_id: user.value.id,
-          data: record.Data,
-          descricao: record.Descrição,
-          valor: record.Valor,
-          tipo: record.Tipo,
-          categoria: record.Categoria || null,
-          status: record.Status,
-          recurrence: record.recurrence || null,
-        })
+        .insert(insertData)
         .select()
         .single();
 
+      console.log('🔄 [SUPABASE_FINANCE] Resposta do Supabase:', { data, error: insertError });
+
       if (insertError) {
+        console.error('❌ [SUPABASE_FINANCE] Erro na inserção:', insertError);
         throw insertError;
       }
 
@@ -145,8 +159,14 @@ export function useSupabaseFinance() {
         recurrence: data.recurrence,
       };
 
+      console.log('🔄 [SUPABASE_FINANCE] Novo registro criado:', newRecord);
+      console.log('🔄 [SUPABASE_FINANCE] Records antes da atualização:', records.value.length);
+
       // Force reactive update with new array reference
       records.value = [newRecord, ...records.value];
+      
+      console.log('🔄 [SUPABASE_FINANCE] Records após atualização:', records.value.length);
+      console.log('✅ [SUPABASE_FINANCE] Registro adicionado com sucesso!');
 
       return newRecord;
     } catch (err) {
